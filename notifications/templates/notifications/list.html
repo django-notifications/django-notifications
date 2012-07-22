@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load i18n notifications_unread %}
+
+{% notifications_unread as unread_count %}
+
+{% block title %}Notifications ({{ unread_count }}){% endblock %}
+
+{% block content %}
+    <h1 class="header">
+        Notifications ({{ unread_count }}) <a class="btn" href="{% url notifications_read_all %}">Mark all as read</a>
+    </h1>
+
+    <div class="activities">
+        {% for action in action_list %}
+            {# display action only when action_object exists #}
+            {% if action.action_object %}
+                <div class="act">
+                    <div class="body">
+                        <div class="title">
+                                <i class="{% if action.readed %}icon-mail{% else %}icon-mail-alt{% endif %}"></i>
+                                {% if action.actor.get_absolute_url %}
+                                    <a href="{{ action.actor.get_absolute_url }}">{{ action.actor }}</a>
+                                {% endif %}
+
+                                {{ action.verb }}
+
+                                <a href="{% url notifications_read action.slug %}?next={{ action.target.get_absolute_url }}">{{ action.target }}</a>
+                        </div>
+                        <div class="details">
+                            {% if action.description %}
+                                <div class="message">
+                                    <a href="{% url notifications_read action.slug %}?next={{ action.action_object.get_absolute_url }}">{{ action.description|linebreaksbr|atmention_str }}</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% empty %}
+            No notification.
+        {% endfor %}
+    </div>
+{% endblock %}
