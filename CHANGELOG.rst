@@ -1,6 +1,11 @@
 Changelog
 ==========
 
+0.5.1
+-----
+
+Fix package descriptions and doc links.
+
 0.5
 -----
 
