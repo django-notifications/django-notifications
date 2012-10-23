@@ -66,8 +66,7 @@ class Notification(models.Model):
 
     """    
     recipient = models.ForeignKey(User, blank=False, related_name='notifications')
-    #unread = models.BooleanField(default=True, blank=False)
-    readed = models.BooleanField(default=False, blank=False)
+    unread = models.BooleanField(default=True, blank=False)
 
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
     actor_object_id = models.CharField(max_length=255)
