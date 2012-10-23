@@ -27,7 +27,7 @@ class NotificationQuerySet(models.query.QuerySet):
     def mark_all_as_read(self, recipient=None):
         if recipient:
             self.filter(recipient=recipient).update(unread=False)
-        els:
+        else:
             self.update(unread=False)
     
     def mark_all_as_unread(self, recipient=None):
@@ -66,7 +66,8 @@ class Notification(models.Model):
 
     """    
     recipient = models.ForeignKey(User, blank=False, related_name='notifications')
-    unread = models.BooleanField(default=True, blank=False)
+    #unread = models.BooleanField(default=True, blank=False)
+    readed = models.BooleanField(default=False, blank=False)
 
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
     actor_object_id = models.CharField(max_length=255)
