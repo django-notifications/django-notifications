@@ -118,8 +118,8 @@ class Notification(models.Model):
         return id2slug(self.id)
 
     def mark_as_read(self):
-        if not self.readed:
-            self.readed = True
+        if self.unread:
+            self.unread = False
             self.save()
 
 EXTRA_DATA = False
