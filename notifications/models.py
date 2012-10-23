@@ -1,4 +1,5 @@
 import datetime
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
@@ -108,6 +109,17 @@ class Notification(models.Model):
             self.readed = True
             self.save()
 
+EXTRA_DATA = False
+if getattr(settings, 'NOTIFY_USE_JSONFIELD', False):
+    try:
+        from jsonfield.fields import JSONField
+    except ImportError:
+        raise ImproperlyConfigured("You must have a suitable JSONField installed")
+    
+    JSONField(blank=True, null=True).contribute_to_class(Notification, 'data')
+    EXTRA_DATA = True
+
+
 def notify_handler(verb, **kwargs):
     """
     Handler function to create Notification instance upon action signal call.
@@ -132,6 +144,9 @@ def notify_handler(verb, **kwargs):
             setattr(newnotify, '%s_object_id' % opt, obj.pk)
             setattr(newnotify, '%s_content_type' % opt,
                     ContentType.objects.get_for_model(obj))
+    
+    if len(kwargs) and EXTRA_DATA:
+        newnotify.data = kwargs
 
     newnotify.save()
 
