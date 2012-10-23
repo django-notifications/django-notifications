@@ -6,14 +6,27 @@ from django.contrib.contenttypes import generic
 from django.db import models
 from django.utils.timezone import utc
 from .utils import id2slug
-from notifications.managers import NotificationManager
+
 from notifications.signals import notify
+
+from model_utils import managers
 
 try:
     from django.utils import timezone
     now = timezone.now
 except ImportError:
     now = datetime.datetime.now
+
+class NotificationQuerySet(models.query.QuerySet):
+    def unread(self):
+        return self.filter(unread=True)
+    
+    # Should we return self on these?    
+    def mark_all_as_read(self):
+        self.update(unread=False)
+    
+    def mark_all_as_unread(self):
+        self.update(unread=True)
 
 class Notification(models.Model):
     """
@@ -43,9 +56,9 @@ class Notification(models.Model):
 
         <a href="http://oebfare.com/">brosner</a> commented on <a href="http://github.com/pinax/pinax">pinax/pinax</a> 2 hours ago
 
-    """
+    """    
     recipient = models.ForeignKey(User, blank=False, related_name='notifications')
-    readed = models.BooleanField(default=False, blank=False)
+    unread = models.BooleanField(default=True, blank=False)
 
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
     actor_object_id = models.CharField(max_length=255)
@@ -71,7 +84,7 @@ class Notification(models.Model):
 
     public = models.BooleanField(default=True)
 
-    objects = NotificationManager()
+    objects = managers.PassThroughManager.for_queryset_class(NotificationQuerySet)()
 
     class Meta:
         ordering = ('-timestamp', )

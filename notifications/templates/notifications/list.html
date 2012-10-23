@@ -17,7 +17,7 @@
                 <div class="act">
                     <div class="body">
                         <div class="title">
-                                <i class="{% if action.readed %}icon-mail{% else %}icon-mail-alt{% endif %}"></i>
+                                <i class="{% if action.unread %}icon-mail-alt{% else %}icon-mail{% endif %}"></i>
                                 {% if action.actor.get_absolute_url %}
                                     <a href="{{ action.actor.get_absolute_url }}">{{ action.actor }}</a>
                                 {% endif %}

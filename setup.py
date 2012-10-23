@@ -1,13 +1,16 @@
 from distutils.core import setup
 from notifications import __version__
 
-setup(name='django-notifications-hq',
+setup(name='django-notifications',
       version=__version__,
       description='GitHub notifications alike app for Django.',
       long_description=open('README.rst').read(),
       author='Brant Young',
       author_email='brant.young@gmail.com',
       url='http://github.com/brantyoung/django-notifications',
+      install_requires=[
+          'django-model-utils>=1.1.0'
+      ],
       packages=['notifications',
                 'notifications.templatetags'],
       package_data={'notifications': [

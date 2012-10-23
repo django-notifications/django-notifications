@@ -6,6 +6,8 @@ from django.template import Node
 
 register = Library()
 
+# TODO: Simplify this: it's a really simple tag!
+
 class InboxCountNode(Node):
     "For use in the notifications_unread tag"
     def __init__(self, asvar=None):
@@ -21,7 +23,7 @@ class InboxCountNode(Node):
             if user.is_anonymous():
                 count = ''
             else:
-                count = Notification.objects.unread_count(user)
+                count = user.notifications.unread().count()
         except (KeyError, AttributeError):
             count = ''
         if self.asvar:
