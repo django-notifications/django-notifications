@@ -18,14 +18,20 @@ except ImportError:
     now = datetime.datetime.now
 
 class NotificationQuerySet(models.query.QuerySet):
+    
     def unread(self):
+        "Return only unread items in the current queryset"
         return self.filter(unread=True)
     
     # Should we return self on these?    
-    def mark_all_as_read(self):
+    def mark_all_as_read(self, recipient=None):
+        if recipient:
+            self.filter(recipient=recipient).update(unread=False)
         self.update(unread=False)
     
-    def mark_all_as_unread(self):
+    def mark_all_as_unread(self, recipient=None):
+        if recipient:
+            self.filter(recipient=recipient).update(unread=True)
         self.update(unread=True)
 
 class Notification(models.Model):
