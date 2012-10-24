@@ -23,18 +23,34 @@ class NotificationQuerySet(models.query.QuerySet):
         "Return only unread items in the current queryset"
         return self.filter(unread=True)
     
-    # Should we return self on these?
+    def read(self):
+        "Return only read items in the current queryset"
+        return self.filter(unread=False)
+    
     def mark_all_as_read(self, recipient=None):
+        """Mark as read any unread messages in the current queryset.
+        
+        Optionally, filter these by recipient first.
+        """
+        # We want to filter out read ones, as later we will store 
+        # the time they were marked as read.
+        qs = self.unread()
         if recipient:
-            self.filter(recipient=recipient).update(unread=False)
-        else:
-            self.update(unread=False)
+            qs = qs.filter(recipient=recipient)
+        
+        qs.update(unread=False)
     
     def mark_all_as_unread(self, recipient=None):
+        """Mark as unread any read messages in the current queryset.
+        
+        Optionally, filter these by recipient first.
+        """
+        qs = self.read()
+        
         if recipient:
-            self.filter(recipient=recipient).update(unread=True)
-        else:
-            self.update(unread=True)
+            qs = qs.filter(recipient=recipient)
+            
+        qs.update(unread=True)
 
 class Notification(models.Model):
     """
