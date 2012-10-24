@@ -9,6 +9,7 @@ setup(name='django-notifications',
       author_email='brant.young@gmail.com',
       url='http://github.com/brantyoung/django-notifications',
       install_requires=[
+          'django>=1.4',
           'django-model-utils>=1.1.0'
       ],
       packages=['notifications',
