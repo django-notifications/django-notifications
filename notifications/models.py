@@ -9,7 +9,7 @@ from .utils import id2slug
 
 from notifications.signals import notify
 
-from model_utils import managers
+from model_utils import managers, Choices
 
 try:
     from django.utils import timezone
@@ -80,7 +80,10 @@ class Notification(models.Model):
 
         <a href="http://oebfare.com/">brosner</a> commented on <a href="http://github.com/pinax/pinax">pinax/pinax</a> 2 hours ago
 
-    """    
+    """
+    LEVELS = Choices('success', 'info', 'warning', 'error')
+    level = models.CharField(choices=LEVELS, default='info', max_length=20)
+    
     recipient = models.ForeignKey(User, blank=False, related_name='notifications')
     unread = models.BooleanField(default=True, blank=False)
 
@@ -107,7 +110,7 @@ class Notification(models.Model):
     timestamp = models.DateTimeField(default=now)
 
     public = models.BooleanField(default=True)
-
+    
     objects = managers.PassThroughManager.for_queryset_class(NotificationQuerySet)()
 
     class Meta:
