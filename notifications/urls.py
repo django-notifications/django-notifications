@@ -2,8 +2,11 @@
 
 from django.conf.urls import *
 
+# TODO Move into a namespace?
+
 urlpatterns = patterns('notifications.views',
-    url(r'^$', 'list', name='notifications_list'),
-    url(r'^read_all/$', 'read_all', name='notifications_read_all'),
-    url(r'^read/(?P<slug>\d+)/$', 'read', name='notifications_read'),
+    url(r'^$', 'all', name='all'),
+    url(r'^unread/$', 'unread', name='unread'),
+    url(r'^mark-all-as-read/$', 'mark_all_as_read', name='mark_all_as_read'),
+    url(r'^mark-as-read/(?P<slug>\d+)/$', 'mark_as_read', name='mark_as_read'),
 )
