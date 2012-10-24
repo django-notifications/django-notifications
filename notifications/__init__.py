@@ -3,6 +3,12 @@ try:
 except ImportError:
     pass
 
+try:
+    from notifications.urls import urlpatterns
+    urls = (urlpatterns, 'notifications', 'notifications')
+except ImportError:
+    pass
+
 __version_info__ = {
     'major': 0,
     'minor': 5,

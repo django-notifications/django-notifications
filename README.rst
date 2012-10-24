@@ -20,19 +20,21 @@ Nomenclature of this specification is based on the Activity Streams Spec: `<http
 Installation
 ============
 
-Installation is easy using ``pip`` and the only requirement is a recent version of Django.
+Installation is easy using ``pip`` and will install all required libraries.
 
 ::
 
-    $ pip install django-notifications-hq
+    $ pip install django-notifications
 
 or get it from source
 
 ::
 
-    $ git clone https://github.com/brantyoung/django-notifications
+    $ git clone https://github.com/schinckel/django-notifications
     $ cd django-notifications
     $ python setup.py install
+
+Note that `django-model-utils <http://pypi.python.org/pypi/django-model-utils>`_ will be installed: this is required for the pass-through QuerySet manager.
 
 Then to add the Django Notifications to your project add the app ``notifications`` to your ``INSTALLED_APPS`` and urlconf.
 
@@ -46,12 +48,17 @@ The app should go somewhere after all the apps that are going to be generating n
     )
 
 Add the notifications urls to your urlconf::
-
+    
+    import notifications
+    
     urlpatterns = patterns('',
         ...
-        ('^inbox/notifications/', include('notifications.urls')),
+        ('^inbox/notifications/', include(notifications.urls)),
         ...
     )
+
+The method of installing these urls, importing rather than using ``'notifications.urls'``, is required to ensure that the urls are installed in the ``notifications`` namespace.
+
 
 Generating Notifications
 =========================
@@ -79,23 +86,76 @@ To generate an notification anywhere in your code, simply import the notify sign
     notify.send(request.user, verb='joined', target=group)
     notify.send(request.user, verb='created comment', action_object=comment, target=group)
 
+Extra data
+----------
+
+You can attach arbitrary data to your notifications by doing the following:
+
+  * Install a compatible JSONField application.
+  * Add to your settings.py: ``NOTIFY_USE_JSONFIELD=True``
+
+Then, any extra arguments you pass to ``notify.send(...)`` will be attached to the ``.data`` attribute of the notification object. These will be serialised using the JSONField's serialiser, so you may need to take that into account: using only objects that will be serialised is a good idea.
+
 API
 ====
 
-``Notification.objects.mark_all_as_read(recipient)`` 
--------------------------------------------------------
+QuerySet methods
+------------
 
-Mark all unread notifications received by ``recipient``.
+Using ``django-model-utils``, we get the ability to add queryset methods to not only the manager, but to all querysets that will be used, including related objects. This enables us to do things like::
+
+  Notification.objects.unread()
+  
+which returns all unread notifications. To do this for a single user, we can do::
+
+  user = User.objects.get(pk=pk)
+  user.notifications.unread()
+
+There are some other QuerySet methods, too.
+
+``qs.unread()``
+~~~~~~~~~~~~~~~
+
+Return all of the unread notifications, filtering the current queryset.
+
+``qs.read()``
+~~~~~~~~~~~~~~~
+
+Return all of the read notifications, filtering the current queryset.
 
 
-``Notification.objects.get().mark_as_read()``
----------------------------------------------
+``qs.mark_all_as_read()`` | ``qs.mark_all_as_read(recipient)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Mark current notification as read.
+Mark all of the unread notifications in the queryset (optionally also filtered by ``recipient``) as read.
 
 
-``notifications_unread`` templatetags
---------------------------------------
+``qs.mark_all_as_unread()`` | ``qs.mark_all_as_unread(recipient)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Mark all of the read notifications in the queryset (optionally also filtered by ``recipient``) as unread.
+
+
+Model methods
+-------------
+
+``obj.timesince([datetime])``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A wrapper for Django's ``timesince`` function.
+
+``obj.mark_as_read()``
+~~~~~~~~~~~~~~~~~~~~~~
+
+Mark the current object as read.
+
+
+Template tags
+-------------
+
+
+``notifications_unread``
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 

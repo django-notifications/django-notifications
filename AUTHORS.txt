@@ -24,3 +24,4 @@ Chris Beaven
 Vineet Naik
 Walter Scheper
 Brant Young
+Matthew Schinckel <matt@schinckel.net>
