@@ -53,6 +53,8 @@ Add the notifications urls to your urlconf::
         ...
     )
 
+Note that `django-model-utils <http://pypi.python.org/pypi/django-model-utils>`_ will be installed: this is required for the pass-through QuerySet manager.
+
 Generating Notifications
 =========================
 
