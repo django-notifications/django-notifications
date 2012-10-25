@@ -1,18 +1,56 @@
 import datetime
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
 from django.utils.timezone import utc
 from .utils import id2slug
-from notifications.managers import NotificationManager
+
 from notifications.signals import notify
+
+from model_utils import managers, Choices
 
 try:
     from django.utils import timezone
     now = timezone.now
 except ImportError:
     now = datetime.datetime.now
+
+class NotificationQuerySet(models.query.QuerySet):
+    
+    def unread(self):
+        "Return only unread items in the current queryset"
+        return self.filter(unread=True)
+    
+    def read(self):
+        "Return only read items in the current queryset"
+        return self.filter(unread=False)
+    
+    def mark_all_as_read(self, recipient=None):
+        """Mark as read any unread messages in the current queryset.
+        
+        Optionally, filter these by recipient first.
+        """
+        # We want to filter out read ones, as later we will store 
+        # the time they were marked as read.
+        qs = self.unread()
+        if recipient:
+            qs = qs.filter(recipient=recipient)
+        
+        qs.update(unread=False)
+    
+    def mark_all_as_unread(self, recipient=None):
+        """Mark as unread any read messages in the current queryset.
+        
+        Optionally, filter these by recipient first.
+        """
+        qs = self.read()
+        
+        if recipient:
+            qs = qs.filter(recipient=recipient)
+            
+        qs.update(unread=True)
 
 class Notification(models.Model):
     """
@@ -43,8 +81,11 @@ class Notification(models.Model):
         <a href="http://oebfare.com/">brosner</a> commented on <a href="http://github.com/pinax/pinax">pinax/pinax</a> 2 hours ago
 
     """
+    LEVELS = Choices('success', 'info', 'warning', 'error')
+    level = models.CharField(choices=LEVELS, default='info', max_length=20)
+    
     recipient = models.ForeignKey(User, blank=False, related_name='notifications')
-    readed = models.BooleanField(default=False, blank=False)
+    unread = models.BooleanField(default=True, blank=False)
 
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
     actor_object_id = models.CharField(max_length=255)
@@ -69,8 +110,8 @@ class Notification(models.Model):
     timestamp = models.DateTimeField(default=now)
 
     public = models.BooleanField(default=True)
-
-    objects = NotificationManager()
+    
+    objects = managers.PassThroughManager.for_queryset_class(NotificationQuerySet)()
 
     class Meta:
         ordering = ('-timestamp', )
@@ -104,9 +145,20 @@ class Notification(models.Model):
         return id2slug(self.id)
 
     def mark_as_read(self):
-        if not self.readed:
-            self.readed = True
+        if self.unread:
+            self.unread = False
             self.save()
+
+EXTRA_DATA = False
+if getattr(settings, 'NOTIFY_USE_JSONFIELD', False):
+    try:
+        from jsonfield.fields import JSONField
+    except ImportError:
+        raise ImproperlyConfigured("You must have a suitable JSONField installed")
+    
+    JSONField(blank=True, null=True).contribute_to_class(Notification, 'data')
+    EXTRA_DATA = True
+
 
 def notify_handler(verb, **kwargs):
     """
@@ -132,6 +184,9 @@ def notify_handler(verb, **kwargs):
             setattr(newnotify, '%s_object_id' % opt, obj.pk)
             setattr(newnotify, '%s_content_type' % opt,
                     ContentType.objects.get_for_model(obj))
+    
+    if len(kwargs) and EXTRA_DATA:
+        newnotify.data = kwargs
 
     newnotify.save()
 

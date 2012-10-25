@@ -2,17 +2,20 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.template.context import RequestContext
 from .utils import slug2id
 from notifications.models import Notification
 
 @login_required
-def list(request):
+def all(request):
     """
     Index page for authenticated user
     """
-    actions = Notification.objects.filter(recipient=request.user)
+    return render(request, 'notifications/list.html', {
+        'notifications': request.user.notifications.all()
+    })
+    actions = request.user.notifications.all()
 
     paginator = Paginator(actions, 16) # Show 16 notifications per page
     page = request.GET.get('p')
@@ -25,20 +28,25 @@ def list(request):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         action_list = paginator.page(paginator.num_pages)
-
+        
     return render_to_response('notifications/list.html', {
         'member': request.user,
         'action_list': action_list,
     }, context_instance=RequestContext(request))
 
 @login_required
-def read_all(request):
-    Notification.objects.mark_all_as_read(request.user)
-
-    return redirect('notifications_list')
+def unread(request):
+    return render(request, 'notifications/list.html', {
+        'notifications': request.user.notifications.unread()
+    })
+    
+@login_required
+def mark_all_as_read(request):
+    request.user.notifications.mark_all_as_read()
+    return redirect('notifications:all')
 
 @login_required
-def read(request, slug=None):
+def mark_as_read(request, slug=None):
     id = slug2id(slug)
 
     notification = get_object_or_404(Notification, recipient=request.user, id=id)
@@ -49,4 +57,4 @@ def read(request, slug=None):
     if next:
         return redirect(next)
 
-    return redirect('notifications_list')
+    return redirect('notifications:all')
