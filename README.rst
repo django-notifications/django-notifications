@@ -24,13 +24,13 @@ Installation is easy using ``pip`` and will install all required libraries.
 
 ::
 
-    $ pip install django-notifications
+    $ pip install django-notifications-hq
 
 or get it from source
 
 ::
 
-    $ git clone https://github.com/schinckel/django-notifications
+    $ git clone https://github.com/brantyoung/django-notifications
     $ cd django-notifications
     $ python setup.py install
 

@@ -5,7 +5,7 @@ from django.template import Node
 
 register = Library()
 
-@register.simple_tag(takes_context=True)
+@register.assignment_tag(takes_context=True)
 def notifications_unread(context):
     if 'user' not in context:
         return ''

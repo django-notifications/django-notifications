@@ -1,6 +1,11 @@
 Changelog
 ==========
 
+0.5.5
+------
+
+Support for arbitrary data attribute.
+
 0.5.1
 -----
 
