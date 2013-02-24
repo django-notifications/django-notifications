@@ -63,9 +63,9 @@ The method of installing these urls, importing rather than using ``'notification
 How to migrate schema to 0.5.5
 ===============================
 
-1. Install latest version `django-south <http://pypi.python.org/pypi/South/>`_
-1. Execute ``manage.py migrate notifications --fake 0001`` command to initiate django-notifications migrate history
-1. Execute ``manage.py migrate notifications`` to migrate django-notifications schema
+#. Install latest version `django-south <http://pypi.python.org/pypi/South/>`_
+#. Execute ``manage.py migrate notifications --fake 0001`` command to initiate django-notifications migrate history
+#. Execute ``manage.py migrate notifications`` to migrate django-notifications schema
 
 Generating Notifications
 =========================
