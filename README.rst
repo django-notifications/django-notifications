@@ -160,6 +160,8 @@ Mark the current object as read.
 Template tags
 -------------
 
+Put `{% load notifications_tags %}` in the template before you actually use notification tags.
+
 
 ``notifications_unread``
 ~~~~~~~~~~~~~~~~~~~~~~~~
