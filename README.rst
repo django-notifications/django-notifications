@@ -83,7 +83,7 @@ Generating notifications is probably best done in a separate signal.
 
     post_save.connect(my_handler, sender=MyModel)
 
-To generate an notification anywhere in your code, simply import the notify signal and send it with your actor, verb, and target.
+To generate an notification anywhere in your code, simply import the notify signal and send it with your actor, recipient, verb, and target.
 
 ::
 

@@ -1,6 +1,12 @@
 Changelog
 ==========
 
+0.6.0
+------
+
+- Improve documentation
+- Add unicode support at admin panel or shell
+
 0.5.5
 ------
 

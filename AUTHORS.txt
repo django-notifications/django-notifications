@@ -12,7 +12,7 @@ Steve Ivy
 Ben Slavin
 Jason Culverhouse
 Dave Harrington
-Pedro Bur�n
+Pedro Bur—n
 Ryan Quigley
 Neelesh Shastry
 David Gouldin <david@gould.in>
@@ -25,3 +25,6 @@ Vineet Naik
 Walter Scheper
 Brant Young
 Matthew Schinckel <matt@schinckel.net>
+Mirat Can Bayrak
+Konrad Hałas
+Peppe Bergqvist
