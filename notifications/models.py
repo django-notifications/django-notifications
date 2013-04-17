@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
-from django.utils.timezone import utc
 from .utils import id2slug
 
 from notifications.signals import notify
@@ -18,38 +17,38 @@ except ImportError:
     now = datetime.datetime.now
 
 class NotificationQuerySet(models.query.QuerySet):
-    
+
     def unread(self):
         "Return only unread items in the current queryset"
         return self.filter(unread=True)
-    
+
     def read(self):
         "Return only read items in the current queryset"
         return self.filter(unread=False)
-    
+
     def mark_all_as_read(self, recipient=None):
         """Mark as read any unread messages in the current queryset.
-        
+
         Optionally, filter these by recipient first.
         """
-        # We want to filter out read ones, as later we will store 
+        # We want to filter out read ones, as later we will store
         # the time they were marked as read.
         qs = self.unread()
         if recipient:
             qs = qs.filter(recipient=recipient)
-        
+
         qs.update(unread=False)
-    
+
     def mark_all_as_unread(self, recipient=None):
         """Mark as unread any read messages in the current queryset.
-        
+
         Optionally, filter these by recipient first.
         """
         qs = self.read()
-        
+
         if recipient:
             qs = qs.filter(recipient=recipient)
-            
+
         qs.update(unread=True)
 
 class Notification(models.Model):
@@ -83,7 +82,7 @@ class Notification(models.Model):
     """
     LEVELS = Choices('success', 'info', 'warning', 'error')
     level = models.CharField(choices=LEVELS, default='info', max_length=20)
-    
+
     recipient = models.ForeignKey(User, blank=False, related_name='notifications')
     unread = models.BooleanField(default=True, blank=False)
 
@@ -110,7 +109,7 @@ class Notification(models.Model):
     timestamp = models.DateTimeField(default=now)
 
     public = models.BooleanField(default=True)
-    
+
     objects = managers.PassThroughManager.for_queryset_class(NotificationQuerySet)()
 
     class Meta:
@@ -155,7 +154,7 @@ if getattr(settings, 'NOTIFY_USE_JSONFIELD', False):
         from jsonfield.fields import JSONField
     except ImportError:
         raise ImproperlyConfigured("You must have a suitable JSONField installed")
-    
+
     JSONField(blank=True, null=True).contribute_to_class(Notification, 'data')
     EXTRA_DATA = True
 
@@ -175,7 +174,7 @@ def notify_handler(verb, **kwargs):
         verb=unicode(verb),
         public=bool(kwargs.pop('public', True)),
         description=kwargs.pop('description', None),
-        timestamp=kwargs.pop('timestamp', datetime.datetime.utcnow().replace(tzinfo=utc))
+        timestamp=kwargs.pop('timestamp', now())
     )
 
     for opt in ('target', 'action_object'):
@@ -184,7 +183,7 @@ def notify_handler(verb, **kwargs):
             setattr(newnotify, '%s_object_id' % opt, obj.pk)
             setattr(newnotify, '%s_content_type' % opt,
                     ContentType.objects.get_for_model(obj))
-    
+
     if len(kwargs) and EXTRA_DATA:
         newnotify.data = kwargs
 
