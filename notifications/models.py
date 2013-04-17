@@ -175,7 +175,7 @@ def notify_handler(verb, **kwargs):
         verb=unicode(verb),
         public=bool(kwargs.pop('public', True)),
         description=kwargs.pop('description', None),
-        timestamp=kwargs.pop('timestamp', datetime.datetime.utcnow().replace(tzinfo=utc))
+        timestamp=kwargs.pop('timestamp', now())
     )
 
     for opt in ('target', 'action_object'):
