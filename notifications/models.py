@@ -1,6 +1,6 @@
 import datetime
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.db.models import get_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
@@ -10,6 +10,8 @@ from .utils import id2slug
 from notifications.signals import notify
 
 from model_utils import managers, Choices
+
+User = get_model(*settings.AUTH_USER_MODEL.split('.', 2))
 
 try:
     from django.utils import timezone
@@ -175,7 +177,7 @@ def notify_handler(verb, **kwargs):
         verb=unicode(verb),
         public=bool(kwargs.pop('public', True)),
         description=kwargs.pop('description', None),
-        timestamp=kwargs.pop('timestamp', now())
+        timestamp=kwargs.pop('timestamp', datetime.datetime.utcnow().replace(tzinfo=utc))
     )
 
     for opt in ('target', 'action_object'):

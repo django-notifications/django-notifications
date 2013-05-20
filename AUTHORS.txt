@@ -28,3 +28,4 @@ Matthew Schinckel <matt@schinckel.net>
 Mirat Can Bayrak
 Konrad Hałas
 Peppe Bergqvist
+Victor Gutemberg
