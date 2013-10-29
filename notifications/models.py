@@ -1,13 +1,14 @@
 import datetime
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.core.exceptions import ImproperlyConfigured
+import compat
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
 from django.utils.timezone import utc
 from .utils import id2slug
 
-from notifications.signals import notify
+from .signals import notify
 
 from model_utils import managers, Choices
 
@@ -84,7 +85,7 @@ class Notification(models.Model):
     LEVELS = Choices('success', 'info', 'warning', 'error')
     level = models.CharField(choices=LEVELS, default='info', max_length=20)
     
-    recipient = models.ForeignKey(User, blank=False, related_name='notifications')
+    recipient = models.ForeignKey(compat.USER_MODEL, blank=False, related_name='notifications')
     unread = models.BooleanField(default=True, blank=False)
 
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
