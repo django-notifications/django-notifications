@@ -11,11 +11,14 @@ from notifications.signals import notify
 
 from model_utils import managers, Choices
 
-try:
-    from django.utils import timezone
-    now = timezone.now
-except ImportError:
-    now = datetime.datetime.now
+now = datetime.datetime.now
+if getattr(settings, 'USE_TZ'):
+    try:
+        from django.utils import timezone
+        now = timezone.now
+    except ImportError:
+        pass
+
 
 class NotificationQuerySet(models.query.QuerySet):
     
