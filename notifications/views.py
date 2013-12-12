@@ -58,3 +58,17 @@ def mark_as_read(request, slug=None):
         return redirect(next)
 
     return redirect('notifications:all')
+
+@login_required
+def mark_as_unread(request, slug=None):
+    id = slug2id(slug)
+
+    notification = get_object_or_404(Notification, recipient=request.user, id=id)
+    notification.mark_as_unread()
+
+    next = request.REQUEST.get('next')
+
+    if next:
+        return redirect(next)
+
+    return redirect('notifications:all')
