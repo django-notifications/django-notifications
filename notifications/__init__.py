@@ -1,14 +1,3 @@
-try:
-    from notifications.signals import notify
-except ImportError:
-    pass
-
-try:
-    from notifications.urls import urlpatterns
-    urls = (urlpatterns, 'notifications', 'notifications')
-except ImportError:
-    pass
-
 __version_info__ = {
     'major': 0,
     'minor': 6,
@@ -29,3 +18,15 @@ def get_version(release_level=True):
 
 
 __version__ = get_version()
+
+try:
+    from notifications.signals import notify
+except ImportError:
+    pass
+
+try:
+    from notifications.urls import urlpatterns
+    urls = (urlpatterns, 'notifications', 'notifications')
+except ImportError:
+    pass
+
