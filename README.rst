@@ -89,7 +89,7 @@ To generate an notification anywhere in your code, simply import the notify sign
 
     from notifications import notify
 
-    notify.send(recipient=user, recipient=user, verb='you reached level 10')
+    notify.send(user, recipient=user, verb='you reached level 10')
     
     notify.send(comment.user, recipient=user, verb=u'replied', action_object=comment,
                 description=comment.comment, target=comment.content_object)
