@@ -150,6 +150,11 @@ class Notification(models.Model):
         if self.unread:
             self.unread = False
             self.save()
+    
+    def mark_as_unread(self):
+        if self.unread:
+            self.unread = True
+            self.save()
 
 EXTRA_DATA = False
 if getattr(settings, 'NOTIFY_USE_JSONFIELD', False):
