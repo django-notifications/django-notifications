@@ -150,9 +150,9 @@ class Notification(models.Model):
         if self.unread:
             self.unread = False
             self.save()
-    
+
     def mark_as_unread(self):
-        if self.unread:
+        if not self.unread:
             self.unread = True
             self.save()
 
