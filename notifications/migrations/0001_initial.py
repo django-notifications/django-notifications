@@ -4,6 +4,12 @@ from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
 
+try:
+    from django.contrib.auth import get_user_model
+except ImportError: # django < 1.5
+    from django.contrib.auth.models import User
+else:
+    User = get_user_model()
 
 class Migration(SchemaMigration):
 
@@ -11,7 +17,7 @@ class Migration(SchemaMigration):
         # Adding model 'Notification'
         db.create_table('notifications_notification', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('recipient', self.gf('django.db.models.fields.related.ForeignKey')(related_name='notifications', to=orm['auth.User'])),
+            ('recipient', self.gf('django.db.models.fields.related.ForeignKey')(related_name='notifications', to=User)),
             ('readed', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('actor_content_type', self.gf('django.db.models.fields.related.ForeignKey')(related_name='notify_actor', to=orm['contenttypes.ContentType'])),
             ('actor_object_id', self.gf('django.db.models.fields.CharField')(max_length=255)),
