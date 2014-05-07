@@ -111,7 +111,7 @@ API
 ====
 
 QuerySet methods
-------------
+-----------------
 
 Using ``django-model-utils``, we get the ability to add queryset methods to not only the manager, but to all querysets that will be used, including related objects. This enables us to do things like::
 
