@@ -1,6 +1,11 @@
 Changelog
 ==========
 
+0.6.1
+------
+
+- Add support for custom user model
+
 0.6.0
 ------
 
