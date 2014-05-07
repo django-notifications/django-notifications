@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib import admin
-from notifications.models import Notification
+from .models import Notification
 
 class NotificationAdmin(admin.ModelAdmin):
     pass

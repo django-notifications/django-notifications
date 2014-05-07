@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.timezone import utc
 from .utils import id2slug
 
-from notifications.signals import notify
+from .signals import notify
 
 from model_utils import managers, Choices
 

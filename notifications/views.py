@@ -4,7 +4,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.context import RequestContext
 from .utils import slug2id
-from notifications.models import Notification
+from .models import Notification
 
 @login_required
 def all(request):
