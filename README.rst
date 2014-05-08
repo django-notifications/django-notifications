@@ -60,12 +60,13 @@ Add the notifications urls to your urlconf::
 The method of installing these urls, importing rather than using ``'notifications.urls'``, is required to ensure that the urls are installed in the ``notifications`` namespace.
 
 
-How to migrate schema to 0.5.5
-===============================
+How to migrate schema with `django-south`
+=========================================
+
+`django-south` support is shipped with `django-notifications`.
 
 #. Install latest version `django-south <http://pypi.python.org/pypi/South/>`_
-#. Execute ``manage.py migrate notifications --fake 0001`` command to initiate django-notifications migrate history
-#. Execute ``manage.py migrate notifications`` to migrate django-notifications schema
+#. Execute ``manage.py migrate notifications`` to migrate `django-notifications` schema
 
 Generating Notifications
 =========================
