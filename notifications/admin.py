@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib import admin
-from notifications.models import Notification
+from .models import Notification
 
 class NotificationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('recipient', 'actor',
+                    'level', 'target', 'unread', 'public')
+    list_filter = ('level', 'unread', 'public', 'timestamp', )
 
 admin.site.register(Notification, NotificationAdmin)

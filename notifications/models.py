@@ -1,21 +1,23 @@
 import datetime
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
 from django.utils.timezone import utc
 from .utils import id2slug
 
-from notifications.signals import notify
+from .signals import notify
 
 from model_utils import managers, Choices
 
-try:
-    from django.utils import timezone
-    now = timezone.now
-except ImportError:
-    now = datetime.datetime.now
+now = datetime.datetime.now
+if getattr(settings, 'USE_TZ'):
+    try:
+        from django.utils import timezone
+        now = timezone.now
+    except ImportError:
+        pass
+
 
 class NotificationQuerySet(models.query.QuerySet):
     
@@ -84,7 +86,7 @@ class Notification(models.Model):
     LEVELS = Choices('success', 'info', 'warning', 'error')
     level = models.CharField(choices=LEVELS, default='info', max_length=20)
     
-    recipient = models.ForeignKey(User, blank=False, related_name='notifications')
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, related_name='notifications')
     unread = models.BooleanField(default=True, blank=False)
 
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
@@ -147,6 +149,11 @@ class Notification(models.Model):
     def mark_as_read(self):
         if self.unread:
             self.unread = False
+            self.save()
+
+    def mark_as_unread(self):
+        if not self.unread:
+            self.unread = True
             self.save()
 
 EXTRA_DATA = False

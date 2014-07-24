@@ -1,11 +1,10 @@
 # Create your views here.
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.context import RequestContext
 from .utils import slug2id
-from notifications.models import Notification
+from .models import Notification
 
 @login_required
 def all(request):
@@ -51,6 +50,20 @@ def mark_as_read(request, slug=None):
 
     notification = get_object_or_404(Notification, recipient=request.user, id=id)
     notification.mark_as_read()
+
+    next = request.REQUEST.get('next')
+
+    if next:
+        return redirect(next)
+
+    return redirect('notifications:all')
+
+@login_required
+def mark_as_unread(request, slug=None):
+    id = slug2id(slug)
+
+    notification = get_object_or_404(Notification, recipient=request.user, id=id)
+    notification.mark_as_unread()
 
     next = request.REQUEST.get('next')
 

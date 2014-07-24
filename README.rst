@@ -53,19 +53,20 @@ Add the notifications urls to your urlconf::
     
     urlpatterns = patterns('',
         ...
-        ('^inbox/notifications/', include(notifications.urls)),
+        url('^inbox/notifications/', include(notifications.urls)),
         ...
     )
 
 The method of installing these urls, importing rather than using ``'notifications.urls'``, is required to ensure that the urls are installed in the ``notifications`` namespace.
 
 
-How to migrate schema to 0.5.5
-===============================
+How to migrate schema with `django-south`
+=========================================
+
+`django-south` support is shipped with `django-notifications`.
 
 #. Install latest version `django-south <http://pypi.python.org/pypi/South/>`_
-#. Execute ``manage.py migrate notifications --fake 0001`` command to initiate django-notifications migrate history
-#. Execute ``manage.py migrate notifications`` to migrate django-notifications schema
+#. Execute ``manage.py migrate notifications`` to migrate `django-notifications` schema
 
 Generating Notifications
 =========================
@@ -89,7 +90,7 @@ To generate an notification anywhere in your code, simply import the notify sign
 
     from notifications import notify
 
-    notify.send(recipient=user, recipient=user, verb='you reached level 10')
+    notify.send(user, recipient=user, verb='you reached level 10')
     
     notify.send(comment.user, recipient=user, verb=u'replied', action_object=comment,
                 description=comment.comment, target=comment.content_object)
@@ -111,7 +112,7 @@ API
 ====
 
 QuerySet methods
-------------
+-----------------
 
 Using ``django-model-utils``, we get the ability to add queryset methods to not only the manager, but to all querysets that will be used, including related objects. This enables us to do things like::
 

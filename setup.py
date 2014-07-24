@@ -10,7 +10,7 @@ setup(name='django-notifications-hq',
       url='http://github.com/brantyoung/django-notifications',
       install_requires=[
           'django>=1.4',
-          'django-model-utils>=1.1.0'
+          'django-model-utils>=2.0.3'
       ],
       packages=['notifications',
                 'notifications.templatetags',

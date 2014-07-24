@@ -23,8 +23,17 @@ Walter Scheper
 Chris Beaven
 Vineet Naik
 Walter Scheper
-Brant Young
-Matthew Schinckel <matt@schinckel.net>
-Mirat Can Bayrak
-Konrad Hałas
-Peppe Bergqvist
+
+Brant Young (https://github.com/brantyoung)
+Matthew Schinckel (https://github.com/schinckel)
+Mirat Can Bayrak (https://github.com/miratcan)
+Konrad Hałas (https://github.com/konradhalas)
+Peppe Bergqvist (https://github.com/peppelorum)
+Daniel Shapiro (https://github.com/danxshap)
+randomfish (https://github.com/randomfish)
+Adriaan (https://github.com/ChocolateCookies)
+Sandro Rodrigues (https://github.com/srtab)
+Jesper Håkansson (https://github.com/drager)
+Fábio C. Barrionuevo da Luz (https://github.com/luzfcb)
+fay (https://github.com/fay)
+blag (https://github.com/blag)
