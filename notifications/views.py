@@ -27,7 +27,7 @@ def all(request):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         action_list = paginator.page(paginator.num_pages)
-        
+
     return render_to_response('notifications/list.html', {
         'member': request.user,
         'action_list': action_list,
@@ -38,10 +38,15 @@ def unread(request):
     return render(request, 'notifications/list.html', {
         'notifications': request.user.notifications.unread()
     })
-    
+
 @login_required
 def mark_all_as_read(request):
     request.user.notifications.mark_all_as_read()
+
+    next = request.REQUEST.get('next')
+
+    if next:
+        return redirect(next)
     return redirect('notifications:all')
 
 @login_required
@@ -64,6 +69,20 @@ def mark_as_unread(request, slug=None):
 
     notification = get_object_or_404(Notification, recipient=request.user, id=id)
     notification.mark_as_unread()
+
+    next = request.REQUEST.get('next')
+
+    if next:
+        return redirect(next)
+
+    return redirect('notifications:all')
+
+@login_required
+def delete(request, slug=None):
+    id = slug2id(slug)
+
+    notification = get_object_or_404(Notification, recipient=request.user, id=id)
+    notification.delete()
 
     next = request.REQUEST.get('next')
 
