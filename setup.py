@@ -1,8 +1,7 @@
 from distutils.core import setup
-from notifications import __version__
 
 setup(name='django-notifications-hq',
-      version=__version__,
+      version=0.6,
       description='GitHub notifications alike app for Django.',
       long_description=open('README.rst').read(),
       author='Brant Young',
