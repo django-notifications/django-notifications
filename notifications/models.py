@@ -112,6 +112,8 @@ class Notification(models.Model):
     timestamp = models.DateTimeField(default=now)
 
     public = models.BooleanField(default=True)
+    deleted = models.BooleanField(default=False)
+    emailed = models.BooleanField(default=False)
 
     objects = managers.PassThroughManager.for_queryset_class(NotificationQuerySet)()
 

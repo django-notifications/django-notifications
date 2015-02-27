@@ -82,7 +82,8 @@ def delete(request, slug=None):
     id = slug2id(slug)
 
     notification = get_object_or_404(Notification, recipient=request.user, id=id)
-    notification.delete()
+    notification.deleted = True
+    notification.save()
 
     next = request.REQUEST.get('next')
 
