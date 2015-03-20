@@ -9,6 +9,7 @@ from .utils import id2slug
 from .signals import notify
 
 from model_utils import managers, Choices
+from jsonfield.fields import JSONField
 
 now = datetime.datetime.now
 if getattr(settings, 'USE_TZ'):
@@ -115,6 +116,7 @@ class Notification(models.Model):
     deleted = models.BooleanField(default=False)
     emailed = models.BooleanField(default=False)
 
+    data = JSONField(blank=True, null=True)
     objects = managers.PassThroughManager.for_queryset_class(NotificationQuerySet)()
 
     class Meta:
@@ -158,15 +160,7 @@ class Notification(models.Model):
             self.unread = True
             self.save()
 
-EXTRA_DATA = False
-if getattr(settings, 'NOTIFY_USE_JSONFIELD', False):
-    try:
-        from jsonfield.fields import JSONField
-    except ImportError:
-        raise ImproperlyConfigured("You must have a suitable JSONField installed")
-
-    JSONField(blank=True, null=True).contribute_to_class(Notification, 'data')
-    EXTRA_DATA = True
+EXTRA_DATA = getattr(settings, 'NOTIFY_USE_JSONFIELD', False)
 
 
 def notify_handler(verb, **kwargs):

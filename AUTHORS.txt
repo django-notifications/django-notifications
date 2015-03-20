@@ -37,3 +37,5 @@ Jesper Håkansson (https://github.com/drager)
 Fábio C. Barrionuevo da Luz (https://github.com/luzfcb)
 fay (https://github.com/fay)
 blag (https://github.com/blag)
+Zhongyuan Zhang (https://github.com/zhang-z)
+
