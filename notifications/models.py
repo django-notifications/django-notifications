@@ -11,14 +11,16 @@ from .signals import notify
 from model_utils import managers, Choices
 from jsonfield.fields import JSONField
 
-now = datetime.datetime.now
-if getattr(settings, 'USE_TZ'):
-    try:
-        from django.utils import timezone
-        now = timezone.now
-    except ImportError:
-        pass
-
+def now():
+    # Needs to be be a function as USE_TZ can change based on if we are testing or not.
+    _now = datetime.datetime.now
+    if getattr(settings, 'USE_TZ'):
+        try:
+            from django.utils import timezone
+            _now = timezone.now
+        except ImportError:
+            pass
+    return _now()
 
 class NotificationQuerySet(models.query.QuerySet):
 
