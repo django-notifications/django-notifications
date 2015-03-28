@@ -8,10 +8,9 @@ python:
 env:
   - DJANGO=1.6
   - DJANGO=1.7
-before_install:
-  - sudo pip install codecov
 install:
 # command to install dependencies
+  - "pip install coveralls"
   - pip install -q Django==$DJANGO --use-mirrors
   - "pip install ."
 # command to run tests
