@@ -1,6 +1,8 @@
 Django Notifications Documentation
 ===================================
 
+|build-status| |coverage|
+
 `django-notifications <https://github.com/brantyoung/django-notifications>`_ is a GitHub notification alike app for Django, it was derived from `django-activity-stream <https://github.com/justquick/django-activity-stream>`_
 
 Notifications are actually actions events, which are categorized by four main components.
@@ -194,4 +196,11 @@ Storing the count in a variable for further processing is advised, such as::
         You have <strong>{{ unread_count }}</strong> unread notifications.
     {% endif %}
 
+.. |build-status| image:: https://travis-ci.org/django-notifications/django-notifications.svg
+    :target: https://travis-ci.org/django-notifications/django-notifications
+
+.. |coveralls| image:: https://coveralls.io/repos/django-notifications/django-notifications/badge.png?branch=master
+    :alt: Code coverage on coveralls
+    :scale: 100%
+    :target: https://coveralls.io/r/django-notifications/django-notifications?branch=master
 
