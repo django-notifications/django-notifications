@@ -3,14 +3,14 @@ python:
   - "2.6"
   - "2.7"
   - "3.3"
-  - "3.4.0"
-  - "3.4.1"
+  - "3.4"
 env:
   - DJANGO=1.6
   - DJANGO=1.7
 install:
 # command to install dependencies
   - "pip install coveralls"
+  - "pip install pytz" # Needed for tests
   - pip install -q Django==$DJANGO --use-mirrors
   - "pip install ."
 # command to run tests

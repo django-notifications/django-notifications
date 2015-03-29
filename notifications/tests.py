@@ -3,8 +3,14 @@ This file demonstrates writing tests using the unittest module. These will pass
 when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
-from django.test import TestCase, override_settings
-#from django.test.utils import override_settings
+from django.test import TestCase
+try:
+    # Django >= 1.7
+    from django.test import override_settings
+except ImportError:
+    # Django <= 1.6
+    from django.test.utils import override_settings
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.timezone import utc, localtime
@@ -38,7 +44,7 @@ class NotificationTest(TestCase):
         notification = Notification.objects.get(recipient=to_user)
         delta = timezone.now() - notification.timestamp
         self.assertTrue(delta.seconds < 60)
-        
+
 class NotificationManagersTest(TestCase):
     def setUp(self):
 
@@ -46,7 +52,7 @@ class NotificationManagersTest(TestCase):
         self.to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
         for i in range(10):
             notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
-        
+
     def test_unread_manager(self):
         self.assertEqual(Notification.objects.unread().count(),10)
         n = Notification.objects.filter(recipient=self.to_user).first()
@@ -62,12 +68,12 @@ class NotificationManagersTest(TestCase):
         self.assertEqual(Notification.objects.read().count(),1)
         for n in Notification.objects.read():
             self.assertFalse(n.unread)
-        
+
     def test_mark_all_as_read_manager(self):
         self.assertEqual(Notification.objects.unread().count(),10)
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
         self.assertEqual(Notification.objects.unread().count(),0)
-        
+
     def test_mark_all_as_unread_manager(self):
         self.assertEqual(Notification.objects.unread().count(),10)
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
