@@ -1,6 +1,8 @@
 Django Notifications Documentation
 ===================================
 
+|build-status| |coveralls|
+
 `django-notifications <https://github.com/brantyoung/django-notifications>`_ is a GitHub notification alike app for Django, it was derived from `django-activity-stream <https://github.com/justquick/django-activity-stream>`_
 
 Notifications are actually actions events, which are categorized by four main components.
@@ -48,9 +50,9 @@ The app should go somewhere after all the apps that are going to be generating n
     )
 
 Add the notifications urls to your urlconf::
-    
+
     import notifications
-    
+
     urlpatterns = patterns('',
         ...
         url('^inbox/notifications/', include(notifications.urls)),
@@ -101,10 +103,10 @@ To generate an notification anywhere in your code, simply import the notify sign
     from notifications import notify
 
     notify.send(user, recipient=user, verb='you reached level 10')
-    
+
     notify.send(comment.user, recipient=user, verb=u'replied', action_object=comment,
                 description=comment.comment, target=comment.content_object)
-    
+
     notify.send(follow_instance.user, recipient=follow_instance.follow_object, verb=u'has followed you',
                 action_object=instance, description=u'', target=follow_instance.follow_object)
 
@@ -126,7 +128,7 @@ QuerySet methods
 Using ``django-model-utils``, we get the ability to add queryset methods to not only the manager, but to all querysets that will be used, including related objects. This enables us to do things like::
 
   Notification.objects.unread()
-  
+
 which returns all unread notifications. To do this for a single user, we can do::
 
   user = User.objects.get(pk=pk)
@@ -194,4 +196,11 @@ Storing the count in a variable for further processing is advised, such as::
         You have <strong>{{ unread_count }}</strong> unread notifications.
     {% endif %}
 
+.. |build-status| image:: https://travis-ci.org/django-notifications/django-notifications.svg
+    :target: https://travis-ci.org/django-notifications/django-notifications
+
+.. |coveralls| image:: https://coveralls.io/repos/django-notifications/django-notifications/badge.png?branch=master
+    :alt: Code coverage on coveralls
+    :scale: 100%
+    :target: https://coveralls.io/r/django-notifications/django-notifications?branch=master
 
