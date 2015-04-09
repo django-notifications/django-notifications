@@ -13,13 +13,14 @@ except ImportError:
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.utils.timezone import utc, localtime
 from django.utils import timezone
 import pytz
 
 from notifications import notify
 from notifications.models import Notification
-
+from notifications.utils import id2slug
 
 class NotificationTest(TestCase):
 
@@ -80,3 +81,65 @@ class NotificationManagersTest(TestCase):
         self.assertEqual(Notification.objects.unread().count(),0)
         Notification.objects.filter(recipient=self.to_user).mark_all_as_unread()
         self.assertEqual(Notification.objects.unread().count(),10)
+
+
+class NotificationTestPages(TestCase):
+    def setUp(self):
+        self.from_user = User.objects.create_user(username="from", password="pwd", email="example@example.com")
+        self.to_user = User.objects.create_user(username="to", password="pwd", email="example@example.com")
+        self.to_user.is_staff = True
+        self.to_user.save()
+        for i in range(10):
+            notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
+
+    def logout(self):
+        self.client.post(reverse('admin:logout')+'?next=/', {})
+
+    def login(self,username,password):
+        self.logout()
+        response = self.client.post(reverse('login'), {'username': username, 'password': password})
+        self.assertEqual(response.status_code,302)
+        return response
+
+    def test_all_messages_page(self):
+        self.login('to','pwd')
+        response = self.client.get(reverse('notifications:all'))
+
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(len(response.context['notifications']),len(self.to_user.notifications.all()))
+
+    def test_unread_messages_pages(self):
+        self.login('to','pwd')
+        response = self.client.get(reverse('notifications:unread'))
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(len(response.context['notifications']),len(self.to_user.notifications.unread()))
+        self.assertEqual(len(response.context['notifications']),10)
+
+        for i,n in enumerate(self.to_user.notifications.all()):
+            if i%3 == 0:
+                response = self.client.get(reverse('notifications:mark_as_read',args=[id2slug(n.id)]))
+                self.assertEqual(response.status_code,302)
+
+        response = self.client.get(reverse('notifications:unread'))
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(len(response.context['notifications']),len(self.to_user.notifications.unread()))
+        self.assertTrue(len(response.context['notifications'])<10)
+
+        response = self.client.get(reverse('notifications:mark_all_as_read'))
+        self.assertRedirects(response,reverse('notifications:all'))
+        response = self.client.get(reverse('notifications:unread'))
+        self.assertEqual(len(response.context['notifications']),len(self.to_user.notifications.unread()))
+        self.assertEqual(len(response.context['notifications']),0)
+
+    def test_next_pages(self):
+        self.login('to','pwd')
+        response = self.client.get(reverse('notifications:mark_all_as_read')+"?next="+reverse('notifications:unread'))
+        self.assertRedirects(response,reverse('notifications:unread'))
+
+        slug = id2slug(self.to_user.notifications.first().id)
+        response = self.client.get(reverse('notifications:mark_as_read',args=[slug])+"?next="+reverse('notifications:unread'))
+        self.assertRedirects(response,reverse('notifications:unread'))
+
+        slug = id2slug(self.to_user.notifications.first().id)
+        response = self.client.get(reverse('notifications:mark_as_unread',args=[slug])+"?next="+reverse('notifications:unread'))
+        self.assertRedirects(response,reverse('notifications:unread'))

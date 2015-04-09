@@ -11,15 +11,20 @@ DATABASES = {
 }
 
 
-MIDDLEWARE_CLASSES = ()
+MIDDLEWARE_CLASSES = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+)
 
 INSTALLED_APPS = (
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.sessions',
     'notifications',
 )
 
-ROOT_URLCONF = 'notifications.urls'
+ROOT_URLCONF = 'notifications.tests.urls'
 
 
 # Need to skip migrations for now as migrations created with python2 break with python3
