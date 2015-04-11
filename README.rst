@@ -115,7 +115,7 @@ Extra data
 
 You can attach arbitrary data to your notifications by doing the following:
 
-  * Add to your settings.py: ``NOTIFY_USE_JSONFIELD=True``
+  * Add to your settings.py: ``NOTIFICATIONS_USE_JSONFIELD=True``
 
 Then, any extra arguments you pass to ``notify.send(...)`` will be attached to the ``.data`` attribute of the notification object. These will be serialised using the JSONField's serialiser, so you may need to take that into account: using only objects that will be serialised is a good idea.
 
