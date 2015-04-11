@@ -43,7 +43,7 @@ def unread(request):
 def mark_all_as_read(request):
     request.user.notifications.mark_all_as_read()
 
-    _next = request.REQUEST.get('next')
+    _next = request.GET.get('next')
 
     if _next:
         return redirect(_next)
@@ -56,7 +56,7 @@ def mark_as_read(request, slug=None):
     notification = get_object_or_404(Notification, recipient=request.user, id=id)
     notification.mark_as_read()
 
-    _next = request.REQUEST.get('next')
+    _next = request.GET.get('next')
 
     if _next:
         return redirect(_next)
@@ -70,7 +70,7 @@ def mark_as_unread(request, slug=None):
     notification = get_object_or_404(Notification, recipient=request.user, id=id)
     notification.mark_as_unread()
 
-    _next = request.REQUEST.get('next')
+    _next = request.GET.get('next')
 
     if _next:
         return redirect(_next)
@@ -85,7 +85,7 @@ def delete(request, slug=None):
     notification.deleted = True
     notification.save()
 
-    next = request.REQUEST.get('next')
+    next = request.GET.get('next')
 
     if next:
         return redirect(next)
