@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.context import RequestContext
+from django.conf import settings
 from .utils import slug2id
 from .models import Notification
 
@@ -11,8 +12,12 @@ def all(request):
     """
     Index page for authenticated user
     """
+    if getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False):
+        qs = request.user.notifications.active()
+    else:
+        qs = request.user.notifications.all()
     return render(request, 'notifications/list.html', {
-        'notifications': request.user.notifications.all()
+        'notifications': qs
     })
     actions = request.user.notifications.all()
 
@@ -77,17 +82,21 @@ def mark_as_unread(request, slug=None):
 
     return redirect('notifications:all')
 
+
 @login_required
 def delete(request, slug=None):
-    id = slug2id(slug)
+    _id = slug2id(slug)
 
-    notification = get_object_or_404(Notification, recipient=request.user, id=id)
-    notification.deleted = True
-    notification.save()
+    notification = get_object_or_404(Notification, recipient=request.user, id=_id)
+    if getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False):
+        notification.deleted = True
+        notification.save()
+    else:
+        notification.delete()
 
-    next = request.GET.get('next')
+    _next = request.GET.get('next')
 
-    if next:
-        return redirect(next)
+    if _next:
+        return redirect(_next)
 
     return redirect('notifications:all')

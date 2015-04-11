@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
+from django.core.exceptions import ImproperlyConfigured
 from six import text_type
 from .utils import id2slug
 
@@ -10,6 +11,7 @@ from .signals import notify
 
 from model_utils import managers, Choices
 from jsonfield.fields import JSONField
+
 
 def now():
     # Needs to be be a function as USE_TZ can change based on if we are testing or not.
@@ -22,15 +24,43 @@ def now():
             pass
     return _now()
 
+
+#SOFT_DELETE = getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False)
+def is_soft_delete():
+    #TODO: SOFT_DELETE = getattr(settings, ...) doesn't work with "override_settings" decorator in unittest
+    #     But is_soft_delete is neither a very elegant way. Should try to find better approach
+    return getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False)
+
+
+def assert_soft_delete():
+    if not is_soft_delete():
+        msg = """To use 'deleted' field, please set 'NOTIFICATIONS_SOFT_DELETE'=True in settings.
+        Otherwise NotificationQuerySet.unread and NotificationQuerySet.read do NOT filter by 'deleted' field.
+        """
+        raise ImproperlyConfigured(msg)
+
+
 class NotificationQuerySet(models.query.QuerySet):
 
     def unread(self):
-        "Return only unread items in the current queryset"
-        return self.filter(unread=True)
+        """Return only unread items in the current queryset"""
+        if is_soft_delete():
+            return self.filter(unread=True, deleted=False)
+        else:
+            """ when SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
+            In this case, to improve query performance, don't filter by 'deleted' field
+            """
+            return self.filter(unread=True)
 
     def read(self):
-        "Return only read items in the current queryset"
-        return self.filter(unread=False)
+        """Return only read items in the current queryset"""
+        if is_soft_delete():
+            return self.filter(unread=False, deleted=False)
+        else:
+            """ when SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
+            In this case, to improve query performance, don't filter by 'deleted' field
+            """
+            return self.filter(unread=False)
 
     def mark_all_as_read(self, recipient=None):
         """Mark as read any unread messages in the current queryset.
@@ -56,6 +86,39 @@ class NotificationQuerySet(models.query.QuerySet):
             qs = qs.filter(recipient=recipient)
 
         qs.update(unread=True)
+
+    def deleted(self):
+        """Return only deleted items in the current queryset"""
+        assert_soft_delete()
+        return self.filter(deleted=True)
+
+    def active(self):
+        """Return only active(un-deleted) items in the current queryset"""
+        assert_soft_delete()
+        return self.filter(deleted=False)
+
+    def mark_all_as_deleted(self, recipient=None):
+        """Mark current queryset as deleted.
+        Optionally, filter by recipient first.
+        """
+        assert_soft_delete()
+        qs = self.active()
+        if recipient:
+            qs = qs.filter(recipient=recipient)
+
+        qs.update(deleted=True)
+
+    def mark_all_as_active(self, recipient=None):
+        """Mark current queryset as active(un-deleted).
+        Optionally, filter by recipient first.
+        """
+        assert_soft_delete()
+        qs = self.deleted()
+        if recipient:
+            qs = qs.filter(recipient=recipient)
+
+        qs.update(deleted=False)
+
 
 class Notification(models.Model):
     """
