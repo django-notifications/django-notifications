@@ -1,6 +1,14 @@
 Changelog
 ==========
 
+0.7.0
+------
+
+- Add filters and displays to Django model Admin
+- Support Django 1.8, compatible with both django-south (django < 1.7) and built-in schema migration (django >= 1.7)
+- Compatible with Python 3
+- Test fixtures, and integrated with travis-ci
+
 0.6.2
 ------
 

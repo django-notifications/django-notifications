@@ -24,7 +24,7 @@ Chris Beaven
 Vineet Naik
 Walter Scheper
 
-Brant Young (https://github.com/brantyoung)
+Yang Yubo (https://github.com/yangyubo)
 Matthew Schinckel (https://github.com/schinckel)
 Mirat Can Bayrak (https://github.com/miratcan)
 Konrad Hałas (https://github.com/konradhalas)
