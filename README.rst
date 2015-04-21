@@ -248,7 +248,7 @@ Core contributors (in alphabetical order):
 
 - `Samuel Spencer <https://github.com/LegoStormtroopr>`_
 - `Yang Yubo <https://github.com/yangyubo>`_
-- `zhang-z <https://github.com/zhang-z>`_
+- `Zhongyuan Zhang <https://github.com/zhang-z>`_
 
 .. |build-status| image:: https://travis-ci.org/django-notifications/django-notifications.svg
     :target: https://travis-ci.org/django-notifications/django-notifications
