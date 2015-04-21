@@ -5,6 +5,11 @@
 
 `django-notifications <https://github.com/django-notifications/django-notifications>`_ is a GitHub notification alike app for Django, it was derived from `django-activity-stream <https://github.com/justquick/django-activity-stream>`_
 
+The major difference between ``django-notifications`` and ``django-activity-stream``:
+
+* ``django-notifications`` is for building something like Github "Notifications"
+* While ``django-activity-stream`` is for building Github "News Feed"
+
 Notifications are actually actions events, which are categorized by four main components.
 
  * ``Actor``. The object that performed the activity.
