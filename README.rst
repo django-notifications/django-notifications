@@ -78,6 +78,8 @@ For Django 1.4~1.6
 #. Install latest version (>=1.0) `django-south <http://pypi.python.org/pypi/South/>`_
 #. Execute ``manage.py migrate notifications`` to migrate `django-notifications` schema
 
+Note: If you use a `custom user model <https://docs.djangoproject.com/en/1.6/topics/auth/customizing/#auth-custom-user>`_ in your application, you may want to check `reverse dependencies <http://south.aeracode.org/wiki/Dependencies>`_ of South to run your migrations in the correct order.
+
 For Django 1.7
 --------------
 
