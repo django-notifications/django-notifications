@@ -115,7 +115,7 @@ To generate an notification anywhere in your code, simply import the notify sign
                 description=comment.comment, target=comment.content_object)
 
     notify.send(follow_instance.user, recipient=follow_instance.follow_object, verb=u'has followed you',
-                action_object=instance, description=u'', target=follow_instance.follow_object)
+                action_object=instance, description=u'', target=follow_instance.follow_object, level='success')
 
 Extra data
 ----------
