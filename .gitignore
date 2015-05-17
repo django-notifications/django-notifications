@@ -5,3 +5,4 @@ dist
 MANIFEST
 .coverage
 htmlcov
+/.idea/
