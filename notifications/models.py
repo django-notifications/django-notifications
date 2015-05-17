@@ -211,6 +211,9 @@ class Notification(models.Model):
             return u'%(actor)s %(verb)s %(action_object)s %(timesince)s ago' % ctx
         return u'%(actor)s %(verb)s %(timesince)s ago' % ctx
 
+    def __str__(self):#Adds support for Python 3
+        return self.__unicode__()
+
     def timesince(self, now=None):
         """
         Shortcut for the ``django.utils.timesince.timesince`` function of the
