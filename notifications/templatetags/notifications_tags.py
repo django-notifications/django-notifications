@@ -9,8 +9,10 @@ register = Library()
 def notifications_unread(context):
     if 'user' not in context:
         return ''
-    
-    user = context['user']
+
+    request = context['request']
+    user = request.user
     if user.is_anonymous():
         return ''
     return user.notifications.unread().count()
+
