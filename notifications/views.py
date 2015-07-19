@@ -4,6 +4,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.context import RequestContext
 from django.conf import settings
+from django.http import JsonResponse
 from .utils import slug2id
 from .models import Notification
 
@@ -100,3 +101,10 @@ def delete(request, slug=None):
         return redirect(_next)
 
     return redirect('notifications:all')
+
+def live_unread_notification_count(request):
+    from random import randint
+    data = {
+       'count':request.user.notifications.unread().count(),
+    }
+    return JsonResponse(data)
