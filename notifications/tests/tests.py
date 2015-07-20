@@ -3,7 +3,7 @@ This file demonstrates writing tests using the unittest module. These will pass
 when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 try:
     # Django >= 1.7
     from django.test import override_settings
@@ -18,6 +18,7 @@ from django.core.urlresolvers import reverse
 from django.utils.timezone import utc, localtime
 from django.utils import timezone
 import pytz
+import json
 
 from notifications import notify
 from notifications.models import Notification
@@ -211,3 +212,75 @@ class NotificationTestPages(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['notifications']), len(self.to_user.notifications.unread()))
         self.assertEqual(len(response.context['notifications']), self.message_count-1)
+
+
+    def test_unread_count_api(self):
+        self.login('to', 'pwd')
+
+        response = self.client.get(reverse('notifications:live_unread_notification_count'))
+        data = json.loads(response.content)
+        self.assertEqual(data.keys(),['unread_count'])
+        self.assertEqual(data['unread_count'],10)
+
+
+        Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
+        response = self.client.get(reverse('notifications:live_unread_notification_count'))
+        data = json.loads(response.content)
+        self.assertEqual(data.keys(),['unread_count'])
+        self.assertEqual(data['unread_count'],0)
+
+        notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
+        response = self.client.get(reverse('notifications:live_unread_notification_count'))
+        data = json.loads(response.content)
+        self.assertEqual(data.keys(),['unread_count'])
+        self.assertEqual(data['unread_count'],1)
+
+    def test_unread_list_api(self):
+        self.login('to', 'pwd')
+
+        response = self.client.get(reverse('notifications:live_unread_notification_list'))
+        data = json.loads(response.content)
+        self.assertEqual(data.keys(),['unread_count','unread_list'])
+        self.assertEqual(data['unread_count'],10)
+        self.assertEqual(len(data['unread_list']),5)
+
+        response = self.client.get(reverse('notifications:live_unread_notification_list')+"?max=12")
+        data = json.loads(response.content)
+        self.assertEqual(data.keys(),['unread_count','unread_list'])
+        self.assertEqual(data['unread_count'],10)
+        self.assertEqual(len(data['unread_list']),10)
+
+        # Test with a bad 'max' value
+        response = self.client.get(reverse('notifications:live_unread_notification_list')+"?max=this_is_wrong")
+        data = json.loads(response.content)
+        self.assertEqual(data.keys(),['unread_count','unread_list'])
+        self.assertEqual(data['unread_count'],10)
+        self.assertEqual(len(data['unread_list']),5)
+
+        Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
+        response = self.client.get(reverse('notifications:live_unread_notification_list'))
+        data = json.loads(response.content)
+        self.assertEqual(data.keys(),['unread_count','unread_list'])
+        self.assertEqual(data['unread_count'],0)
+        self.assertEqual(len(data['unread_list']),0)
+
+        notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
+        response = self.client.get(reverse('notifications:live_unread_notification_list'))
+        data = json.loads(response.content)
+        self.assertEqual(data.keys(),['unread_count','unread_list'])
+        self.assertEqual(data['unread_count'],1)
+        self.assertEqual(len(data['unread_list']),1)
+        self.assertEqual(data['unread_list'][0]['verb'],'commented')
+
+    def test_live_update_tags(self):
+        from django.shortcuts import render
+
+        self.login('to', 'pwd')
+        self.factory = RequestFactory()
+
+        request = self.factory.get('/notification/live_updater')
+        request.user = self.to_user
+
+        page = render(request, 'notifications/test_tags.html', {'request':request})
+        
+        #TODO: Add more tests to check what is being output.        

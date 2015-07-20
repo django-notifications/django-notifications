@@ -1,10 +1,12 @@
 # Create your views here.
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.forms import model_to_dict
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.context import RequestContext
-from django.conf import settings
-from django.http import JsonResponse
+
 from .utils import slug2id
 from .models import Notification
 
@@ -105,6 +107,22 @@ def delete(request, slug=None):
 def live_unread_notification_count(request):
     from random import randint
     data = {
-       'count':request.user.notifications.unread().count(),
+       'unread_count':request.user.notifications.unread().count(),
+    }
+    return JsonResponse(data)
+
+def live_unread_notification_list(request):
+    
+    try:
+        num_to_fetch = request.GET.get('max',5) #If they don't specify, make it 5.
+        num_to_fetch = int(num_to_fetch)
+        num_to_fetch = max(1,num_to_fetch) # if num_to_fetch is negative, force at least one fetched notifications
+        num_to_fetch = min(num_to_fetch,100) # put a sane ceiling on the number retrievable 
+    except ValueError:
+        num_to_fetch = 5 # If casting to an int fails, just make it 5.
+
+    data = {
+       'unread_count':request.user.notifications.unread().count(),
+       'unread_list':[model_to_dict(n) for n in request.user.notifications.unread()[0:num_to_fetch]]
     }
     return JsonResponse(data)

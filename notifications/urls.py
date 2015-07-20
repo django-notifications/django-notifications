@@ -10,5 +10,5 @@ urlpatterns = patterns('notifications.views',
     url(r'^mark-as-unread/(?P<slug>\d+)/$', 'mark_as_unread', name='mark_as_unread'),
     url(r'^delete/(?P<slug>\d+)/$', 'delete', name='delete'),
     url(r'^api/unread_count/$', 'live_unread_notification_count', name='live_unread_notification_count'),
-    url(r'^api/unread_list/$', 'live_unread_notification_count', name='live_unread_notification_count'),
+    url(r'^api/unread_list/$', 'live_unread_notification_list', name='live_unread_notification_list'),
 )
