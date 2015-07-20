@@ -16,6 +16,7 @@ if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
 else:
     # Django 1.6 doesn't have a proper JsonResponse
     import json
+    from django.http import HttpResponse
     def JsonResponse(data):
         return HttpResponse(json.dumps(data), content_type="application/json")
 
