@@ -249,72 +249,86 @@ To ensure users always have the most up-to-date notfications, `django-notificati
 for updating specific fields within a django template.
 
 There are two possible API calls that can be made:
-1. `api/unread_count/` that returns a javascript object with 1 key: `unread_count` eg:
-        {"unread_count":1}
-1. `api/unread_list/` that returns a javascript object with 2 keys: `unread_count` and `unread_list` eg:
-        {"unread_count":1,"unread_list":[--list of json representations of notifications--]}
 
-Representations of notifications are based on the django method: `model_to_dict`
+  1. ``api/unread_count/`` that returns a javascript object with 1 key: ``unread_count`` eg::
+
+        {"unread_count":1}
+
+  #. ``api/unread_list/`` that returns a javascript object with 2 keys: `unread_count` and `unread_list` eg::
+
+         {
+          "unread_count":1,
+          "unread_list":[--list of json representations of notifications--]
+         }
+
+     Representations of notifications are based on the django method: ``model_to_dict``
 
 
 How to use:
-~~~~~~~~~~~
-1. Put `{% load notifications_tags %}` in the template before you actually use notification tags.
-2. In the area where you are loading javascript resources add the following tags in the order below:
+-----------
+
+  1. Put ``{% load notifications_tags %}`` in the template before you actually use notification tags.
+  2. In the area where you are loading javascript resources add the following tags in the order below::
+
        <script src="{% static 'notifications/notify.js' %}" type="text/javascript"></script>
        {% register_notify_callbacks callbacks='fill_notification_list,fill_notification_badge' %}
 
-    `register_notify_callbacks` takes the following arguments:
-    1. `badge_id` (default `live_notify_badge`) - The `id` attribute of the element to show the unread count, that will be periodically updated.
-    1. `menu_id` (default `live_notify_list`) - The `id` attribute of the element to insert a list of unread items, that will be periodically updated.
-    1. `refresh_period` (default `15`) - How often to fetch unread items from the server (integer in seconds).
-    1. `callbacks` (default `empty`) - A comma-separated list of javascript functions to call each period.
-    1. `api_url_name` (default `list`) - The name of the API to call (this can be either 'list' or 'count').
+    ``register_notify_callbacks`` takes the following arguments:
 
-3. To insert a live-updating unread count, use the following template:
+     1. ``badge_id`` (default ``live_notify_badge``) - The `id` attribute of the element to show the unread count, that will be periodically updated.
+     #. ``menu_id`` (default ``live_notify_list``) - The `id` attribute of the element to insert a list of unread items, that will be periodically updated.
+     #. ``refresh_period`` (default ``15``) - How often to fetch unread items from the server (integer in seconds).
+     #. ``callbacks`` (default ``<empty string>``) - A comma-separated list of javascript functions to call each period.
+     #. ``api_url_name`` (default ``list``) - The name of the API to call (this can be either ``list`` or ``count``).
+
+  3. To insert a live-updating unread count, use the following template::
+
        {% live_notify_badge %}
-       
-    `live_notify_badge` takes the following arguments:
-    1. `badge_id` (default `live_notify_badge`) - The `id` attribute for the `<span>` element that will be created to show the unread count.
-    1. `classes` (default `empty string`) - A string used to populate the `class` attribute of the above element.
 
-4. To insert a live-updating unread count, use the following template:
+    ``live_notify_badge`` takes the following arguments:
+
+    1. ``badge_id`` (default ``live_notify_badge``) - The ``id`` attribute for the ``<span>`` element that will be created to show the unread count.
+    #. ``classes`` (default ``<empty string>``) - A string used to populate the ``class`` attribute of the above element.
+
+  4. To insert a live-updating unread count, use the following template::
+
        {% live_notify_list %}
        
-    `live_notify_list` takes the following arguments:
-    1. `list_id` (default `live_notify_list`) - The `id` attribute for the `<ul>` element that will be created to insert the list of notfications into.
-    1. `classes` (default `empty string`) - A string used to populate the `class` attribute of the above element.
+    ``live_notify_list`` takes the following arguments:
+
+    1. ``list_id`` (default ``live_notify_list``) - The ``id`` attribute for the ``<ul>`` element that will be created to insert the list of notifications into.
+    #. ``classes`` (default ``<empty string>``) - A string used to populate the ``class`` attribute of the above element.
 
 Using the live-updater with bootstrap
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------
 
 The Live-updater can be incorporated into bootstrap with minimal code.
 
-To create a live-updating bootstrap badge containing the unread count, simply use the template tag:
+To create a live-updating bootstrap badge containing the unread count, simply use the template tag::
 
     {% live_notify_badge classes="badge" %}
 
-To create a live-updating bootstrap dropdown menu containing a selection of recent unread notifications, simply use the template tag:
+To create a live-updating bootstrap dropdown menu containing a selection of recent unread notifications, simply use the template tag::
 
     {% live_notify_list classes="dropdown-menu" %}
-    
+
 Customising the display of notifications using javascript callbacks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------------------------
 
 While the live notifier for unread counts should suit most use cases, users may wish to alter how
 unread notifications are shown.
 
-The `callbacks` argument of the `register_notify_callbacks` dictates which javascript functions are called when
+The ``callbacks`` argument of the ``register_notify_callbacks`` dictates which javascript functions are called when
 the unread api call is made. 
 
-To add a custom javascript callback, simply add this to the list, like so:
+To add a custom javascript callback, simply add this to the list, like so::
 
        {% register_notify_callbacks callbacks='fill_notification_badge,my_special_notification_callback' %}
 
 The above would cause the callback to update the unread count badge, and would call the custom function `my_special_notification_callback`.
 All callback functions are passed a single argument by convention called `data`, which contains the entire result from the API.
 
-For example, the below function would get the recent list of unread messages and log them to the console:
+For example, the below function would get the recent list of unread messages and log them to the console::
 
     function my_special_notification_callback(data) {
         for (var i=0; i < data.unread_list.length; i++) {
