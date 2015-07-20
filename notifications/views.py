@@ -3,12 +3,21 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.forms import model_to_dict
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.context import RequestContext
 
 from .utils import slug2id
 from .models import Notification
+
+from django import get_version
+from distutils.version import StrictVersion
+if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
+    from django.http import JsonResponse
+else:
+    # Django 1.6 doesn't have a proper JsonResponse
+    import json
+    def JsonResponse(data):
+        return HttpResponse(json.dumps(data), content_type="application/json")
 
 @login_required
 def all(request):
