@@ -218,20 +218,20 @@ class NotificationTestPages(TestCase):
         self.login('to', 'pwd')
 
         response = self.client.get(reverse('notifications:live_unread_notification_count'))
-        data = json.loads(str(response.content))
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data.keys(),['unread_count'])
         self.assertEqual(data['unread_count'],10)
 
 
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
         response = self.client.get(reverse('notifications:live_unread_notification_count'))
-        data = json.loads(str(response.content))
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data.keys(),['unread_count'])
         self.assertEqual(data['unread_count'],0)
 
         notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
         response = self.client.get(reverse('notifications:live_unread_notification_count'))
-        data = json.loads(str(response.content))
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data.keys(),['unread_count'])
         self.assertEqual(data['unread_count'],1)
 
@@ -239,34 +239,34 @@ class NotificationTestPages(TestCase):
         self.login('to', 'pwd')
 
         response = self.client.get(reverse('notifications:live_unread_notification_list'))
-        data = json.loads(str(response.content))
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data.keys(),['unread_count','unread_list'])
         self.assertEqual(data['unread_count'],10)
         self.assertEqual(len(data['unread_list']),5)
 
         response = self.client.get(reverse('notifications:live_unread_notification_list')+"?max=12")
-        data = json.loads(str(response.content))
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data.keys(),['unread_count','unread_list'])
         self.assertEqual(data['unread_count'],10)
         self.assertEqual(len(data['unread_list']),10)
 
         # Test with a bad 'max' value
         response = self.client.get(reverse('notifications:live_unread_notification_list')+"?max=this_is_wrong")
-        data = json.loads(str(response.content))
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data.keys(),['unread_count','unread_list'])
         self.assertEqual(data['unread_count'],10)
         self.assertEqual(len(data['unread_list']),5)
 
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
         response = self.client.get(reverse('notifications:live_unread_notification_list'))
-        data = json.loads(str(response.content))
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data.keys(),['unread_count','unread_list'])
         self.assertEqual(data['unread_count'],0)
         self.assertEqual(len(data['unread_list']),0)
 
         notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
         response = self.client.get(reverse('notifications:live_unread_notification_list'))
-        data = json.loads(str(response.content))
+        data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data.keys(),['unread_count','unread_list'])
         self.assertEqual(data['unread_count'],1)
         self.assertEqual(len(data['unread_list']),1)
