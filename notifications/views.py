@@ -17,8 +17,11 @@ else:
     # Django 1.6 doesn't have a proper JsonResponse
     import json
     from django.http import HttpResponse
+    def date_handler(obj):
+        return obj.isoformat() if hasattr(obj, 'isoformat') else obj
+    
     def JsonResponse(data):
-        return HttpResponse(json.dumps(data), content_type="application/json")
+        return HttpResponse(json.dumps(data, default=date_handler), content_type="application/json")
 
 @login_required
 def all(request):
@@ -136,3 +139,4 @@ def live_unread_notification_list(request):
        'unread_list':[model_to_dict(n) for n in request.user.notifications.unread()[0:num_to_fetch]]
     }
     return JsonResponse(data)
+
