@@ -246,7 +246,7 @@ class NotificationTestPages(TestCase):
 
         response = self.client.get(reverse('notifications:live_unread_notification_list')+"?max=12")
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(list(data.keys()),['unread_count','unread_list'])
+        self.assertEqual(sorted(list(data.keys())),['unread_count','unread_list'])
         self.assertEqual(data['unread_count'],10)
         self.assertEqual(len(data['unread_list']),10)
 
