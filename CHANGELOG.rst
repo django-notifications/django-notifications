@@ -1,6 +1,16 @@
 Changelog
 ==========
 
+0.7.1
+------
+
+- Able to pass level when adding notification (@Arthur)
+- Fix deprecation notice in Django 1.8 (@ashokfernandez)
+- Fix Python 3 support for notification model (@philroche)
+- Bugfix for wrong user unread notification count (@Geeknux)
+- A simple javascript API for live-updating specific fields within a django template (@LegoStormtroopr)
+- Add missing migration for Notification model (@shezadkhan137)
+
 0.7.0
 ------
 
