@@ -32,7 +32,7 @@ def register_notify_callbacks(badge_id='live_notify_badge',menu_id='live_notify_
         notify_unread_url='{unread_url}';
         notify_mark_all_unread_url='{mark_all_unread_url}';
         notify_refresh_period={refresh};""".format(badge_id=badge_id,menu_id=menu_id,refresh=refresh_period,api_url=api_url,unread_url=reverse('notifications:unread'),mark_all_unread_url=reverse('notifications:mark_all_as_read'))
-        
+
     script = "<script>"+definitions
     for callback in callbacks.split(','):
         script += "register_notifier("+callback+");"
@@ -54,7 +54,7 @@ def live_notify_list(list_id='live_notify_list',classes=""):
     html="<ul id='{list_id}' class='{classes}'></ul>".format(list_id=list_id,classes=classes)
     return html
 
-def user_context(context):    
+def user_context(context):
     if 'user' not in context:
         return None
 
