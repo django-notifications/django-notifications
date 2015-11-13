@@ -15,7 +15,7 @@ def notifications_unread(context):
 
 # Requires vanilla-js framework - http://vanilla-js.com/
 @register.simple_tag
-def register_notify_callbacks(badge_id='live_notify_badge',menu_id='live_notify_list',refresh_period=15,callbacks="",api_name='list'):
+def register_notify_callbacks(badge_id='live_notify_badge',menu_id='live_notify_list',refresh_period=15,callbacks="",api_name='list',fetch=5):
     refresh_period=int(refresh_period)*1000
 
     if api_name=='list':
@@ -29,9 +29,18 @@ def register_notify_callbacks(badge_id='live_notify_badge',menu_id='live_notify_
         notify_badge_id='{badge_id}';
         notify_menu_id='{menu_id}';
         notify_api_url='{api_url}';
+        notify_fetch_count='{fetch_count}';
         notify_unread_url='{unread_url}';
         notify_mark_all_unread_url='{mark_all_unread_url}';
-        notify_refresh_period={refresh};""".format(badge_id=badge_id,menu_id=menu_id,refresh=refresh_period,api_url=api_url,unread_url=reverse('notifications:unread'),mark_all_unread_url=reverse('notifications:mark_all_as_read'))
+        notify_refresh_period={refresh};""".format(
+            badge_id=badge_id,
+            menu_id=menu_id,
+            refresh=refresh_period,
+            api_url=api_url,
+            unread_url=reverse('notifications:unread'),
+            mark_all_unread_url=reverse('notifications:mark_all_as_read'),
+            fetch_count=fetch
+        )
 
     script = "<script>"+definitions
     for callback in callbacks.split(','):
