@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from distutils.core import setup
-from notifications import __version__
+from version import __version__
 
 setup(name='django-notifications-hq',
       version=__version__,
