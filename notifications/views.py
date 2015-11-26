@@ -5,6 +5,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.context import RequestContext
+from django.views.generic import ListView
 
 from .utils import slug2id
 from .models import Notification
@@ -23,42 +24,35 @@ else:
     def JsonResponse(data):
         return HttpResponse(json.dumps(data, default=date_handler), content_type="application/json")
 
-@login_required
-def all(request):
+
+class NotificationViewList(ListView):
+    template_name = 'notifications/list.html'
+    context_object_name = 'notifications'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(NotificationViewList, self).dispatch(
+            request, *args, **kwargs)
+
+
+class AllNotificationsList(NotificationViewList):
     """
     Index page for authenticated user
     """
-    if getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False):
-        qs = request.user.notifications.active()
-    else:
-        qs = request.user.notifications.all()
-    return render(request, 'notifications/list.html', {
-        'notifications': qs
-    })
-    actions = request.user.notifications.all()
 
-    paginator = Paginator(actions, 16) # Show 16 notifications per page
-    page = request.GET.get('p')
+    def get_queryset(self):
+        if getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False):
+            qs = self.request.user.notifications.active()
+        else:
+            qs = self.request.user.notifications.all()
+        return qs
 
-    try:
-        action_list = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        action_list = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        action_list = paginator.page(paginator.num_pages)
 
-    return render_to_response('notifications/list.html', {
-        'member': request.user,
-        'action_list': action_list,
-    }, context_instance=RequestContext(request))
+class UnreadNotificationsList(NotificationViewList):
 
-@login_required
-def unread(request):
-    return render(request, 'notifications/list.html', {
-        'notifications': request.user.notifications.unread()
-    })
+    def get_queryset(self):
+        return self.request.user.notifications.unread()
+
 
 @login_required
 def mark_all_as_read(request):
