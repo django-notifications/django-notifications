@@ -194,6 +194,7 @@ class Notification(models.Model):
 
     class Meta:
         ordering = ('-timestamp', )
+        app_label = 'notifications'
 
     def __unicode__(self):
         ctx = {
