@@ -16,9 +16,9 @@ setup(name='django-notifications-hq',
 
       install_requires=[
           'django>=1.4',
-          'django-model-utils>=2.0.3',
+          'django-model-utils==2.0.3',
           'six>=1.9.0',
-          'jsonfield>=1.0.3',
+          'jsonfield==1.0.3',
       ],
 
       test_requires=[
