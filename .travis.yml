@@ -1,13 +1,14 @@
 language: python
 python:
-  - "2.6"
   - "2.7"
+  - "3.2"
   - "3.3"
   - "3.4"
+  - "3.5"
 env:
-  - DJANGO=1.6
   - DJANGO=1.7
   - DJANGO=1.8
+  - DJANGO=1.9
 install:
 # command to install dependencies
   - "pip install coveralls"
@@ -19,9 +20,5 @@ script:
   - coverage run --branch --source=notifications manage.py test
 matrix:
   exclude:
-    - python: "2.6"
-      env: DJANGO=1.7
-    - python: "2.6"
-      env: DJANGO=1.8
 after_success:
   - coveralls
