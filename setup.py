@@ -18,15 +18,15 @@ setup(name='django-notifications-hq',
       url='http://github.com/django-notifications/django-notifications',
 
       install_requires=[
-          'django>=1.4',
-          'django-model-utils>=2.0.3,<2.4',
+          'django>=1.7',
+          'django-model-utils>=2.0.3',
           'six>=1.9.0',
           'jsonfield>=1.0.3',
       ],
 
       test_requires=[
-          'django>=1.4',
-          'django-model-utils>=2.0.3,<2.4',
+          'django>=1.7',
+          'django-model-utils>=2.0.3',
           'six>=1.9.0',
           'jsonfield>=1.0.3',
           'pytz'
@@ -35,7 +35,6 @@ setup(name='django-notifications-hq',
       packages=['notifications',
                 'notifications.templatetags',
                 'notifications.migrations',
-                'notifications.south_migrations'
                 ],
 
       package_data={'notifications': [
@@ -51,7 +50,6 @@ setup(name='django-notifications-hq',
                    # that you indicate whether you support Python 2, Python 3 or both.
                    'Programming Language :: Python',
                    'Programming Language :: Python :: 2',
-                   'Programming Language :: Python :: 2.6',
                    'Programming Language :: Python :: 2.7',
                    'Programming Language :: Python :: 3',
                    'Programming Language :: Python :: 3.2',

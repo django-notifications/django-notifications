@@ -24,6 +24,12 @@ For example: `justquick <https://github.com/justquick/>`_ ``(actor)`` *closed* `
 
 Nomenclature of this specification is based on the Activity Streams Spec: `<http://activitystrea.ms/specs/atom/1.0/>`_
 
+Requirements
+============
+
+- Python 2.7, 3.2, 3.3, 3.4, 3.5
+- Django 1.7, 1.8, 1.9
+
 Installation
 ============
 
@@ -66,26 +72,7 @@ Add the notifications urls to your urlconf::
 
 The method of installing these urls, importing rather than using ``'notifications.urls'``, is required to ensure that the urls are installed in the ``notifications`` namespace.
 
-
-How to migrate schema
-=========================================
-
-For Django 1.4~1.6
-------------------
-
-`django-south` support is shipped with `django-notifications`.
-
-#. Install latest version (>=1.0) `django-south <http://pypi.python.org/pypi/South/>`_
-#. Execute ``manage.py migrate notifications`` to migrate `django-notifications` schema
-
-Note: If you use a `custom user model <https://docs.djangoproject.com/en/1.6/topics/auth/customizing/#auth-custom-user>`_ in your application, you may want to check `reverse dependencies <http://south.aeracode.org/wiki/Dependencies>`_ of South to run your migrations in the correct order.
-
-For Django 1.7
---------------
-
-Django 1.7 has built-in support for migrations. No need to install `django-south`.
-
-#. Execute ``manage.py migrate notifications``
+To run schema migration, execute ``python manage.py migrate notifications``.
 
 Generating Notifications
 =========================
