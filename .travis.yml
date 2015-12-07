@@ -18,5 +18,7 @@ script:
   - coverage run --branch --source=notifications manage.py test
 matrix:
   exclude:
+    - python: "3.5"
+      env: DJANGO=1.7
 after_success:
   - coveralls
