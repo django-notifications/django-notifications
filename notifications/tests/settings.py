@@ -1,5 +1,4 @@
 SECRET_KEY = 'secret_key'
-SOUTH_TESTS_MIGRATE = True
 
 TESTING = True
 
