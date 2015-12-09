@@ -21,5 +21,7 @@ matrix:
   exclude:
     - python: "3.5"
       env: DJANGO=1.7
+    - python: "3.3"
+      env: DJANGO=1.9
 after_success:
   - coveralls
