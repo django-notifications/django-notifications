@@ -1,6 +1,7 @@
 ``django-notifications`` Documentation
 =======================================
 
+
 |build-status| |coveralls|
 
 `django-notifications <https://github.com/django-notifications/django-notifications>`_ is a GitHub notification alike app for Django, it was derived from `django-activity-stream <https://github.com/justquick/django-activity-stream>`_
