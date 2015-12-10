@@ -25,6 +25,22 @@ INSTALLED_APPS = (
 
 ROOT_URLCONF = 'notifications.tests.urls'
 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
 
 # Need to skip migrations for now as migrations created with python2 break with python3
 # See https://code.djangoproject.com/ticket/23455
