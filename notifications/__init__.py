@@ -1,10 +1,2 @@
-try:
-    from notifications.signals import notify
-except ImportError:
-    pass
+default_app_config = 'notifications.apps.Config'
 
-try:
-    from notifications.urls import urlpatterns
-    urls = (urlpatterns, 'notifications', 'notifications')
-except ImportError:
-    pass
