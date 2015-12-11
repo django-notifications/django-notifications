@@ -141,4 +141,3 @@ def live_unread_notification_list(request):
         'unread_list': [model_to_dict(n) for n in request.user.notifications.unread()[0:num_to_fetch]]
     }
     return JsonResponse(data)
-
