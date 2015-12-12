@@ -278,6 +278,7 @@ How to use:
      1. ``badge_id`` (default ``live_notify_badge``) - The `id` attribute of the element to show the unread count, that will be periodically updated.
      #. ``menu_id`` (default ``live_notify_list``) - The `id` attribute of the element to insert a list of unread items, that will be periodically updated.
      #. ``refresh_period`` (default ``15``) - How often to fetch unread items from the server (integer in seconds).
+     #. ``to_fetch`` (default ``5``) - How many notifications to fetch each time.
      #. ``callbacks`` (default ``<empty string>``) - A comma-separated list of javascript functions to call each period.
      #. ``api_url_name`` (default ``list``) - The name of the API to call (this can be either ``list`` or ``count``).
 
@@ -336,6 +337,15 @@ For example, the below function would get the recent list of unread messages and
             console.log(msg);
         }
     }
+
+Testing the live-updater
+------------------------
+
+1. Clone the repo
+2. Set the 'NOTIFICATION_TEST' environemnt variable. E.g. `export NOTIFICATION_TEST=1`
+3. Run `./manage.py runserver`
+4. Browse to `yourserverip/test/`
+5. Click 'Make a notification' and a new notification should appear in the list in 5-10 seconds.
 
 
 ``django-notifications`` Team
