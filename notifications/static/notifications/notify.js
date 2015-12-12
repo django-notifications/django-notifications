@@ -1,6 +1,7 @@
 var notify_badge_id;
 var notify_menu_id;
 var notify_api_url;
+var notify_fetch_count;
 var notify_unread_url;
 var notify_mark_all_unread_url;
 var notify_refresh_period = 15000;
@@ -20,21 +21,21 @@ function fill_notification_list(data) {
         menu.innerHTML = "";
         for (var i=0; i < data.unread_list.length; i++) {
             var item = data.unread_list[i];
-            menu.innerHTML = menu.innerHTML + "<li>"+item.object+" "+item.verb+" "+item.subject+" at " +item.timestamp + "</li>";
+            console.log(item)
+            menu.innerHTML = menu.innerHTML + "<li>"+item.actor+" "+item.verb+" "+item.target+" at " +item.timestamp + "</li>";
         }
     }
 }
 
 function register_notifier(func) {
     registered_functions.push(func);
-    console.log(registered_functions)
 }
 
 function fetch_api_data() {
     if (registered_functions.length > 0) {
         //only fetch data if a function is setup
         var r = new XMLHttpRequest();
-        r.open("GET", notify_api_url, true);
+        r.open("GET", notify_api_url+'?max='+notify_fetch_count, true);
         r.onreadystatechange = function () {
             if (r.readyState != 4 || r.status != 200) {
                 consecutive_misfires++;

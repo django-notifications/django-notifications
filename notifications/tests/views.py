@@ -6,7 +6,7 @@ from notifications import notify
 import random
 
 def live_tester(request):
-    notify.send(request.user, recipient=request.user, verb='you loaded the page')
+    notify.send(sender=request.user, recipient=request.user, verb='you loaded the page')
 
     data = {
         'unread_count': request.user.notifications.unread().count(),
@@ -23,5 +23,5 @@ def make_notification(request):
         'testing the app',
         ])
 
-    notify.send(request.user, recipient=request.user, verb='you asked for a notification - you are '+the_notification)
+    notify.send(sender=request.user, recipient=request.user, verb='you asked for a notification - you are '+the_notification)
 
