@@ -22,7 +22,21 @@ function fill_notification_list(data) {
         for (var i=0; i < data.unread_list.length; i++) {
             var item = data.unread_list[i];
             console.log(item)
-            menu.innerHTML = menu.innerHTML + "<li>"+item.actor+" "+item.verb+" "+item.target+" at " +item.timestamp + "</li>";
+            var message = ""
+            if(typeof item.actor !== 'undefined'){
+                message = item.actor;
+            }
+            if(typeof item.verb !== 'undefined'){
+                message = message + " " + item.verb;
+            }
+            if(typeof item.target !== 'undefined'){
+                message = message + " " + item.target;
+            }
+            if(typeof item.timestamp !== 'undefined'){
+                message = message + " " + item.timestamp;
+            }
+
+            menu.innerHTML = menu.innerHTML + "<li>"+ message + "</li>";
         }
     }
 }
