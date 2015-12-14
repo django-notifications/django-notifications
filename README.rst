@@ -83,7 +83,7 @@ Generating notifications is probably best done in a separate signal.
 ::
 
     from django.db.models.signals import post_save
-    from notifications import notify
+    from notifications.signals import notify
     from myapp.models import MyModel
 
     def my_handler(sender, instance, created, **kwargs):
@@ -95,7 +95,7 @@ To generate an notification anywhere in your code, simply import the notify sign
 
 ::
 
-    from notifications import notify
+    from notifications.signal import notify
 
     notify.send(user, recipient=user, verb='you reached level 10')
 
@@ -233,7 +233,7 @@ Storing the count in a variable for further processing is advised, such as::
 Live-updater API
 ================
 
-To ensure users always have the most up-to-date notfications, `django-notifications` includes a simple javascript API
+To ensure users always have the most up-to-date notifications, `django-notifications` includes a simple javascript API
 for updating specific fields within a django template.
 
 There are two possible API calls that can be made:
@@ -281,7 +281,7 @@ How to use:
   4. To insert a live-updating unread count, use the following template::
 
        {% live_notify_list %}
-       
+
     ``live_notify_list`` takes the following arguments:
 
     1. ``list_id`` (default ``live_notify_list``) - The ``id`` attribute for the ``<ul>`` element that will be created to insert the list of notifications into.
@@ -307,7 +307,7 @@ While the live notifier for unread counts should suit most use cases, users may 
 unread notifications are shown.
 
 The ``callbacks`` argument of the ``register_notify_callbacks`` dictates which javascript functions are called when
-the unread api call is made. 
+the unread api call is made.
 
 To add a custom javascript callback, simply add this to the list, like so::
 
