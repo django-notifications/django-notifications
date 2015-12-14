@@ -10,7 +10,13 @@
 # PEP 386-compliant version number: N.N[.N]+[{a|b|c|rc}N[.N]+][.postN][.devN]
 __version__ = '0.8.0'
 
-from notifications.signals import notify
-from notifications.urls import urlpatterns
+try:
+    from notifications.signals import notify
+except ImportError:
+    pass
 
-urls = (urlpatterns, 'notifications', 'notifications')
+try:
+    from notifications.urls import urlpatterns
+    urls = (urlpatterns, 'notifications', 'notifications')
+except ImportError:
+    pass
