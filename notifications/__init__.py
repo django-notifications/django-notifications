@@ -1,3 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+    django-notifications
+    ~~~~~
+    A GitHub notification alike app for Django.
+    :copyright: (c) 2015 by django-notifications team.
+    :license: BSD, see LICENSE.txt for more details.
+"""
+
+# PEP 386-compliant version number: N.N[.N]+[{a|b|c|rc}N[.N]+][.postN][.devN]
+__version__ = '0.8.0'
+
 try:
     from notifications.signals import notify
 except ImportError:
@@ -8,25 +20,3 @@ try:
     urls = (urlpatterns, 'notifications', 'notifications')
 except ImportError:
     pass
-
-__version_info__ = {
-    'major': 0,
-    'minor': 8,
-    'micro': 0,
-    'releaselevel': 'final',
-    'serial': 0
-}
-
-
-def get_version(release_level=True):
-    """
-    Return the formatted version information
-    """
-    vers = ["%(major)i.%(minor)i.%(micro)i" % __version_info__]
-    if release_level and __version_info__['releaselevel'] != 'final':
-        vers.append('%(releaselevel)s%(serial)i' % __version_info__)
-    return ''.join(vers)
-
-
-__version__ = get_version()
-
