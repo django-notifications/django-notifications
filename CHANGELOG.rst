@@ -1,6 +1,18 @@
 Changelog
 ==========
 
+0.8.0
+------
+
+0.8 is the last major version supports Django 1.4~1.6, version 0.8.0 will go into bugfix mode, no new features will be accepted.
+
+- Bugfixes for live-updater, and added a live tester page (@LegoStormtroopr)
+- Class-based classes (@alazaro)
+- Fixed urls in tests (@alazaro)
+- Added app_label to Notification model in order to fix a Django 1.9 deprecation warning (@Heldroe)
+- django-model-utils compatible issue (must >=2.0.3 and <2.4) (@zhangz)
+- Reliable setup.py versioning (@yangyubo)
+
 0.7.1
 ------
 
