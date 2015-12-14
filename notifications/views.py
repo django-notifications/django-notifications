@@ -152,4 +152,3 @@ def live_unread_notification_list(request):
        'unread_list':unread_list
     }
     return JsonResponse(data)
-

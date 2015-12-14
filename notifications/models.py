@@ -17,7 +17,7 @@ from .utils import id2slug
 
 from .signals import notify
 
-from model_utils import managers, Choices
+from model_utils import Choices
 from jsonfield.fields import JSONField
 
 
@@ -190,7 +190,7 @@ class Notification(models.Model):
     emailed = models.BooleanField(default=False)
 
     data = JSONField(blank=True, null=True)
-    objects = managers.PassThroughManager.for_queryset_class(NotificationQuerySet)()
+    objects = NotificationQuerySet.as_manager()
 
     class Meta:
         ordering = ('-timestamp', )
@@ -212,7 +212,7 @@ class Notification(models.Model):
             return u'%(actor)s %(verb)s %(action_object)s %(timesince)s ago' % ctx
         return u'%(actor)s %(verb)s %(timesince)s ago' % ctx
 
-    def __str__(self):#Adds support for Python 3
+    def __str__(self):  # Adds support for Python 3
         return self.__unicode__()
 
     def timesince(self, now=None):
