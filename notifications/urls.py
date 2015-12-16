@@ -15,3 +15,5 @@ urlpatterns = [
     url(r'^api/unread_count/$', views.live_unread_notification_count, name='live_unread_notification_count'),
     url(r'^api/unread_list/$', views.live_unread_notification_list, name='live_unread_notification_list'),
 ]
+
+urls = (urlpatterns, 'notifications', 'notifications')
