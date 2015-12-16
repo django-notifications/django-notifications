@@ -67,7 +67,7 @@ Add the notifications urls to your urlconf::
 
     urlpatterns = patterns('',
         ...
-        url('^inbox/notifications/', include(notifications.urls)),
+        url('^inbox/notifications/', include(notifications.urls.urls)),
         ...
     )
 
