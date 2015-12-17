@@ -20,6 +20,7 @@ from .signals import notify
 from model_utils import Choices
 from jsonfield.fields import JSONField
 
+from django.contrib.auth.models import Group
 
 def now():
     # Needs to be be a function as USE_TZ can change based on if we are testing or not.
@@ -252,28 +253,40 @@ def notify_handler(verb, **kwargs):
     kwargs.pop('signal', None)
     recipient = kwargs.pop('recipient')
     actor = kwargs.pop('sender')
-    newnotify = Notification(
-        recipient = recipient,
-        actor_content_type=ContentType.objects.get_for_model(actor),
-        actor_object_id=actor.pk,
-        verb=text_type(verb),
-        public=bool(kwargs.pop('public', True)),
-        description=kwargs.pop('description', None),
-        timestamp=kwargs.pop('timestamp', now()),
-        level=kwargs.pop('level', Notification.LEVELS.info),
-    )
+    objs = [kwargs.pop(opt, None) for opt in ('target', 'action_object')]
+    public=bool(kwargs.pop('public', True))
+    description=kwargs.pop('description', None)
+    timestamp=kwargs.pop('timestamp', now())
+    level=kwargs.pop('level', Notification.LEVELS.info)
 
-    for opt in ('target', 'action_object'):
-        obj = kwargs.pop(opt, None)
-        if not obj is None:
-            setattr(newnotify, '%s_object_id' % opt, obj.pk)
-            setattr(newnotify, '%s_content_type' % opt,
-                    ContentType.objects.get_for_model(obj))
+    #accept Group or User
+    if isinstance(recipient, Group):
+        recipients = recipient.user_set.all()
+    else:
+        recipients = [recipient]
 
-    if len(kwargs) and EXTRA_DATA:
-        newnotify.data = kwargs
+    for recipient in recipients:
+        newnotify = Notification(
+            recipient = recipient,
+            actor_content_type=ContentType.objects.get_for_model(actor),
+            actor_object_id=actor.pk,
+            verb=text_type(verb),
+            public=public,
+            description=description,
+            timestamp=timestamp,
+            level=level,
+        )
 
-    newnotify.save()
+        for obj in objs:
+            if not obj is None:
+                setattr(newnotify, '%s_object_id' % opt, obj.pk)
+                setattr(newnotify, '%s_content_type' % opt,
+                        ContentType.objects.get_for_model(obj))
+
+        if len(kwargs) and EXTRA_DATA:
+            newnotify.data = kwargs
+
+        newnotify.save()
 
 
 # connect the signal
