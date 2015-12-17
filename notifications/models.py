@@ -12,7 +12,7 @@ else:
 
 from django.db import models
 from django.core.exceptions import ImproperlyConfigured
-from six import text_type
+from django.utils.six import text_type
 from .utils import id2slug
 
 from .signals import notify
