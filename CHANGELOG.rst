@@ -1,8 +1,8 @@
 Changelog
-==========
+=========
 
 0.8.0
-------
+-----
 
 0.8 is the last major version supports Django 1.4~1.6, version 0.8.0 will go into bugfix mode, no new features will be accepted.
 
@@ -14,7 +14,7 @@ Changelog
 - Reliable setup.py versioning (@yangyubo)
 
 0.7.1
-------
+-----
 
 - Able to pass level when adding notification (@Arthur)
 - Fix deprecation notice in Django 1.8 (@ashokfernandez)
@@ -24,7 +24,7 @@ Changelog
 - Add missing migration for Notification model (@shezadkhan137)
 
 0.7.0
-------
+-----
 
 - Add filters and displays to Django model Admin
 - Support Django 1.8, compatible with both django-south (django < 1.7) and built-in schema migration (django >= 1.7)
@@ -32,14 +32,14 @@ Changelog
 - Test fixtures, and integrated with travis-ci
 
 0.6.2
-------
+-----
 
 - Fix README.rst reStructuredText syntax format
 - Use relative imports
 - Add contributors to AUTHORS.txt
 
 0.6.1
-------
+-----
 
 - Add support for custom user model
 - mark_as_unread
@@ -47,13 +47,13 @@ Changelog
 - Use different `now` function according to the `USE_TZ` setting
 
 0.6.0
-------
+-----
 
 - Improve documentation
 - Add unicode support at admin panel or shell
 
 0.5.5
-------
+-----
 
 Support for arbitrary data attribute.
 
@@ -63,7 +63,7 @@ Support for arbitrary data attribute.
 Fix package descriptions and doc links.
 
 0.5
------
+---
 
 First version based on `django-activity-stream <https://github.com/justquick/django-activity-stream>`_ v0.4.3
 
