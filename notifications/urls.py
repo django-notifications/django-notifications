@@ -5,6 +5,7 @@ from django.conf.urls import url
 from . import views
 
 
+app_name = 'notifications'
 urlpatterns = [
     url(r'^$', views.AllNotificationsList.as_view(), name='all'),
     url(r'^unread/$', views.UnreadNotificationsList.as_view(), name='unread'),
@@ -15,3 +16,4 @@ urlpatterns = [
     url(r'^api/unread_count/$', views.live_unread_notification_count, name='live_unread_notification_count'),
     url(r'^api/unread_list/$', views.live_unread_notification_list, name='live_unread_notification_list'),
 ]
+
