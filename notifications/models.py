@@ -1,14 +1,15 @@
 import datetime
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 
 from django import get_version
 from distutils.version import StrictVersion
 
 if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
     from django.contrib.contenttypes.fields import GenericForeignKey
+    from django.apps.apps import get_model
 else:
     from django.contrib.contenttypes.generic import GenericForeignKey
+    from django.db.models import get_model
 
 from django.db import models
 from django.core.exceptions import ImproperlyConfigured
@@ -163,20 +164,20 @@ class Notification(models.Model):
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, related_name='notifications')
     unread = models.BooleanField(default=True, blank=False)
 
-    actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
+    actor_content_type = models.ForeignKey('contenttypes.ContentType', related_name='notify_actor')
     actor_object_id = models.CharField(max_length=255)
     actor = GenericForeignKey('actor_content_type', 'actor_object_id')
 
     verb = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
-    target_content_type = models.ForeignKey(ContentType, related_name='notify_target',
+    target_content_type = models.ForeignKey('contenttypes.ContentType', related_name='notify_target',
         blank=True, null=True)
     target_object_id = models.CharField(max_length=255, blank=True, null=True)
     target = GenericForeignKey('target_content_type',
         'target_object_id')
 
-    action_object_content_type = models.ForeignKey(ContentType,
+    action_object_content_type = models.ForeignKey('contenttypes.ContentType',
         related_name='notify_action_object', blank=True, null=True)
     action_object_object_id = models.CharField(max_length=255, blank=True,
         null=True)
@@ -248,6 +249,7 @@ def notify_handler(verb, **kwargs):
     """
     Handler function to create Notification instance upon action signal call.
     """
+    ContentType = get_model('contenttypes', 'ContentType')
 
     kwargs.pop('signal', None)
     recipient = kwargs.pop('recipient')
