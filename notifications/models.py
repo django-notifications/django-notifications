@@ -6,7 +6,9 @@ from distutils.version import StrictVersion
 
 if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
     from django.contrib.contenttypes.fields import GenericForeignKey
-    from django.apps.apps import get_model
+    from django.apps import apps
+    get_model = apps.get_model
+    del apps
 else:
     from django.contrib.contenttypes.generic import GenericForeignKey
     from django.db.models import get_model
