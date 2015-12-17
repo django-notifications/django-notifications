@@ -65,11 +65,11 @@ Add the notifications urls to your urlconf::
 
     import notifications
 
-    urlpatterns = patterns('',
+    urlpatterns = [
         ...
-        url('^inbox/notifications/', include(notifications.urls)),
+        url('^inbox/notifications/', include(notifications.urls, namespace='notifications')),
         ...
-    )
+    ]
 
 The method of installing these urls, importing rather than using ``'notifications.urls'``, is required to ensure that the urls are installed in the ``notifications`` namespace.
 
