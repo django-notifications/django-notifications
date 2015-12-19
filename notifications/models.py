@@ -250,16 +250,17 @@ def notify_handler(verb, **kwargs):
     Handler function to create Notification instance upon action signal call.
     """
 
+    # Pull the options out of kwargs
     kwargs.pop('signal', None)
     recipient = kwargs.pop('recipient')
     actor = kwargs.pop('sender')
-    objs = [kwargs.pop(opt, None) for opt in ('target', 'action_object')]
+    optional_objs = [(kwargs.pop(opt, None), opt) for opt in ('target', 'action_object')]
     public=bool(kwargs.pop('public', True))
     description=kwargs.pop('description', None)
     timestamp=kwargs.pop('timestamp', now())
     level=kwargs.pop('level', Notification.LEVELS.info)
 
-    #accept Group or User
+    # Check if User or Group
     if isinstance(recipient, Group):
         recipients = recipient.user_set.all()
     else:
@@ -277,7 +278,8 @@ def notify_handler(verb, **kwargs):
             level=level,
         )
 
-        for obj in objs:
+        # Set optional objects
+        for obj,opt in optional_objs:
             if not obj is None:
                 setattr(newnotify, '%s_object_id' % opt, obj.pk)
                 setattr(newnotify, '%s_content_type' % opt,
