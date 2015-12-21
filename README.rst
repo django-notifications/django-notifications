@@ -99,7 +99,8 @@ To generate an notification anywhere in your code, simply import the notify sign
 
     notify.send(user, recipient=user, verb='you reached level 10')
 
-    notify.send(comment.user, recipient=user, verb=u'replied', action_object=comment,
+    // "recipient" can also be a Group, the notification will be sent to all the Users in the Group
+    notify.send(comment.user, recipient=group, verb=u'replied', action_object=comment,
                 description=comment.comment, target=comment.content_object)
 
     notify.send(follow_instance.user, recipient=follow_instance.follow_object, verb=u'has followed you',
