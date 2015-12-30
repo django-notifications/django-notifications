@@ -95,7 +95,7 @@ To generate an notification anywhere in your code, simply import the notify sign
 
 ::
 
-    from notifications.signal import notify
+    from notifications.signals import notify
 
     notify.send(user, recipient=user, verb='you reached level 10')
 
