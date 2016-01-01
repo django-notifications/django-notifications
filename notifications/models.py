@@ -1,8 +1,8 @@
-import datetime
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-
 from django import get_version
+from django.utils import timezone
+
 from distutils.version import StrictVersion
 
 if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
@@ -21,18 +21,6 @@ from model_utils import Choices
 from jsonfield.fields import JSONField
 
 from django.contrib.auth.models import Group
-
-
-def now():
-    # Needs to be be a function as USE_TZ can change based on if we are testing or not.
-    _now = datetime.datetime.now
-    if getattr(settings, 'USE_TZ'):
-        try:
-            from django.utils import timezone
-            _now = timezone.now
-        except ImportError:
-            pass
-    return _now()
 
 
 # SOFT_DELETE = getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False)
@@ -181,7 +169,7 @@ class Notification(models.Model):
     action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
     action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
 
-    timestamp = models.DateTimeField(default=now)
+    timestamp = models.DateTimeField(default=timezone.now)
 
     public = models.BooleanField(default=True)
     deleted = models.BooleanField(default=False)
@@ -257,7 +245,7 @@ def notify_handler(verb, **kwargs):
     ]
     public = bool(kwargs.pop('public', True))
     description = kwargs.pop('description', None)
-    timestamp = kwargs.pop('timestamp', now())
+    timestamp = kwargs.pop('timestamp', timezone.now())
     level = kwargs.pop('level', Notification.LEVELS.info)
 
     # Check if User or Group
