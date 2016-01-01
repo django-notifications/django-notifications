@@ -22,6 +22,7 @@ from jsonfield.fields import JSONField
 
 from django.contrib.auth.models import Group
 
+
 def now():
     # Needs to be be a function as USE_TZ can change based on if we are testing or not.
     _now = datetime.datetime.now
@@ -34,9 +35,9 @@ def now():
     return _now()
 
 
-#SOFT_DELETE = getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False)
+# SOFT_DELETE = getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False)
 def is_soft_delete():
-    #TODO: SOFT_DELETE = getattr(settings, ...) doesn't work with "override_settings" decorator in unittest
+    # TODO: SOFT_DELETE = getattr(settings, ...) doesn't work with "override_settings" decorator in unittest
     #     But is_soft_delete is neither a very elegant way. Should try to find better approach
     return getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False)
 
@@ -171,18 +172,14 @@ class Notification(models.Model):
     verb = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
-    target_content_type = models.ForeignKey(ContentType, related_name='notify_target',
-        blank=True, null=True)
+    target_content_type = models.ForeignKey(ContentType, related_name='notify_target', blank=True, null=True)
     target_object_id = models.CharField(max_length=255, blank=True, null=True)
-    target = GenericForeignKey('target_content_type',
-        'target_object_id')
+    target = GenericForeignKey('target_content_type', 'target_object_id')
 
-    action_object_content_type = models.ForeignKey(ContentType,
-        related_name='notify_action_object', blank=True, null=True)
-    action_object_object_id = models.CharField(max_length=255, blank=True,
-        null=True)
-    action_object = GenericForeignKey('action_object_content_type',
-        'action_object_object_id')
+    action_object_content_type = models.ForeignKey(ContentType, blank=True, null=True,
+                                                   related_name='notify_action_object')
+    action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
+    action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
 
     timestamp = models.DateTimeField(default=now)
 
@@ -254,11 +251,14 @@ def notify_handler(verb, **kwargs):
     kwargs.pop('signal', None)
     recipient = kwargs.pop('recipient')
     actor = kwargs.pop('sender')
-    optional_objs = [(kwargs.pop(opt, None), opt) for opt in ('target', 'action_object')]
-    public=bool(kwargs.pop('public', True))
-    description=kwargs.pop('description', None)
-    timestamp=kwargs.pop('timestamp', now())
-    level=kwargs.pop('level', Notification.LEVELS.info)
+    optional_objs = [
+        (kwargs.pop(opt, None), opt)
+        for opt in ('target', 'action_object')
+    ]
+    public = bool(kwargs.pop('public', True))
+    description = kwargs.pop('description', None)
+    timestamp = kwargs.pop('timestamp', now())
+    level = kwargs.pop('level', Notification.LEVELS.info)
 
     # Check if User or Group
     if isinstance(recipient, Group):
@@ -268,7 +268,7 @@ def notify_handler(verb, **kwargs):
 
     for recipient in recipients:
         newnotify = Notification(
-            recipient = recipient,
+            recipient=recipient,
             actor_content_type=ContentType.objects.get_for_model(actor),
             actor_object_id=actor.pk,
             verb=text_type(verb),
@@ -279,8 +279,8 @@ def notify_handler(verb, **kwargs):
         )
 
         # Set optional objects
-        for obj,opt in optional_objs:
-            if not obj is None:
+        for obj, opt in optional_objs:
+            if obj is not None:
                 setattr(newnotify, '%s_object_id' % opt, obj.pk)
                 setattr(newnotify, '%s_content_type' % opt,
                         ContentType.objects.get_for_model(obj))

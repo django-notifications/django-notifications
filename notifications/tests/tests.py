@@ -37,7 +37,8 @@ class NotificationTest(TestCase):
         delta = timezone.now().replace(tzinfo=utc) - localtime(notification.timestamp, pytz.timezone(settings.TIME_ZONE))
         self.assertTrue(delta.seconds < 60)
         # The delta between the two events will still be less than a second despite the different timezones
-        # The call to now and the immediate call afterwards will be within a short period of time, not 8 hours as the test above was originally.
+        # The call to now and the immediate call afterwards will be within a short period of time, not 8 hours as the
+        # test above was originally.
 
     @override_settings(USE_TZ=False)
     @override_settings(TIME_ZONE='Asia/Shanghai')
@@ -172,15 +173,21 @@ class NotificationTestPages(TestCase):
 
     def test_next_pages(self):
         self.login('to', 'pwd')
-        response = self.client.get(reverse('notifications:mark_all_as_read')+"?next="+reverse('notifications:unread'))
+        response = self.client.get(reverse('notifications:mark_all_as_read'), data={
+            "next": reverse('notifications:unread'),
+        })
         self.assertRedirects(response, reverse('notifications:unread'))
 
         slug = id2slug(self.to_user.notifications.first().id)
-        response = self.client.get(reverse('notifications:mark_as_read', args=[slug])+"?next="+reverse('notifications:unread'))
+        response = self.client.get(reverse('notifications:mark_as_read', args=[slug]), data={
+            "next": reverse('notifications:unread'),
+        })
         self.assertRedirects(response, reverse('notifications:unread'))
 
         slug = id2slug(self.to_user.notifications.first().id)
-        response = self.client.get(reverse('notifications:mark_as_unread', args=[slug])+"?next="+reverse('notifications:unread'))
+        response = self.client.get(reverse('notifications:mark_as_unread', args=[slug]), {
+            "next": reverse('notifications:unread'),
+        })
         self.assertRedirects(response, reverse('notifications:unread'))
 
     def test_delete_messages_pages(self):
@@ -247,14 +254,16 @@ class NotificationTestPages(TestCase):
         self.assertEqual(data['unread_count'], 10)
         self.assertEqual(len(data['unread_list']), 5)
 
-        response = self.client.get(reverse('notifications:live_unread_notification_list')+"?max=12")
+        response = self.client.get(reverse('notifications:live_unread_notification_list'), data={"max": "12"})
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(sorted(list(data.keys())), ['unread_count', 'unread_list'])
         self.assertEqual(data['unread_count'], 10)
         self.assertEqual(len(data['unread_list']), 10)
 
         # Test with a bad 'max' value
-        response = self.client.get(reverse('notifications:live_unread_notification_list')+"?max=this_is_wrong")
+        response = self.client.get(reverse('notifications:live_unread_notification_list'), data={
+            "max": "this_is_wrong",
+        })
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(sorted(list(data.keys())), ['unread_count', 'unread_list'])
         self.assertEqual(data['unread_count'], 10)
@@ -284,6 +293,6 @@ class NotificationTestPages(TestCase):
         request = self.factory.get('/notification/live_updater')
         request.user = self.to_user
 
-        page = render(request, 'notifications/test_tags.html', {'request': request})
+        render(request, 'notifications/test_tags.html', {'request': request})
 
-        #TODO: Add more tests to check what is being output.
+        # TODO: Add more tests to check what is being output.
