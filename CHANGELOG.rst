@@ -1,6 +1,24 @@
 Changelog
 =========
 
+1.0
+-----
+
+The first major version that requires Django 1.7+.
+
+- Drop support for Django 1.6 and below (@zhang-z)
+- Django 1.9 compability (@illing2005)
+- Now depends on Django built-in migration facility, "south_migrations" dependence was removed (@zhang-z)
+- Make django-notification compatible with django-model-utils >= 2.4 ( #87, #88, #90 ) (@zhang-z)
+- Fix a RemovedInDjango110Warning in unittest (@zhang-z)
+- Fix pep8 & use setuptools (@areski)
+- Fix typo- in doc (@areski, @zhang-z)
+- Add app_name in urls.py (@zhang-z)
+- Use Django's vendored copy of six (@funkybob)
+- Tidy with flake8 (@funkybob)
+- Remove custom now() function (@funkybob, @yangyubo)
+- notify.send() accepts User or Group (@Evidlo)
+
 0.8.0
 -----
 
@@ -10,7 +28,7 @@ Changelog
 - Class-based classes (@alazaro)
 - Fixed urls in tests (@alazaro)
 - Added app_label to Notification model in order to fix a Django 1.9 deprecation warning (@Heldroe)
-- django-model-utils compatible issue (must >=2.0.3 and <2.4) (@zhangz)
+- django-model-utils compatible issue (must >=2.0.3 and <2.4) (@zhang-z)
 - Reliable setup.py versioning (@yangyubo)
 
 0.7.1
