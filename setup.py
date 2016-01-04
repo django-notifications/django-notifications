@@ -30,7 +30,6 @@ setup(
     test_requires=[
         'django>=1.7',
         'django-model-utils>=2.0.3',
-        'six>=1.9.0',
         'jsonfield>=1.0.3',
         'pytz'
     ],
