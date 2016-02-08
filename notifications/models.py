@@ -1,8 +1,8 @@
-import datetime
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-
 from django import get_version
+from django.utils import timezone
+
 from distutils.version import StrictVersion
 
 if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
@@ -12,30 +12,20 @@ else:
 
 from django.db import models
 from django.core.exceptions import ImproperlyConfigured
-from six import text_type
+from django.utils.six import text_type
 from .utils import id2slug
 
 from .signals import notify
 
-from model_utils import managers, Choices
+from model_utils import Choices
 from jsonfield.fields import JSONField
 
-
-def now():
-    # Needs to be be a function as USE_TZ can change based on if we are testing or not.
-    _now = datetime.datetime.now
-    if getattr(settings, 'USE_TZ'):
-        try:
-            from django.utils import timezone
-            _now = timezone.now
-        except ImportError:
-            pass
-    return _now()
+from django.contrib.auth.models import Group
 
 
-#SOFT_DELETE = getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False)
+# SOFT_DELETE = getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False)
 def is_soft_delete():
-    #TODO: SOFT_DELETE = getattr(settings, ...) doesn't work with "override_settings" decorator in unittest
+    # TODO: SOFT_DELETE = getattr(settings, ...) doesn't work with "override_settings" decorator in unittest
     #     But is_soft_delete is neither a very elegant way. Should try to find better approach
     return getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False)
 
@@ -170,27 +160,23 @@ class Notification(models.Model):
     verb = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
-    target_content_type = models.ForeignKey(ContentType, related_name='notify_target',
-        blank=True, null=True)
+    target_content_type = models.ForeignKey(ContentType, related_name='notify_target', blank=True, null=True)
     target_object_id = models.CharField(max_length=255, blank=True, null=True)
-    target = GenericForeignKey('target_content_type',
-        'target_object_id')
+    target = GenericForeignKey('target_content_type', 'target_object_id')
 
-    action_object_content_type = models.ForeignKey(ContentType,
-        related_name='notify_action_object', blank=True, null=True)
-    action_object_object_id = models.CharField(max_length=255, blank=True,
-        null=True)
-    action_object = GenericForeignKey('action_object_content_type',
-        'action_object_object_id')
+    action_object_content_type = models.ForeignKey(ContentType, blank=True, null=True,
+                                                   related_name='notify_action_object')
+    action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
+    action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
 
-    timestamp = models.DateTimeField(default=now)
+    timestamp = models.DateTimeField(default=timezone.now)
 
     public = models.BooleanField(default=True)
     deleted = models.BooleanField(default=False)
     emailed = models.BooleanField(default=False)
 
     data = JSONField(blank=True, null=True)
-    objects = managers.PassThroughManager.for_queryset_class(NotificationQuerySet)()
+    objects = NotificationQuerySet.as_manager()
 
     class Meta:
         ordering = ('-timestamp', )
@@ -212,7 +198,7 @@ class Notification(models.Model):
             return u'%(actor)s %(verb)s %(action_object)s %(timesince)s ago' % ctx
         return u'%(actor)s %(verb)s %(timesince)s ago' % ctx
 
-    def __str__(self):#Adds support for Python 3
+    def __str__(self):  # Adds support for Python 3
         return self.__unicode__()
 
     def timesince(self, now=None):
@@ -249,31 +235,48 @@ def notify_handler(verb, **kwargs):
     Handler function to create Notification instance upon action signal call.
     """
 
+    # Pull the options out of kwargs
     kwargs.pop('signal', None)
     recipient = kwargs.pop('recipient')
     actor = kwargs.pop('sender')
-    newnotify = Notification(
-        recipient = recipient,
-        actor_content_type=ContentType.objects.get_for_model(actor),
-        actor_object_id=actor.pk,
-        verb=text_type(verb),
-        public=bool(kwargs.pop('public', True)),
-        description=kwargs.pop('description', None),
-        timestamp=kwargs.pop('timestamp', now()),
-        level=kwargs.pop('level', Notification.LEVELS.info),
-    )
+    optional_objs = [
+        (kwargs.pop(opt, None), opt)
+        for opt in ('target', 'action_object')
+    ]
+    public = bool(kwargs.pop('public', True))
+    description = kwargs.pop('description', None)
+    timestamp = kwargs.pop('timestamp', timezone.now())
+    level = kwargs.pop('level', Notification.LEVELS.info)
 
-    for opt in ('target', 'action_object'):
-        obj = kwargs.pop(opt, None)
-        if not obj is None:
-            setattr(newnotify, '%s_object_id' % opt, obj.pk)
-            setattr(newnotify, '%s_content_type' % opt,
-                    ContentType.objects.get_for_model(obj))
+    # Check if User or Group
+    if isinstance(recipient, Group):
+        recipients = recipient.user_set.all()
+    else:
+        recipients = [recipient]
 
-    if len(kwargs) and EXTRA_DATA:
-        newnotify.data = kwargs
+    for recipient in recipients:
+        newnotify = Notification(
+            recipient=recipient,
+            actor_content_type=ContentType.objects.get_for_model(actor),
+            actor_object_id=actor.pk,
+            verb=text_type(verb),
+            public=public,
+            description=description,
+            timestamp=timestamp,
+            level=level,
+        )
 
-    newnotify.save()
+        # Set optional objects
+        for obj, opt in optional_objs:
+            if obj is not None:
+                setattr(newnotify, '%s_object_id' % opt, obj.pk)
+                setattr(newnotify, '%s_content_type' % opt,
+                        ContentType.objects.get_for_model(obj))
+
+        if len(kwargs) and EXTRA_DATA:
+            newnotify.data = kwargs
+
+        newnotify.save()
 
 
 # connect the signal

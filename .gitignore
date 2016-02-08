@@ -6,3 +6,4 @@ MANIFEST
 .coverage
 htmlcov
 /.idea/
+*.egg-info
