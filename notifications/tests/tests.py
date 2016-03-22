@@ -86,6 +86,17 @@ class NotificationManagersTest(TestCase):
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
         self.assertEqual(Notification.objects.unread().count(), 0)
 
+    @override_settings(NOTIFICATIONS_SOFT_DELETE=True)
+    def test_mark_all_as_read_manager_with_soft_delete(self):
+        # even soft-deleted notifications should be marked as read
+        # refer: https://github.com/django-notifications/django-notifications/issues/126
+        to_delete = Notification.objects.filter(recipient=self.to_user).order_by('id')[0]
+        to_delete.deleted = True
+        to_delete.save()
+        self.assertTrue(Notification.objects.filter(recipient=self.to_user).order_by('id')[0].unread)
+        Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
+        self.assertFalse(Notification.objects.filter(recipient=self.to_user).order_by('id')[0].unread)
+
     def test_mark_all_as_unread_manager(self):
         self.assertEqual(Notification.objects.unread().count(), self.message_count)
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
