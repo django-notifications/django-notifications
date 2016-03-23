@@ -40,9 +40,9 @@ def assert_soft_delete():
 
 class NotificationQuerySet(models.query.QuerySet):
 
-    def unread(self):
+    def unread(self, include_deleted=False):
         """Return only unread items in the current queryset"""
-        if is_soft_delete():
+        if is_soft_delete() and not include_deleted:
             return self.filter(unread=True, deleted=False)
         else:
             """ when SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
@@ -50,9 +50,9 @@ class NotificationQuerySet(models.query.QuerySet):
             """
             return self.filter(unread=True)
 
-    def read(self):
+    def read(self, include_deleted=False):
         """Return only read items in the current queryset"""
-        if is_soft_delete():
+        if is_soft_delete() and not include_deleted:
             return self.filter(unread=False, deleted=False)
         else:
             """ when SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
@@ -67,7 +67,7 @@ class NotificationQuerySet(models.query.QuerySet):
         """
         # We want to filter out read ones, as later we will store
         # the time they were marked as read.
-        qs = self.unread()
+        qs = self.unread(True)
         if recipient:
             qs = qs.filter(recipient=recipient)
 
@@ -78,7 +78,7 @@ class NotificationQuerySet(models.query.QuerySet):
 
         Optionally, filter these by recipient first.
         """
-        qs = self.read()
+        qs = self.read(True)
 
         if recipient:
             qs = qs.filter(recipient=recipient)
