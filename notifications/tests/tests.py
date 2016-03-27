@@ -307,3 +307,15 @@ class NotificationTestPages(TestCase):
         render(request, 'notifications/test_tags.html', {'request': request})
 
         # TODO: Add more tests to check what is being output.
+
+    def test_anon_user_gets_nothing(self):
+        response = self.client.post(reverse('notifications:live_unread_notification_count'))
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(data['unread_count'],0)
+
+        response = self.client.post(reverse('notifications:live_unread_notification_list'))
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(data['unread_count'],0)
+        self.assertEqual(data['unread_list'],[])

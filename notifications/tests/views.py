@@ -20,6 +20,7 @@ def make_notification(request):
         'cleaning the car',
         'jumping the shark',
         'testing the app',
+        'attaching the plumbus',
     ])
 
     notify.send(sender=request.user, recipient=request.user,

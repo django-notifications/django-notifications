@@ -120,13 +120,22 @@ def delete(request, slug=None):
 
 
 def live_unread_notification_count(request):
-    data = {
-        'unread_count': request.user.notifications.unread().count(),
-    }
+    if not request.user.is_authenticated():
+        data = {'unread_count':0}
+    else:
+        data = {
+            'unread_count': request.user.notifications.unread().count(),
+        }
     return JsonResponse(data)
 
 
 def live_unread_notification_list(request):
+    if not request.user.is_authenticated():
+        data = {
+           'unread_count':0,
+           'unread_list':[]
+        }
+        return JsonResponse(data)
 
     try:
         num_to_fetch = request.GET.get('max', 5)  # If they don't specify, make it 5.
