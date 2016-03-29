@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.1
+-----
+
+- Custom now() invocation got overlooked by PR #113 (@yangyuvo)
+- Added sentinals for unauthenticated users, preventing a 500 error (@LegoStormtroopr)
+- Fix: Mark All As read fails if soft-deleted #126 (@zhang-z)
+
 1.0
 -----
 
