@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.urlresolvers import reverse
 from django.template import Library
+from django.utils.html import format_html
 
 register = Library()
 
@@ -51,7 +52,7 @@ def register_notify_callbacks(badge_id='live_notify_badge',
     for callback in callbacks.split(','):
         script += "register_notifier("+callback+");"
     script += "</script>"
-    return script
+    return format_html(script)
 
 
 @register.simple_tag(takes_context=True)
@@ -63,13 +64,13 @@ def live_notify_badge(context, badge_id='live_notify_badge', classes=""):
     html = "<span id='{badge_id}' class='{classes}'>{unread}</span>".format(
         badge_id=badge_id, classes=classes, unread=user.notifications.unread().count()
     )
-    return html
+    return format_html(html)
 
 
 @register.simple_tag
 def live_notify_list(list_id='live_notify_list', classes=""):
     html = "<ul id='{list_id}' class='{classes}'></ul>".format(list_id=list_id, classes=classes)
-    return html
+    return format_html(html)
 
 
 def user_context(context):
