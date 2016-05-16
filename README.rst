@@ -63,7 +63,7 @@ The app should go somewhere after all the apps that are going to be generating n
 
 Add the notifications urls to your urlconf::
 
-    import notifications
+    import notifications.urls
 
     urlpatterns = [
         ...
