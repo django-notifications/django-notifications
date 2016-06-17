@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.2
+-----
+
+- Django 1.9 template tag compatibility: due to ``register.simple_tag`` automatically espacing ``unsafe_html`` in Django 1.9, it is now recommended to use format_html (@ikkebr)
+- Fixed parameter name error in README.rst: there is no to_fetch parameter, the correct name is fetch (@ikkebr)
+- Add missing migration (@marcgibbons)
+- Minor documentation correction (@tkwon, @zhang-z)
+- Return updated count in QuerySet (@zhang-z)
+
 1.1
 -----
 
@@ -91,4 +100,3 @@ Fix package descriptions and doc links.
 ---
 
 First version based on `django-activity-stream <https://github.com/justquick/django-activity-stream>`_ v0.4.3
-
