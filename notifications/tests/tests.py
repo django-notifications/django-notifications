@@ -63,7 +63,11 @@ class NotificationManagersTest(TestCase):
             notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
         # Send notification to group
         notify.send(self.from_user, recipient=self.to_group, verb='commented', action_object=self.from_user)
-        self.message_count += 1
+        
+        # Send notification to all users
+        notify.send(self.from_user, recipient=User.objects.all(), verb='commented', action_object=self.from_user)
+        
+        self.message_count += 2
 
     def test_unread_manager(self):
         self.assertEqual(Notification.objects.unread().count(), self.message_count)
