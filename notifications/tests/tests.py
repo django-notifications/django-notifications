@@ -177,7 +177,7 @@ class NotificationTestPages(TestCase):
         self.assertTrue(len(response.context['notifications']) < self.message_count)
 
         response = self.client.get(reverse('notifications:mark_all_as_read'))
-        self.assertRedirects(response, reverse('notifications:all'))
+        self.assertRedirects(response, reverse('notifications:unread'))
         response = self.client.get(reverse('notifications:unread'))
         self.assertEqual(len(response.context['notifications']), len(self.to_user.notifications.unread()))
         self.assertEqual(len(response.context['notifications']), 0)
