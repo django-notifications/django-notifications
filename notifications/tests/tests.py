@@ -298,19 +298,21 @@ class NotificationTestPages(TestCase):
     def test_unread_list_api_mark_as_read(self):
         self.login('to', 'pwd')
         num_requested = 3
-        response = self.client.get(reverse('notifications:live_unread_notification_list'), data={
-            "max": num_requested,
-            "mark_as_read": 1,
-        })
+        response = self.client.get(
+            reverse('notifications:live_unread_notification_list'),
+            data={"max": num_requested, "mark_as_read": 1}
+        )
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(data['unread_count'], self.message_count - num_requested)
+        self.assertEqual(data['unread_count'],
+                         self.message_count - num_requested)
         self.assertEqual(len(data['unread_list']), num_requested)
-        response = self.client.get(reverse('notifications:live_unread_notification_list'), data={
-            "max": num_requested,
-            "mark_as_read": 1,
-        })
+        response = self.client.get(
+            reverse('notifications:live_unread_notification_list'),
+            data={"max": num_requested, "mark_as_read": 1}
+        )
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(data['unread_count'], 4)
+        self.assertEqual(data['unread_count'],
+                         self.message_count - 2*num_requested)
         self.assertEqual(len(data['unread_list']), num_requested)
 
     def test_live_update_tags(self):
