@@ -254,10 +254,10 @@ There are two possible API calls that can be made:
 
    Query string arguments:
 
-   - **max**
-   - **mark_as_read**
+   - **max** - maximum length of unread list.
+   - **mark_as_read** - mark notification in list as read.
 
-   For example, get ``api/unread_list/?max=3&mark_as_read=true`` returns 3 notifications and mark them read (remove from list on next time).
+   For example, get ``api/unread_list/?max=3&mark_as_read=true`` returns 3 notifications and mark them read (remove from list on next request).
 
 
 How to use:
