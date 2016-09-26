@@ -239,18 +239,25 @@ for updating specific fields within a django template.
 
 There are two possible API calls that can be made:
 
- 1. ``api/unread_count/`` that returns a javascript object with 1 key: ``unread_count`` eg::
+1. ``api/unread_count/`` that returns a javascript object with 1 key: ``unread_count`` eg::
 
         {"unread_count":1}
 
- #. ``api/unread_list/`` that returns a javascript object with 2 keys: `unread_count` and `unread_list` eg::
+#. ``api/unread_list/`` that returns a javascript object with 2 keys: `unread_count` and `unread_list` eg::
 
-         {
-          "unread_count":1,
-          "unread_list":[--list of json representations of notifications--]
-         }
+        {
+         "unread_count":1,
+         "unread_list":[--list of json representations of notifications--]
+        }
 
-     Representations of notifications are based on the django method: ``model_to_dict``
+   Representations of notifications are based on the django method: ``model_to_dict``
+
+   Query string arguments:
+
+   - **max** - maximum length of unread list.
+   - **mark_as_read** - mark notification in list as read.
+
+   For example, get ``api/unread_list/?max=3&mark_as_read=true`` returns 3 notifications and mark them read (remove from list on next request).
 
 
 How to use:
