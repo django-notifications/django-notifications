@@ -163,3 +163,41 @@ def live_unread_notification_list(request):
         'unread_list': unread_list
     }
     return JsonResponse(data)
+
+
+def live_notification_list(request):
+    if not request.user.is_authenticated():
+        data = {
+           'all_count':0,
+           'all_list':[]
+        }
+        return JsonResponse(data)
+
+    try:
+        num_to_fetch = request.GET.get('max', 5)  # If they don't specify, make it 5.
+        num_to_fetch = int(num_to_fetch)
+        num_to_fetch = max(1, num_to_fetch)  # if num_to_fetch is negative, force at least one fetched notifications
+        num_to_fetch = min(num_to_fetch, 100)  # put a sane ceiling on the number retrievable
+    except ValueError:
+        num_to_fetch = 5  # If casting to an int fails, just make it 5.
+
+    all_list = []
+
+    for n in request.user.notifications.all()[0:num_to_fetch]:
+        struct = model_to_dict(n)
+        if n.actor:
+            struct['actor'] = str(n.actor)
+        if n.target:
+            struct['target'] = str(n.target)
+        if n.action_object:
+            struct['action_object'] = str(n.action_object)
+        if n.data:
+            struct['data'] = str(n.data)
+        all_list.append(struct)
+        if request.GET.get('mark_as_read'):
+            n.mark_as_read()
+    data = {
+        'all_count': request.user.notifications.all().count(),
+        'all_list': all_list
+    }
+    return JsonResponse(data)
