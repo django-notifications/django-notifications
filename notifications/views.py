@@ -128,6 +128,14 @@ def live_unread_notification_count(request):
         }
     return JsonResponse(data)
 
+def live_notification_count(request):
+    if not request.user.is_authenticated():
+        data = {'count':0}
+    else:
+        data = {
+            'count': request.user.notifications.all().count(),
+        }
+    return JsonResponse(data)
 
 def live_unread_notification_list(request):
     if not request.user.is_authenticated():
