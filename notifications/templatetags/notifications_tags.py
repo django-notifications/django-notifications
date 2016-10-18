@@ -26,8 +26,12 @@ def register_notify_callbacks(badge_id='live_notify_badge',
 
     if api_name == 'list':
         api_url = reverse('notifications:live_unread_notification_list')
+    elif api_name == 'list_all':
+        api_url = reverse('notifications:live_notification_list')
     elif api_name == 'count':
         api_url = reverse('notifications:live_unread_notification_count')
+    elif api_name == 'count_all':
+        api_url = reverse('notifications:live_notification_count')
     else:
         return ""
     definitions = """
