@@ -207,6 +207,7 @@ def live_notification_list(request):
             n.mark_as_read()
     data = {
         'all_count': request.user.notifications.all().count(),
+        'unread_count': request.user.notifications.unread().count(),
         'all_list': all_list
     }
     return JsonResponse(data)
