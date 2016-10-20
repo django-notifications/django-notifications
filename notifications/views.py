@@ -201,7 +201,7 @@ def live_notification_list(request):
         if n.action_object:
             struct['action_object'] = str(n.action_object)
         if n.data:
-            struct['data'] = json.dumps(n.data)
+            struct['data'] = n.data
         struct['slug'] = str(n.slug)
         all_list.append(struct)
         if request.GET.get('mark_as_read'):
