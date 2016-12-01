@@ -1,3 +1,5 @@
+import dateutil.parser
+
 from django import get_version
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -190,9 +192,17 @@ def live_notification_list(request):
     except ValueError:
         num_to_fetch = 5  # If casting to an int fails, just make it 5.
 
+    before_datetime = request.GET.get('before')
+
     all_list = []
 
-    for n in request.user.notifications.all()[0:num_to_fetch]:
+    all_notifications_qa = request.user.notifications.all()
+
+    if before_datetime:
+        all_notifications_qa = all_notifications_qa.filter(timestamp__lt=dateutil.parser.parse(before_datetime))
+
+
+    for n in all_notifications_qa[0:num_to_fetch]:
         struct = model_to_dict(n)
         if n.actor:
             struct['actor'] = str(n.actor)
