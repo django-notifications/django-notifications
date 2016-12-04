@@ -1,3 +1,4 @@
+import uuid
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django import get_version
@@ -177,6 +178,8 @@ class Notification(models.Model):
 
     data = JSONField(blank=True, null=True)
     objects = NotificationQuerySet.as_manager()
+
+    uuid = models.UUIDField(db_index=True)
 
     class Meta:
         ordering = ('-timestamp', )
