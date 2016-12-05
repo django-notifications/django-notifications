@@ -154,7 +154,7 @@ class Notification(models.Model):
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, related_name='notifications')
     unread = models.BooleanField(default=True, blank=False)
 
-    actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
+    actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor', null=True)
     actor_object_id = models.CharField(max_length=255)
     actor = GenericForeignKey('actor_content_type', 'actor_object_id')
 
