@@ -79,9 +79,9 @@ def user_context(context):
 
     request = context['request']
     try:
-	    user = request.user
-    	return user
-	except Exception as e:
-		pass 
-		   	
+        user = request.user
+        return user
+    except Exception as e:
+        pass
+
     return None
