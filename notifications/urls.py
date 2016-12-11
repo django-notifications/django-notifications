@@ -7,7 +7,7 @@ from . import views
 
 app_name = 'notifications'
 urlpatterns = [
-    url(r'^$', views.view_all_notifications_paged, name='all'),
+    url(r'^$', views.view_all_unread_notifications_paged, name='all'),
     url(r'^unread/$', views.UnreadNotificationsList.as_view(), name='unread'),
     url(r'^mark-all-as-read/$', views.mark_all_as_read, name='mark_all_as_read'),
     url(r'^mark-as-read/(?P<slug>\d+)/$', views.mark_as_read, name='mark_as_read'),

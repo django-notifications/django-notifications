@@ -60,12 +60,9 @@ class UnreadNotificationsList(NotificationViewList):
 
 
 @login_required()
-def view_all_notifications_paged(request):
+def view_all_unread_notifications_paged(request):
 
-    if getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False):
-        qs = request.user.notifications.active()
-    else:
-        qs = request.user.notifications.all()
+    qs = request.user.notifications.unread()
 
     paginator = Paginator(qs, getattr(settings, 'NOTIFICATIONS_PAGE_LEN', 25))
     page = request.GET.get('page', 1)
