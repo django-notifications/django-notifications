@@ -2,12 +2,15 @@ from django import get_version
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.forms import model_to_dict
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect,render
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView
 
 from .utils import slug2id
 from .models import Notification
+
+from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
+
 
 from distutils.version import StrictVersion
 if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
@@ -54,6 +57,24 @@ class UnreadNotificationsList(NotificationViewList):
     def get_queryset(self):
         return self.request.user.notifications.unread()
 
+
+
+@login_required()
+def view_all_notifications_paged(request):
+
+    qs = request.user.notifications.all()
+
+    paginator = Paginator(qs, getattr(settings, 'NOTIFICATIONS_PAGE_LEN', 25))
+    page = request.GET.get('page', 1)
+
+    try:
+        notifications = paginator.page(page)
+    except PageNotAnInteger:
+        notifications = paginator.page(1)
+    except EmptyPage:
+        notifications = paginator.page(paginator.num_pages)
+
+    return render(request,'notifications/list.html',locals())
 
 @login_required
 def mark_all_as_read(request):

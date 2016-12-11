@@ -3,3 +3,11 @@
     {% include 'notifications/notice.html' %}
   {% endfor %}
 </ul>
+
+{% for num in notifications.paginator.page_range %}
+  {% ifequal num notifications.number %}
+    <span class="current"><b>{{ num }}</b></span>
+  {% else %}
+    <a href="?page={{ num }}"> {{ num }}</a>
+  {% endifequal %}
+{% endfor %}
