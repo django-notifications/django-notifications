@@ -260,14 +260,16 @@ def notify_handler(verb, **kwargs):
     for recipient in recipients:
         newnotify = Notification(
             recipient=recipient,
-            actor_content_type=ContentType.objects.get_for_model(actor),
-            actor_object_id=actor.pk,
             verb=text_type(verb),
             public=public,
             description=description,
             timestamp=timestamp,
             level=level,
         )
+
+        if actor:
+            newnotify.actor_content_type = ContentType.objects.get_for_model(actor)
+            newnotify.actor_object_id = actor.pk
 
         # Set optional objects
         for obj, opt in optional_objs:
