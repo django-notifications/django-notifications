@@ -39,10 +39,10 @@ setup(
     packages=[
         'notifications',
         'notifications.templatetags',
-        'notifications.migrations',
     ],
     package_data={
-        'notifications': ['templates/notifications/*.html', 'static/notifications/*.js']
+        'notifications': ['templates/notifications/*.html', 'static/notifications/*.js', 'migrations/*.py',
+                          'management/*.py', 'management/commands/*.py']
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
