@@ -18,7 +18,8 @@ from .utils import id2slug
 from .signals import notify
 
 from model_utils import Choices
-if StrictVersion(get_version()) >= StrictVersion('1.9.0'):
+
+if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql_psycopg2' and StrictVersion(get_version()) >= StrictVersion('1.9.0'):
     from django.contrib.postgres.fields import JSONField
 else:
     from jsonfield.fields import JSONField
