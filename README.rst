@@ -287,7 +287,7 @@ How to use:
    1. ``badge_id`` (default ``live_notify_badge``) - The ``id`` attribute for the ``<span>`` element that will be created to show the unread count.
    #. ``classes`` (default ``<empty string>``) - A string used to populate the ``class`` attribute of the above element.
 
- 4. To insert a live-updating unread count, use the following template::
+ 4. To insert a live-updating unread list, use the following template::
 
        {% live_notify_list %}
 
