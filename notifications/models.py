@@ -263,6 +263,8 @@ def notify_handler(verb, **kwargs):
     # Check if User or Group
     if isinstance(recipient, Group):
         recipients = recipient.user_set.all()
+    elif type(recipient) is list:
+        recipients = recipient
     else:
         recipients = [recipient]
 
