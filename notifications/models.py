@@ -266,6 +266,8 @@ def notify_handler(verb, **kwargs):
     else:
         recipients = [recipient]
 
+    new_notifications = []
+
     for recipient in recipients:
         newnotify = Notification(
             recipient=recipient,
@@ -289,6 +291,9 @@ def notify_handler(verb, **kwargs):
             newnotify.data = kwargs
 
         newnotify.save()
+        new_notifications.append(newnotify)
+
+    return new_notifications
 
 
 # connect the signal
