@@ -1,3 +1,4 @@
+import uuid
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django import get_version
@@ -165,7 +166,7 @@ class Notification(models.Model):
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, related_name='notifications')
     unread = models.BooleanField(default=True, blank=False)
 
-    actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
+    actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor', null=True)
     actor_object_id = models.CharField(max_length=255)
     actor = GenericForeignKey('actor_content_type', 'actor_object_id')
 
@@ -189,6 +190,8 @@ class Notification(models.Model):
 
     data = JSONField(blank=True, null=True)
     objects = NotificationQuerySet.as_manager()
+
+    uuid = models.UUIDField(db_index=True, default=uuid.uuid4)
 
     class Meta:
         ordering = ('-timestamp', )
@@ -271,14 +274,16 @@ def notify_handler(verb, **kwargs):
     for recipient in recipients:
         newnotify = Notification(
             recipient=recipient,
-            actor_content_type=ContentType.objects.get_for_model(actor),
-            actor_object_id=actor.pk,
             verb=text_type(verb),
             public=public,
             description=description,
             timestamp=timestamp,
             level=level,
         )
+
+        if actor:
+            newnotify.actor_content_type = ContentType.objects.get_for_model(actor)
+            newnotify.actor_object_id = actor.pk
 
         # Set optional objects
         for obj, opt in optional_objs:

@@ -15,6 +15,32 @@ function fill_notification_badge(data) {
     }
 }
 
+function fill_all_notification_list(data) {
+    var menu = document.getElementById(notify_menu_id);
+    if (menu) {
+        menu.innerHTML = "";
+        for (var i=0; i < data.all_list.length; i++) {
+            var item = data.all_list[i];
+            console.log(item)
+            var message = ""
+            if(typeof item.actor !== 'undefined'){
+                message = item.actor;
+            }
+            if(typeof item.verb !== 'undefined'){
+                message = message + " " + item.verb;
+            }
+            if(typeof item.target !== 'undefined'){
+                message = message + " " + item.target;
+            }
+            if(typeof item.timestamp !== 'undefined'){
+                message = message + " " + item.timestamp;
+            }
+
+            menu.innerHTML = menu.innerHTML + "<li>"+ message + "</li>";
+        }
+    }
+}
+
 function fill_notification_list(data) {
     var menu = document.getElementById(notify_menu_id);
     if (menu) {

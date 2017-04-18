@@ -25,21 +25,24 @@ setup(
         'django>=1.7',
         'django-model-utils>=2.0.3',
         'jsonfield>=1.0.3',
-        'pytz'
+        'python-dateutil',
+        'pytz',
+        'click'
     ],
     test_requires=[
         'django>=1.7',
         'django-model-utils>=2.0.3',
         'jsonfield>=1.0.3',
-        'pytz'
+        'pytz',
+        'click'
     ],
     packages=[
         'notifications',
         'notifications.templatetags',
-        'notifications.migrations',
     ],
     package_data={
-        'notifications': ['templates/notifications/*.html', 'static/notifications/*.js']
+        'notifications': ['templates/notifications/*.html', 'static/notifications/*.js', 'migrations/*.py',
+                          'management/*.py', 'management/commands/*.py']
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
