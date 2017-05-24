@@ -19,7 +19,7 @@ function fill_notification_list(data) {
     var menu = document.getElementById(notify_menu_id);
     if (menu) {
         var content = [];
-        while(var item = data.unread_list.shift()) {
+        menu.innerHTML = data.unread_list.map(function (item) {
             var message = "";
             if(typeof item.actor !== 'undefined'){
                 message = item.actor;
@@ -33,9 +33,8 @@ function fill_notification_list(data) {
             if(typeof item.timestamp !== 'undefined'){
                 message = message + " " + item.timestamp;
             }
-            content.append('<li>' + message + '</li>');
-        }
-        menu.innerHTML = content.join('');
+            return '<li>' + message + '</li>';
+        }).join('')
     }
 }
 
