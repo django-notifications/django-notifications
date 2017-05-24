@@ -18,11 +18,9 @@ function fill_notification_badge(data) {
 function fill_notification_list(data) {
     var menu = document.getElementById(notify_menu_id);
     if (menu) {
-        menu.innerHTML = "";
-        for (var i=0; i < data.unread_list.length; i++) {
-            var item = data.unread_list[i];
-            console.log(item)
-            var message = ""
+        var content = [];
+        while(var item = data.unread_list.shift()) {
+            var message = "";
             if(typeof item.actor !== 'undefined'){
                 message = item.actor;
             }
@@ -35,9 +33,9 @@ function fill_notification_list(data) {
             if(typeof item.timestamp !== 'undefined'){
                 message = message + " " + item.timestamp;
             }
-
-            menu.innerHTML = menu.innerHTML + "<li>"+ message + "</li>";
+            content.append('<li>' + message + '</li>');
         }
+        menu.innerHTML = content.join('');
     }
 }
 
@@ -50,17 +48,13 @@ function fetch_api_data() {
         //only fetch data if a function is setup
         var r = new XMLHttpRequest();
         r.open("GET", notify_api_url+'?max='+notify_fetch_count, true);
-        r.onreadystatechange = function () {
-            if (r.readyState != 4 || r.status != 200) {
-                consecutive_misfires++;
-            }
-            else {
-                consecutive_misfires = 0;
-                for (var i=0; i < registered_functions.length; i++) {
-                    var func = registered_functions[i];
-                    func(JSON.parse(r.responseText));
-                }
-            }
+        r.onerror = function () {
+            consecutive_misfires++;
+        }
+        r.onready = function () {
+            consecutive_misfires = 0;
+            var data = JSON.parse(r.responseText);
+            registered_functions.forEach(function (func) { func(data); });
         }
         r.send();
     }
@@ -75,4 +69,4 @@ function fetch_api_data() {
     }
 }
 
-setTimeout(fetch_api_data,1000);
+setTimeout(fetch_api_data, 1000);
