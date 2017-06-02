@@ -58,11 +58,15 @@ class NotificationManagersTest(TestCase):
         self.from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
         self.to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
         self.to_group = Group.objects.create(name="to2_g")
+        self.to_user_list = User.objects.all()
         self.to_group.user_set.add(self.to_user)
         for i in range(self.message_count):
             notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
         # Send notification to group
         notify.send(self.from_user, recipient=self.to_group, verb='commented', action_object=self.from_user)
+        self.message_count += 1
+        # Send notification to user list
+        notify.send(self.from_user, recipient=self.to_user_list, verb='commented', action_object=self.from_user)
         self.message_count += 1
 
     def test_unread_manager(self):
