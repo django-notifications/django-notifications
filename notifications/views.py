@@ -63,7 +63,7 @@ def mark_all_as_read(request):
 
     if _next:
         return redirect(_next)
-    return redirect('notifications:all')
+    return redirect('notifications:unread')
 
 
 @login_required
@@ -79,7 +79,7 @@ def mark_as_read(request, slug=None):
     if _next:
         return redirect(_next)
 
-    return redirect('notifications:all')
+    return redirect('notifications:unread')
 
 
 @login_required
@@ -95,7 +95,7 @@ def mark_as_unread(request, slug=None):
     if _next:
         return redirect(_next)
 
-    return redirect('notifications:all')
+    return redirect('notifications:unread')
 
 
 @login_required
@@ -156,6 +156,8 @@ def live_unread_notification_list(request):
         if n.action_object:
             struct['action_object'] = str(n.action_object)
         unread_list.append(struct)
+        if request.GET.get('mark_as_read'):
+            n.mark_as_read()
     data = {
         'unread_count': request.user.notifications.unread().count(),
         'unread_list': unread_list

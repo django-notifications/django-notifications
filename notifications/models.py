@@ -41,6 +41,12 @@ def assert_soft_delete():
 
 class NotificationQuerySet(models.query.QuerySet):
 
+    def unsent(self):
+        return self.filter(emailed=False)
+
+    def sent(self):
+        return self.filter(emailed=True)
+
     def unread(self, include_deleted=False):
         """Return only unread items in the current queryset"""
         if is_soft_delete() and not include_deleted:
@@ -117,6 +123,12 @@ class NotificationQuerySet(models.query.QuerySet):
             qs = qs.filter(recipient=recipient)
 
         return qs.update(deleted=False)
+
+    def mark_as_unsent(self):
+        return self.update(emailed=False)
+
+    def mark_as_sent(self):
+        return self.update(emailed=True)
 
 
 class Notification(models.Model):
@@ -257,6 +269,8 @@ def notify_handler(verb, **kwargs):
     else:
         recipients = [recipient]
 
+    new_notifications = []
+
     for recipient in recipients:
         newnotify = Notification(
             recipient=recipient,
@@ -280,6 +294,9 @@ def notify_handler(verb, **kwargs):
             newnotify.data = kwargs
 
         newnotify.save()
+        new_notifications.append(newnotify)
+
+    return new_notifications
 
 
 # connect the signal

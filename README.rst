@@ -29,7 +29,7 @@ Requirements
 ============
 
 - Python 2.7, 3.3, 3.4, 3.5
-- Django 1.7, 1.8, 1.9
+- Django 1.7, 1.8, 1.9, 1.10
 
 Installation
 ============
@@ -239,18 +239,25 @@ for updating specific fields within a django template.
 
 There are two possible API calls that can be made:
 
- 1. ``api/unread_count/`` that returns a javascript object with 1 key: ``unread_count`` eg::
+1. ``api/unread_count/`` that returns a javascript object with 1 key: ``unread_count`` eg::
 
         {"unread_count":1}
 
- #. ``api/unread_list/`` that returns a javascript object with 2 keys: `unread_count` and `unread_list` eg::
+#. ``api/unread_list/`` that returns a javascript object with 2 keys: `unread_count` and `unread_list` eg::
 
-         {
-          "unread_count":1,
-          "unread_list":[--list of json representations of notifications--]
-         }
+        {
+         "unread_count":1,
+         "unread_list":[--list of json representations of notifications--]
+        }
 
-     Representations of notifications are based on the django method: ``model_to_dict``
+   Representations of notifications are based on the django method: ``model_to_dict``
+
+   Query string arguments:
+
+   - **max** - maximum length of unread list.
+   - **mark_as_read** - mark notification in list as read.
+
+   For example, get ``api/unread_list/?max=3&mark_as_read=true`` returns 3 notifications and mark them read (remove from list on next request).
 
 
 How to use:
@@ -269,7 +276,7 @@ How to use:
      #. ``refresh_period`` (default ``15``) - How often to fetch unread items from the server (integer in seconds).
      #. ``fetch`` (default ``5``) - How many notifications to fetch each time.
      #. ``callbacks`` (default ``<empty string>``) - A comma-separated list of javascript functions to call each period.
-     #. ``api_url_name`` (default ``list``) - The name of the API to call (this can be either ``list`` or ``count``).
+     #. ``api_name`` (default ``list``) - The name of the API to call (this can be either ``list`` or ``count``).
 
  3. To insert a live-updating unread count, use the following template::
 
@@ -280,7 +287,7 @@ How to use:
    1. ``badge_id`` (default ``live_notify_badge``) - The ``id`` attribute for the ``<span>`` element that will be created to show the unread count.
    #. ``classes`` (default ``<empty string>``) - A string used to populate the ``class`` attribute of the above element.
 
- 4. To insert a live-updating unread count, use the following template::
+ 4. To insert a live-updating unread list, use the following template::
 
        {% live_notify_list %}
 
@@ -335,6 +342,14 @@ Testing the live-updater
 3. Run `./manage.py runserver`
 4. Browse to `yourserverip/test/`
 5. Click 'Make a notification' and a new notification should appear in the list in 5-10 seconds.
+
+Notes
+=====
+
+Email Notification
+------------------
+
+Sending email to users has not been integrated into this library. So for now you need to implement it if needed. There is a reserved field `Notification.emailed` to make it easier.
 
 
 ``django-notifications`` Team

@@ -21,7 +21,7 @@ import pytz
 import json
 
 from notifications import notify
-from notifications.models import Notification
+from notifications.models import Notification, notify_handler
 from notifications.utils import id2slug
 
 
@@ -55,19 +55,41 @@ class NotificationManagersTest(TestCase):
 
     def setUp(self):
         self.message_count = 10
+        self.other_user = User.objects.create(username="other1", password="pwd", email="example@example.com")
+
         self.from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
         self.to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
         self.to_group = Group.objects.create(name="to2_g")
         self.to_user_list = User.objects.all()
         self.to_group.user_set.add(self.to_user)
+        self.to_group.user_set.add(self.other_user)
+
         for i in range(self.message_count):
             notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
         # Send notification to group
         notify.send(self.from_user, recipient=self.to_group, verb='commented', action_object=self.from_user)
-        self.message_count += 1
+        self.message_count += self.to_group.user_set.count()
         # Send notification to user list
         notify.send(self.from_user, recipient=self.to_user_list, verb='commented', action_object=self.from_user)
-        self.message_count += 1
+        self.message_count += len(self.to_user_list)
+        
+
+    def test_notify_send_return_val(self):
+        results = notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
+        for r in results:
+            if r[0] is notify_handler:
+                self.assertEqual(len(r[1]), 1)
+                # only check types for now
+                self.assertEqual(type(r[1][0]), Notification)
+
+    def test_notify_send_return_val_group(self):
+        results = notify.send(self.from_user, recipient=self.to_group, verb='commented', action_object=self.from_user)
+        for r in results:
+            if r[0] is notify_handler:
+                self.assertEqual(len(r[1]), self.to_group.user_set.count())
+                for n in r[1]:
+                    # only check types for now
+                    self.assertEqual(type(n), Notification)
 
     def test_unread_manager(self):
         self.assertEqual(Notification.objects.unread().count(), self.message_count)
@@ -88,7 +110,7 @@ class NotificationManagersTest(TestCase):
     def test_mark_all_as_read_manager(self):
         self.assertEqual(Notification.objects.unread().count(), self.message_count)
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
-        self.assertEqual(Notification.objects.unread().count(), 0)
+        self.assertEqual(self.to_user.notifications.unread().count(), 0)
 
     @override_settings(NOTIFICATIONS_SOFT_DELETE=True)
     def test_mark_all_as_read_manager_with_soft_delete(self):
@@ -104,7 +126,7 @@ class NotificationManagersTest(TestCase):
     def test_mark_all_as_unread_manager(self):
         self.assertEqual(Notification.objects.unread().count(), self.message_count)
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
-        self.assertEqual(Notification.objects.unread().count(), 0)
+        self.assertEqual(self.to_user.notifications.unread().count(), 0)
         Notification.objects.filter(recipient=self.to_user).mark_all_as_unread()
         self.assertEqual(Notification.objects.unread().count(), self.message_count)
 
@@ -181,7 +203,7 @@ class NotificationTestPages(TestCase):
         self.assertTrue(len(response.context['notifications']) < self.message_count)
 
         response = self.client.get(reverse('notifications:mark_all_as_read'))
-        self.assertRedirects(response, reverse('notifications:all'))
+        self.assertRedirects(response, reverse('notifications:unread'))
         response = self.client.get(reverse('notifications:unread'))
         self.assertEqual(len(response.context['notifications']), len(self.to_user.notifications.unread()))
         self.assertEqual(len(response.context['notifications']), 0)
@@ -298,6 +320,26 @@ class NotificationTestPages(TestCase):
         self.assertEqual(data['unread_count'], 1)
         self.assertEqual(len(data['unread_list']), 1)
         self.assertEqual(data['unread_list'][0]['verb'], 'commented')
+
+    def test_unread_list_api_mark_as_read(self):
+        self.login('to', 'pwd')
+        num_requested = 3
+        response = self.client.get(
+            reverse('notifications:live_unread_notification_list'),
+            data={"max": num_requested, "mark_as_read": 1}
+        )
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(data['unread_count'],
+                         self.message_count - num_requested)
+        self.assertEqual(len(data['unread_list']), num_requested)
+        response = self.client.get(
+            reverse('notifications:live_unread_notification_list'),
+            data={"max": num_requested, "mark_as_read": 1}
+        )
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(data['unread_count'],
+                         self.message_count - 2*num_requested)
+        self.assertEqual(len(data['unread_list']), num_requested)
 
     def test_live_update_tags(self):
         from django.shortcuts import render
