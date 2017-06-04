@@ -11,6 +11,7 @@ else:
     from django.contrib.contenttypes.generic import GenericForeignKey
 
 from django.db import models
+from django.db.models.query import QuerySet
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.six import text_type
 from .utils import id2slug
@@ -263,6 +264,8 @@ def notify_handler(verb, **kwargs):
     # Check if User or Group
     if isinstance(recipient, Group):
         recipients = recipient.user_set.all()
+    elif isinstance(recipient, QuerySet) or isinstance(recipient, list):
+        recipients = recipient
     else:
         recipients = [recipient]
 

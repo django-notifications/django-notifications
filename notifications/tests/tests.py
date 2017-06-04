@@ -60,7 +60,7 @@ class NotificationManagersTest(TestCase):
         self.from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
         self.to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
         self.to_group = Group.objects.create(name="to2_g")
-
+        self.to_user_list = User.objects.all()
         self.to_group.user_set.add(self.to_user)
         self.to_group.user_set.add(self.other_user)
 
@@ -69,6 +69,10 @@ class NotificationManagersTest(TestCase):
         # Send notification to group
         notify.send(self.from_user, recipient=self.to_group, verb='commented', action_object=self.from_user)
         self.message_count += self.to_group.user_set.count()
+        # Send notification to user list
+        notify.send(self.from_user, recipient=self.to_user_list, verb='commented', action_object=self.from_user)
+        self.message_count += len(self.to_user_list)
+        
 
     def test_notify_send_return_val(self):
         results = notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
