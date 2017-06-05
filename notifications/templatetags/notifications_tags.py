@@ -78,7 +78,10 @@ def user_context(context):
         return None
 
     request = context['request']
-    user = request.user
-    if user.is_anonymous():
-        return None
-    return user
+    try:
+        user = request.user
+        return user
+    except Exception as e:
+        pass
+
+    return None
