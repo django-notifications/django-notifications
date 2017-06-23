@@ -46,15 +46,18 @@ function fetch_api_data() {
     if (registered_functions.length > 0) {
         //only fetch data if a function is setup
         var r = new XMLHttpRequest();
+        r.addEventListener('readystatechange', function(event){
+            if (this.readyState === 4){
+                if (this.status === 200){
+                    consecutive_misfires = 0;
+                    var data = JSON.parse(r.responseText);
+                    registered_functions.forEach(function (func) { func(data); });
+                }else{
+                    consecutive_misfires++;
+                }
+            }
+        })
         r.open("GET", notify_api_url+'?max='+notify_fetch_count, true);
-        r.onerror = function () {
-            consecutive_misfires++;
-        }
-        r.onready = function () {
-            consecutive_misfires = 0;
-            var data = JSON.parse(r.responseText);
-            registered_functions.forEach(function (func) { func(data); });
-        }
         r.send();
     }
     if (consecutive_misfires < 10) {
