@@ -124,11 +124,15 @@ class NotificationQuerySet(models.query.QuerySet):
 
         return qs.update(deleted=False)
 
-    def mark_as_unsent(self):
-        return self.update(emailed=False)
+    def mark_as_unsent(self, recipient=None):
+        if recipient:
+            qs = self.filter(recipient=recipient)
+        return qs.update(emailed=False)
 
-    def mark_as_sent(self):
-        return self.update(emailed=True)
+    def mark_as_sent(self, recipient=None):
+        if recipient:
+            qs = self.filter(recipient=recipient)
+        return qs.update(emailed=True)
 
 
 class Notification(models.Model):
