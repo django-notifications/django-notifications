@@ -1,6 +1,19 @@
 Changelog
 =========
 
+1.3
+-----
+
+- Redirect to unread view after mark as read. (@osminogin)
+- Django 1.10 compability. (@osminogin)
+- Django Admin overhead reduction by removing the need to carry all recipients users. (@theromis)
+- Added option to mark as read in __live_unread_notification_list__ endpoint. (@osminogin)
+- Fixed parameter name error in README.rst: there is no __api_url_name__ parameter, the correct name is __api_name__ (@ikkebr)
+- Added __sent()__, __unsent()__, __mark_as_sent()__ and __mark_as_unsent()__ methods in the queryset. (@theromis)
+- __notify.send()__ now returns the list of saved Notifications instances. (@satyanash)
+- Now __recipient__ can be a User queryset. (@AlvaroLQueiroz)
+- Fix XMLHttpRequest onready event handler. (@AlvaroLQueiroz)
+
 1.2
 -----
 

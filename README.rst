@@ -21,7 +21,7 @@ Notifications are actually actions events, which are categorized by four main co
 ``Actor``, ``Action Object`` and ``Target`` are ``GenericForeignKeys`` to any arbitrary Django object.
 An action is a description of an action that was performed (``Verb``) at some instant in time by some ``Actor`` on some optional ``Target`` that results in an ``Action Object`` getting created/updated/deleted.
 
-For example: `justquick <https://github.com/justquick/>`_ ``(actor)`` *closed* ``(verb)`` `issue 2 <https://github.com/justquick/django-activity-stream/issues/2>`_ ``(object)`` on `activity-stream <https://github.com/justquick/django-activity-stream/>`_ ``(target)`` 12 hours ago
+For example: `justquick <https://github.com/justquick/>`_ ``(actor)`` *closed* ``(verb)`` `issue 2 <https://github.com/justquick/django-activity-stream/issues/2>`_ ``(action_object)`` on `activity-stream <https://github.com/justquick/django-activity-stream/>`_ ``(target)`` 12 hours ago
 
 Nomenclature of this specification is based on the Activity Streams Spec: `<http://activitystrea.ms/specs/atom/1.0/>`_
 
@@ -91,7 +91,7 @@ Generating notifications is probably best done in a separate signal.
 
     post_save.connect(my_handler, sender=MyModel)
 
-To generate an notification anywhere in your code, simply import the notify signal and send it with your actor, recipient, verb, and target.
+To generate an notification anywhere in your code, simply import the notify signal and send it with your actor, recipient, and verb.
 
 ::
 
@@ -99,12 +99,21 @@ To generate an notification anywhere in your code, simply import the notify sign
 
     notify.send(user, recipient=user, verb='you reached level 10')
 
-    // "recipient" can also be a Group, the notification will be sent to all the Users in the Group
-    notify.send(comment.user, recipient=group, verb=u'replied', action_object=comment,
-                description=comment.comment, target=comment.content_object)
+The complete sintax is.
 
-    notify.send(follow_instance.user, recipient=follow_instance.follow_object, verb=u'has followed you',
-                action_object=instance, description=u'', target=follow_instance.follow_object, level='success')
+::
+    notify.send(actor, recipient, verb, action_object,
+                target, level, description, public, timestamp, **kwargs)
+
+ * ``actor``: An object of any type. (Required)
+ * ``recipient``: A __Group__ or a __User QuerySet__ or a list of __User__. (Required)
+ * ``verb``: An string. (Required)
+ * ``action_object``: An object of any type. (Optional)
+ * ``target``: An object of any type. (Optional)
+ * ``level``: One of Notification.LEVELS ('success', 'info', 'warning', 'error') (default=info). (Optional)
+ * ``description``: An string. (Optional)
+ * ``public``: An boolean (default=True). (Optional)
+ * ``timestamp``: An tzinfo (default=timezone.now()). (Optional)
 
 Extra data
 ----------
@@ -145,6 +154,16 @@ which returns all unread notifications. To do this for a single user, we can do:
 
 There are some other QuerySet methods, too.
 
+``qs.unsent()``
+~~~~~~~~~~~~~~~
+
+Return all of the unsent notifications, filtering the current queryset. (emailed=False)
+
+``qs.read()``
+~~~~~~~~~~~~~~~
+
+Return all of the sent notifications, filtering the current queryset. (emailed=True)
+
 ``qs.unread()``
 ~~~~~~~~~~~~~~~
 
@@ -168,6 +187,17 @@ Mark all of the unread notifications in the queryset (optionally also filtered b
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Mark all of the read notifications in the queryset (optionally also filtered by ``recipient``) as unread.
+
+``qs.mark_as_sent()`` | ``qs.mark_as_sent(recipient)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Mark all of the unsent notifications in the queryset (optionally also filtered by ``recipient``) as sent.
+
+
+``qs.mark_as_unset()`` | ``qs.mark_as_unset()(recipient)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Mark all of the sent notifications in the queryset (optionally also filtered by ``recipient``) as ununset.
 
 ``qs.deleted()``
 ~~~~~~~~~~~~~~~~
