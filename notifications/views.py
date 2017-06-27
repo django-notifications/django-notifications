@@ -155,6 +155,8 @@ def live_unread_notification_list(request):
             struct['target'] = str(n.target)
         if n.action_object:
             struct['action_object'] = str(n.action_object)
+        if n.data:
+            struct['data'] = n.data
         unread_list.append(struct)
         if request.GET.get('mark_as_read'):
             n.mark_as_read()

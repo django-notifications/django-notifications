@@ -62,3 +62,4 @@ class DisableMigrations(object):
         return "notmigrations"
 
 MIGRATION_MODULES = DisableMigrations()
+NOTIFICATIONS_USE_JSONFIELD = True

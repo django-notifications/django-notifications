@@ -242,9 +242,7 @@ class Notification(models.Model):
 
 # 'NOTIFY_USE_JSONFIELD' is for backward compatibility
 # As app name is 'notifications', let's use 'NOTIFICATIONS' consistently from now
-EXTRA_DATA = getattr(settings, 'NOTIFY_USE_JSONFIELD', None)
-if EXTRA_DATA is None:
-    EXTRA_DATA = getattr(settings, 'NOTIFICATIONS_USE_JSONFIELD', False)
+EXTRA_DATA = getattr(settings, 'NOTIFY_USE_JSONFIELD', False) or getattr(settings, 'NOTIFICATIONS_USE_JSONFIELD', False)
 
 
 def notify_handler(verb, **kwargs):
