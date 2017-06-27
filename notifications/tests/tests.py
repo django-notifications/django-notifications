@@ -319,6 +319,7 @@ class NotificationTestPages(TestCase):
         self.assertEqual(data['unread_count'], 1)
         self.assertEqual(len(data['unread_list']), 1)
         self.assertEqual(data['unread_list'][0]['verb'], 'commented')
+        self.assertEqual(data['unread_list'][0]['slug'], id2slug(data['unread_list'][0]['id']))
 
     def test_unread_list_api_mark_as_read(self):
         self.login('to', 'pwd')
