@@ -72,7 +72,6 @@ class NotificationManagersTest(TestCase):
         # Send notification to user list
         notify.send(self.from_user, recipient=self.to_user_list, verb='commented', action_object=self.from_user)
         self.message_count += len(self.to_user_list)
-        
 
     def test_notify_send_return_val(self):
         results = notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
@@ -365,3 +364,31 @@ class NotificationTestPages(TestCase):
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['unread_count'],0)
         self.assertEqual(data['unread_list'],[])
+
+
+class NotificationTestExtraData(TestCase):
+
+    def setUp(self):
+        self.message_count = 1
+        self.from_user = User.objects.create_user(username="from", password="pwd", email="example@example.com")
+        self.to_user = User.objects.create_user(username="to", password="pwd", email="example@example.com")
+        self.to_user.is_staff = True
+        self.to_user.save()
+        for i in range(self.message_count):
+            notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user, url="/learn/ask-a-pro/q/test-question-9/299/", other_content="Hello my 'world'")
+
+    def logout(self):
+        self.client.post(reverse('admin:logout')+'?next=/', {})
+
+    def login(self, username, password):
+        self.logout()
+        response = self.client.post(reverse('login'), {'username': username, 'password': password})
+        self.assertEqual(response.status_code, 302)
+        return response
+
+    def test_extra_data(self):
+        self.login('to', 'pwd')
+        response = self.client.post(reverse('notifications:live_unread_notification_list'))
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(data['unread_list'][0]['data']['url'], "/learn/ask-a-pro/q/test-question-9/299/")
+        self.assertEqual(data['unread_list'][0]['data']['other_content'], "Hello my 'world'")
