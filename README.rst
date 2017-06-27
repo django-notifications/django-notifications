@@ -52,7 +52,9 @@ Note that `django-model-utils <http://pypi.python.org/pypi/django-model-utils>`_
 
 Then to add the Django Notifications to your project add the app ``notifications`` to your ``INSTALLED_APPS`` and urlconf.
 
-The app should go somewhere after all the apps that are going to be generating notifications like ``django.contrib.auth``::
+The app should go somewhere after all the apps that are going to be generating notifications like ``django.contrib.auth``
+
+::
 
     INSTALLED_APPS = (
         'django.contrib.auth',
@@ -102,18 +104,19 @@ To generate an notification anywhere in your code, simply import the notify sign
 The complete sintax is.
 
 ::
-    notify.send(actor, recipient, verb, action_object,
-                target, level, description, public, timestamp, **kwargs)
 
- * ``actor``: An object of any type. (Required)
- * ``recipient``: A __Group__ or a __User QuerySet__ or a list of __User__. (Required)
- * ``verb``: An string. (Required)
- * ``action_object``: An object of any type. (Optional)
- * ``target``: An object of any type. (Optional)
- * ``level``: One of Notification.LEVELS ('success', 'info', 'warning', 'error') (default=info). (Optional)
- * ``description``: An string. (Optional)
- * ``public``: An boolean (default=True). (Optional)
- * ``timestamp``: An tzinfo (default=timezone.now()). (Optional)
+    notify.send(actor, recipient, verb, action_object, target, level, description, public, timestamp, \*\*kwargs)
+
+Arguments:
+ * **actor**: An object of any type. (Required)
+ * **recipient**: A **Group** or a **User QuerySet** or a list of **User**. (Required)
+ * **verb**: An string. (Required)
+ * **action_object**: An object of any type. (Optional)
+ * **target**: An object of any type. (Optional)
+ * **level**: One of Notification.LEVELS ('success', 'info', 'warning', 'error') (default=info). (Optional)
+ * **description**: An string. (Optional)
+ * **public**: An boolean (default=True). (Optional)
+ * **timestamp**: An tzinfo (default=timezone.now()). (Optional)
 
 Extra data
 ----------
@@ -378,25 +381,27 @@ Serializing the django-notifications Model
 
 See here - http://www.django-rest-framework.org/api-guide/relations/#generic-relationships
 
-In this example the target object can be of type Foo or Bar and the appropriate serializer will be used. (Thanks to @DaWy)
+In this example the target object can be of type Foo or Bar and the appropriate serializer will be used.
 
-```python
-class GenericNotificationRelatedField(serializers.RelatedField):
+::
 
-    def to_representation(self, value):
-        if isinstance(value, Foo):
-            serializer = FooSerializer(value)
-        if isinstance(value, Bar):
-            serializer = BarSerializer(value)
+    class GenericNotificationRelatedField(serializers.RelatedField):
 
-        return serializer.data
+        def to_representation(self, value):
+            if isinstance(value, Foo):
+                serializer = FooSerializer(value)
+            if isinstance(value, Bar):
+                serializer = BarSerializer(value)
+
+            return serializer.data
 
 
-class NotificationSerializer(serializers.Serializer):
-    recipient = PublicUserSerializer(User, read_only=True)
-    unread = serializers.BooleanField(read_only=True)
-    target = GenericNotificationRelatedField(read_only=True)
-```
+    class NotificationSerializer(serializers.Serializer):
+        recipient = PublicUserSerializer(User, read_only=True)
+        unread = serializers.BooleanField(read_only=True)
+        target = GenericNotificationRelatedField(read_only=True)
+
+Thanks to @DaWy
 
 Notes
 =====
