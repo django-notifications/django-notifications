@@ -373,6 +373,31 @@ Testing the live-updater
 4. Browse to `yourserverip/test/`
 5. Click 'Make a notification' and a new notification should appear in the list in 5-10 seconds.
 
+Serializing the django-notifications Model
+------------------------------------------
+
+See here - http://www.django-rest-framework.org/api-guide/relations/#generic-relationships
+
+In this example the target object can be of type Foo or Bar and the appropriate serializer will be used. (Thanks to @DaWy)
+
+```python
+class GenericNotificationRelatedField(serializers.RelatedField):
+
+    def to_representation(self, value):
+        if isinstance(value, Foo):
+            serializer = FooSerializer(value)
+        if isinstance(value, Bar):
+            serializer = BarSerializer(value)
+
+        return serializer.data
+
+
+class NotificationSerializer(serializers.Serializer):
+    recipient = PublicUserSerializer(User, read_only=True)
+    unread = serializers.BooleanField(read_only=True)
+    target = GenericNotificationRelatedField(read_only=True)
+```
+
 Notes
 =====
 
