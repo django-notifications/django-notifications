@@ -377,7 +377,7 @@ Testing the live-updater
 5. Click 'Make a notification' and a new notification should appear in the list in 5-10 seconds.
 
 Serializing the django-notifications Model
-------------------------------------------
+==========================================
 
 See here - http://www.django-rest-framework.org/api-guide/relations/#generic-relationships
 
