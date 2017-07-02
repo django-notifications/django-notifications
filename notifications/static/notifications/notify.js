@@ -1,5 +1,5 @@
-var notify_badge_id;
-var notify_menu_id;
+var notify_badge_class;
+var notify_menu_class;
 var notify_api_url;
 var notify_fetch_count;
 var notify_unread_url;
@@ -9,17 +9,18 @@ var consecutive_misfires = 0;
 var registered_functions = [];
 
 function fill_notification_badge(data) {
-    var badge = document.getElementById(notify_badge_id);
-    if (badge) {
-        badge.innerHTML = data.unread_count;
+    var badges = document.getElementsByClassName(notify_badge_class);
+    if (badges) {
+        for(var i = 0; i < badges.length; i++){
+            badges[i].innerHTML = data.unread_count;
+        }
     }
 }
 
 function fill_notification_list(data) {
-    var menu = document.getElementById(notify_menu_id);
-    if (menu) {
-        var content = [];
-        menu.innerHTML = data.unread_list.map(function (item) {
+    var menus = document.getElementsByClassName(notify_menu_class);
+    if (menus) {
+        var messages = data.unread_list.map(function (item) {
             var message = "";
             if(typeof item.actor !== 'undefined'){
                 message = item.actor;
@@ -35,6 +36,10 @@ function fill_notification_list(data) {
             }
             return '<li>' + message + '</li>';
         }).join('')
+
+        for (var i = 0; i < menus.length; i++){
+            menus[i].innerHTML = messages;
+        }
     }
 }
 
@@ -63,10 +68,12 @@ function fetch_api_data() {
     if (consecutive_misfires < 10) {
         setTimeout(fetch_api_data,notify_refresh_period);
     } else {
-        var badge = document.getElementById(notify_badge_id);
-        if (badge) {
-            badge.innerHTML = "!";
-            badge.title = "Connection lost!"
+        var badges = document.getElementsByClassName(notify_badge_class);
+        if (badges) {
+            for (var i = 0; i < badges.length; i++){
+                badges[i].innerHTML = "!";
+                badges[i].title = "Connection lost!"
+            }
         }
     }
 }

@@ -304,8 +304,8 @@ How to use:
 
     ``register_notify_callbacks`` takes the following arguments:
 
-     1. ``badge_id`` (default ``live_notify_badge``) - The `id` attribute of the element to show the unread count, that will be periodically updated.
-     #. ``menu_id`` (default ``live_notify_list``) - The `id` attribute of the element to insert a list of unread items, that will be periodically updated.
+     1. ``badge_class`` (default ``live_notify_badge``) - The identifier `class` of the element to show the unread count, that will be periodically updated.
+     #. ``menu_class`` (default ``live_notify_list``) - The identifier `class` of the element to insert a list of unread items, that will be periodically updated.
      #. ``refresh_period`` (default ``15``) - How often to fetch unread items from the server (integer in seconds).
      #. ``fetch`` (default ``5``) - How many notifications to fetch each time.
      #. ``callbacks`` (default ``<empty string>``) - A comma-separated list of javascript functions to call each period.
@@ -317,8 +317,7 @@ How to use:
 
     ``live_notify_badge`` takes the following arguments:
 
-   1. ``badge_id`` (default ``live_notify_badge``) - The ``id`` attribute for the ``<span>`` element that will be created to show the unread count.
-   #. ``classes`` (default ``<empty string>``) - A string used to populate the ``class`` attribute of the above element.
+   1. ``badge_class`` (default ``live_notify_badge``) - The identifier ``class`` for the ``<span>`` element that will be created to show the unread count.
 
  4. To insert a live-updating unread list, use the following template::
 
@@ -326,8 +325,7 @@ How to use:
 
     ``live_notify_list`` takes the following arguments:
 
-   1. ``list_id`` (default ``live_notify_list``) - The ``id`` attribute for the ``<ul>`` element that will be created to insert the list of notifications into.
-   #. ``classes`` (default ``<empty string>``) - A string used to populate the ``class`` attribute of the above element.
+   1. ``list_class`` (default ``live_notify_list``) - The identifier ``class`` for the ``<ul>`` element that will be created to insert the list of notifications into.
 
 Using the live-updater with bootstrap
 -------------------------------------
