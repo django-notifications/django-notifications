@@ -105,7 +105,7 @@ The complete sintax is.
 
 ::
 
-    notify.send(actor, recipient, verb, action_object, target, level, description, public, timestamp, \*\*kwargs)
+    notify.send(actor, recipient, verb, action_object, target, level, description, public, timestamp, **kwargs)
 
 Arguments:
  * **actor**: An object of any type. (Required)
@@ -197,10 +197,10 @@ Mark all of the read notifications in the queryset (optionally also filtered by 
 Mark all of the unsent notifications in the queryset (optionally also filtered by ``recipient``) as sent.
 
 
-``qs.mark_as_unset()`` | ``qs.mark_as_unset()(recipient)``
+``qs.mark_as_unsent()`` | ``qs.mark_as_unsent()(recipient)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Mark all of the sent notifications in the queryset (optionally also filtered by ``recipient``) as ununset.
+Mark all of the sent notifications in the queryset (optionally also filtered by ``recipient``) as unsent.
 
 ``qs.deleted()``
 ~~~~~~~~~~~~~~~~
@@ -296,34 +296,34 @@ There are two possible API calls that can be made:
 How to use:
 -----------
 
- 1. Put ``{% load notifications_tags %}`` in the template before you actually use notification tags.
- 2. In the area where you are loading javascript resources add the following tags in the order below::
+1. Put ``{% load notifications_tags %}`` in the template before you actually use notification tags.
+2. In the area where you are loading javascript resources add the following tags in the order below::
 
        <script src="{% static 'notifications/notify.js' %}" type="text/javascript"></script>
        {% register_notify_callbacks callbacks='fill_notification_list,fill_notification_badge' %}
 
-    ``register_notify_callbacks`` takes the following arguments:
+   ``register_notify_callbacks`` takes the following arguments:
 
-     1. ``badge_class`` (default ``live_notify_badge``) - The identifier `class` of the element to show the unread count, that will be periodically updated.
-     #. ``menu_class`` (default ``live_notify_list``) - The identifier `class` of the element to insert a list of unread items, that will be periodically updated.
-     #. ``refresh_period`` (default ``15``) - How often to fetch unread items from the server (integer in seconds).
-     #. ``fetch`` (default ``5``) - How many notifications to fetch each time.
-     #. ``callbacks`` (default ``<empty string>``) - A comma-separated list of javascript functions to call each period.
-     #. ``api_name`` (default ``list``) - The name of the API to call (this can be either ``list`` or ``count``).
+   1. ``badge_class`` (default ``live_notify_badge``) - The identifier `class` of the element to show the unread count, that will be periodically updated.
+   #. ``menu_class`` (default ``live_notify_list``) - The identifier `class` of the element to insert a list of unread items, that will be periodically updated.
+   #. ``refresh_period`` (default ``15``) - How often to fetch unread items from the server (integer in seconds).
+   #. ``fetch`` (default ``5``) - How many notifications to fetch each time.
+   #. ``callbacks`` (default ``<empty string>``) - A comma-separated list of javascript functions to call each period.
+   #. ``api_name`` (default ``list``) - The name of the API to call (this can be either ``list`` or ``count``).
 
- 3. To insert a live-updating unread count, use the following template::
+3. To insert a live-updating unread count, use the following template::
 
        {% live_notify_badge %}
 
-    ``live_notify_badge`` takes the following arguments:
+   ``live_notify_badge`` takes the following arguments:
 
    1. ``badge_class`` (default ``live_notify_badge``) - The identifier ``class`` for the ``<span>`` element that will be created to show the unread count.
 
- 4. To insert a live-updating unread list, use the following template::
+4. To insert a live-updating unread list, use the following template::
 
        {% live_notify_list %}
 
-    ``live_notify_list`` takes the following arguments:
+   ``live_notify_list`` takes the following arguments:
 
    1. ``list_class`` (default ``live_notify_list``) - The identifier ``class`` for the ``<ul>`` element that will be created to insert the list of notifications into.
 
