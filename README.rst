@@ -13,10 +13,10 @@ The major difference between ``django-notifications`` and ``django-activity-stre
 
 Notifications are actually actions events, which are categorized by four main components.
 
- * ``Actor``. The object that performed the activity.
- * ``Verb``. The verb phrase that identifies the action of the activity.
- * ``Action Object``. *(Optional)* The object linked to the action itself.
- * ``Target``. *(Optional)* The object to which the activity was performed.
+* ``Actor``. The object that performed the activity.
+* ``Verb``. The verb phrase that identifies the action of the activity.
+* ``Action Object``. *(Optional)* The object linked to the action itself.
+* ``Target``. *(Optional)* The object to which the activity was performed.
 
 ``Actor``, ``Action Object`` and ``Target`` are ``GenericForeignKeys`` to any arbitrary Django object.
 An action is a description of an action that was performed (``Verb``) at some instant in time by some ``Actor`` on some optional ``Target`` that results in an ``Action Object`` getting created/updated/deleted.
@@ -105,7 +105,7 @@ The complete sintax is.
 
 ::
 
-    notify.send(actor, recipient, verb, action_object, target, level, description, public, timestamp, \*\*kwargs)
+    notify.send(actor, recipient, verb, action_object, target, level, description, public, timestamp, **kwargs)
 
 Arguments:
  * **actor**: An object of any type. (Required)
@@ -123,7 +123,7 @@ Extra data
 
 You can attach arbitrary data to your notifications by doing the following:
 
-  * Add to your settings.py: ``NOTIFICATIONS_USE_JSONFIELD=True``
+* Add to your settings.py: ``NOTIFICATIONS_USE_JSONFIELD=True``
 
 Then, any extra arguments you pass to ``notify.send(...)`` will be attached to the ``.data`` attribute of the notification object.
 These will be serialised using the JSONField's serialiser, so you may need to take that into account: using only objects that will be serialised is a good idea.
@@ -134,7 +134,7 @@ Soft delete
 By default, ``delete/(?P<slug>\d+)/`` deletes specified notification record from DB.
 You can change this behaviour to "mark ``Notification.deleted`` field as ``True``" by:
 
-  * Add to your settings.py: ``NOTIFICATIONS_SOFT_DELETE=True``
+* Add to your settings.py: ``NOTIFICATIONS_SOFT_DELETE=True``
 
 With this option, QuerySet methods ``unread`` and ``read`` contain one more filter: ``deleted=False``.
 Meanwhile, QuerySet methods ``deleted``, ``active``, ``mark_all_as_deleted``, ``mark_all_as_active`` are turned on.
@@ -197,10 +197,10 @@ Mark all of the read notifications in the queryset (optionally also filtered by 
 Mark all of the unsent notifications in the queryset (optionally also filtered by ``recipient``) as sent.
 
 
-``qs.mark_as_unset()`` | ``qs.mark_as_unset()(recipient)``
+``qs.mark_as_unsent()`` | ``qs.mark_as_unsent()(recipient)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Mark all of the sent notifications in the queryset (optionally also filtered by ``recipient``) as ununset.
+Mark all of the sent notifications in the queryset (optionally also filtered by ``recipient``) as unsent.
 
 ``qs.deleted()``
 ~~~~~~~~~~~~~~~~
@@ -296,34 +296,34 @@ There are two possible API calls that can be made:
 How to use:
 -----------
 
- 1. Put ``{% load notifications_tags %}`` in the template before you actually use notification tags.
- 2. In the area where you are loading javascript resources add the following tags in the order below::
+1. Put ``{% load notifications_tags %}`` in the template before you actually use notification tags.
+2. In the area where you are loading javascript resources add the following tags in the order below::
 
        <script src="{% static 'notifications/notify.js' %}" type="text/javascript"></script>
        {% register_notify_callbacks callbacks='fill_notification_list,fill_notification_badge' %}
 
-    ``register_notify_callbacks`` takes the following arguments:
+   ``register_notify_callbacks`` takes the following arguments:
 
-     1. ``badge_class`` (default ``live_notify_badge``) - The identifier `class` of the element to show the unread count, that will be periodically updated.
-     #. ``menu_class`` (default ``live_notify_list``) - The identifier `class` of the element to insert a list of unread items, that will be periodically updated.
-     #. ``refresh_period`` (default ``15``) - How often to fetch unread items from the server (integer in seconds).
-     #. ``fetch`` (default ``5``) - How many notifications to fetch each time.
-     #. ``callbacks`` (default ``<empty string>``) - A comma-separated list of javascript functions to call each period.
-     #. ``api_name`` (default ``list``) - The name of the API to call (this can be either ``list`` or ``count``).
+   1. ``badge_class`` (default ``live_notify_badge``) - The identifier `class` of the element to show the unread count, that will be periodically updated.
+   #. ``menu_class`` (default ``live_notify_list``) - The identifier `class` of the element to insert a list of unread items, that will be periodically updated.
+   #. ``refresh_period`` (default ``15``) - How often to fetch unread items from the server (integer in seconds).
+   #. ``fetch`` (default ``5``) - How many notifications to fetch each time.
+   #. ``callbacks`` (default ``<empty string>``) - A comma-separated list of javascript functions to call each period.
+   #. ``api_name`` (default ``list``) - The name of the API to call (this can be either ``list`` or ``count``).
 
- 3. To insert a live-updating unread count, use the following template::
+3. To insert a live-updating unread count, use the following template::
 
        {% live_notify_badge %}
 
-    ``live_notify_badge`` takes the following arguments:
+   ``live_notify_badge`` takes the following arguments:
 
    1. ``badge_class`` (default ``live_notify_badge``) - The identifier ``class`` for the ``<span>`` element that will be created to show the unread count.
 
- 4. To insert a live-updating unread list, use the following template::
+4. To insert a live-updating unread list, use the following template::
 
        {% live_notify_list %}
 
-    ``live_notify_list`` takes the following arguments:
+   ``live_notify_list`` takes the following arguments:
 
    1. ``list_class`` (default ``live_notify_list``) - The identifier ``class`` for the ``<ul>`` element that will be created to insert the list of notifications into.
 
