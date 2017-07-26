@@ -197,7 +197,7 @@ Mark all of the read notifications in the queryset (optionally also filtered by 
 Mark all of the unsent notifications in the queryset (optionally also filtered by ``recipient``) as sent.
 
 
-``qs.mark_as_unsent()`` | ``qs.mark_as_unsent()(recipient)``
+``qs.mark_as_unsent()`` | ``qs.mark_as_unsent(recipient)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Mark all of the sent notifications in the queryset (optionally also filtered by ``recipient``) as unsent.
