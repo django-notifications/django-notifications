@@ -44,21 +44,21 @@ class AllNotificationsList(NotificationViewList):
 
     def get_queryset(self):
         if getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False):
-            qs = self.request.user.notifications.active()
+            qs = self.request.user.notifications_notification_related.active()
         else:
-            qs = self.request.user.notifications.all()
+            qs = self.request.user.notifications_notification_related.all()
         return qs
 
 
 class UnreadNotificationsList(NotificationViewList):
 
     def get_queryset(self):
-        return self.request.user.notifications.unread()
+        return self.request.user.notifications_notification_related.unread()
 
 
 @login_required
 def mark_all_as_read(request):
-    request.user.notifications.mark_all_as_read()
+    request.notifications_notification_related.notifications.mark_all_as_read()
 
     _next = request.GET.get('next')
 
@@ -125,7 +125,7 @@ def live_unread_notification_count(request):
         data = {'unread_count':0}
     else:
         data = {
-            'unread_count': request.user.notifications.unread().count(),
+            'unread_count': request.user.notifications_notification_related.unread().count(),
         }
     return JsonResponse(data)
 
@@ -148,7 +148,7 @@ def live_unread_notification_list(request):
 
     unread_list = []
 
-    for n in request.user.notifications.unread()[0:num_to_fetch]:
+    for n in request.user.notifications_notification_related.unread()[0:num_to_fetch]:
         struct = model_to_dict(n)
         struct['slug'] = id2slug(n.id)
         if n.actor:
@@ -163,7 +163,7 @@ def live_unread_notification_list(request):
         if request.GET.get('mark_as_read'):
             n.mark_as_read()
     data = {
-        'unread_count': request.user.notifications.unread().count(),
+        'unread_count': request.user.notifications_notification_related.unread().count(),
         'unread_list': unread_list
     }
     return JsonResponse(data)

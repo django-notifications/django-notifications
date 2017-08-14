@@ -153,7 +153,7 @@ Using ``django-model-utils``, we get the ability to add queryset methods to not 
 which returns all unread notifications. To do this for a single user, we can do::
 
   user = User.objects.get(pk=pk)
-  user.notifications.unread()
+  user.notifications_notification_related.unread()
 
 There are some other QuerySet methods, too.
 

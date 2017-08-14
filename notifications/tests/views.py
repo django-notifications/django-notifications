@@ -8,8 +8,8 @@ def live_tester(request):
     notify.send(sender=request.user, recipient=request.user, verb='you loaded the page')
 
     return render(request, 'test_live.html', {
-        'unread_count': request.user.notifications.unread().count(),
-        'notifications': request.user.notifications.all()
+        'unread_count': request.user.notifications_notification_related.unread().count(),
+        'notifications': request.user.notifications_notification_related.all()
     })
 
 
