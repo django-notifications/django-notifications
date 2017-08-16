@@ -240,25 +240,25 @@ class NotificationTestPages(TestCase):
 
         response = self.client.get(reverse('notifications:unread'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['notifications']), len(self.to_user.notifications.unread()))
+        self.assertEqual(len(response.context['notifications']), len(self.to_user.notifications_notification_related.unread()))
         self.assertEqual(len(response.context['notifications']), self.message_count-1)
 
     @override_settings(NOTIFICATIONS_SOFT_DELETE=True)
     def test_soft_delete_messages_manager(self):
         self.login('to', 'pwd')
 
-        slug = id2slug(self.to_user.notifications.first().id)
+        slug = id2slug(self.to_user.notifications_notification_related.first().id)
         response = self.client.get(reverse('notifications:delete', args=[slug]))
         self.assertRedirects(response, reverse('notifications:all'))
 
         response = self.client.get(reverse('notifications:all'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['notifications']), len(self.to_user.notifications.active()))
+        self.assertEqual(len(response.context['notifications']), len(self.to_user.notifications_notification_related.active()))
         self.assertEqual(len(response.context['notifications']), self.message_count-1)
 
         response = self.client.get(reverse('notifications:unread'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['notifications']), len(self.to_user.notifications.unread()))
+        self.assertEqual(len(response.context['notifications']), len(self.to_user.notifications_notification_related.unread()))
         self.assertEqual(len(response.context['notifications']), self.message_count-1)
 
     def test_unread_count_api(self):
