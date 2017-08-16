@@ -58,7 +58,7 @@ class UnreadNotificationsList(NotificationViewList):
 
 @login_required
 def mark_all_as_read(request):
-    request.notifications_notification_related.notifications.mark_all_as_read()
+    request.user.notifications_notification_related.mark_all_as_read()
 
     _next = request.GET.get('next')
 
