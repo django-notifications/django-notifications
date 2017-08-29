@@ -162,7 +162,7 @@ There are some other QuerySet methods, too.
 
 Return all of the unsent notifications, filtering the current queryset. (emailed=False)
 
-``qs.read()``
+``qs.sent()``
 ~~~~~~~~~~~~~~~
 
 Return all of the sent notifications, filtering the current queryset. (emailed=True)
