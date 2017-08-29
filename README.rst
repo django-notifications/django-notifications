@@ -101,7 +101,7 @@ To generate an notification anywhere in your code, simply import the notify sign
 
     notify.send(user, recipient=user, verb='you reached level 10')
 
-The complete sintax is.
+The complete syntax is.
 
 ::
 
