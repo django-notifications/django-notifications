@@ -121,7 +121,7 @@ def delete(request, slug=None):
 
 
 def live_unread_notification_count(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         data = {'unread_count':0}
     else:
         data = {
@@ -131,7 +131,7 @@ def live_unread_notification_count(request):
 
 
 def live_unread_notification_list(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         data = {
            'unread_count':0,
            'unread_list':[]
