@@ -1,17 +1,27 @@
 # -*- coding: utf-8 -*-
-from django.core.urlresolvers import reverse
+from django import get_version
+from distutils.version import StrictVersion
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 from django.template import Library
 from django.utils.html import format_html
 
 register = Library()
 
 
-@register.assignment_tag(takes_context=True)
 def notifications_unread(context):
     user = user_context(context)
     if not user:
         return ''
     return user.notifications.unread().count()
+
+
+if StrictVersion(get_version()) >= StrictVersion('2.0'):
+    notifications_unread = register.simple_tag(takes_context=True)(notifications_unread)
+else:
+    notifications_unread = register.assignment_tag(takes_context=True)(notifications_unread)
 
 
 # Requires vanilla-js framework - http://vanilla-js.com/
@@ -79,6 +89,11 @@ def user_context(context):
 
     request = context['request']
     user = request.user
-    if user.is_anonymous():
+    try:
+        user_is_anonymous = user.is_anonymous()
+    except TypeError:  # Django >= 1.11
+        user_is_anonymous = user.is_anonymous
+
+    if user_is_anonymous:
         return None
     return user
