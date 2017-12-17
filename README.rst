@@ -334,11 +334,11 @@ The Live-updater can be incorporated into bootstrap with minimal code.
 
 To create a live-updating bootstrap badge containing the unread count, simply use the template tag::
 
-    {% live_notify_badge classes="badge" %}
+    {% live_notify_badge badge_class="badge" %}
 
 To create a live-updating bootstrap dropdown menu containing a selection of recent unread notifications, simply use the template tag::
 
-    {% live_notify_list classes="dropdown-menu" %}
+    {% live_notify_list list_class="dropdown-menu" %}
 
 Customising the display of notifications using javascript callbacks
 -------------------------------------------------------------------
