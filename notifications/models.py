@@ -169,7 +169,7 @@ class Notification(models.Model):
     LEVELS = Choices('success', 'info', 'warning', 'error')
     level = models.CharField(choices=LEVELS, default=LEVELS.info, max_length=20)
 
-    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, related_name='notifications')
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, related_name='%(app_label)s_%(class)s_related')
     unread = models.BooleanField(default=True, blank=False)
 
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')

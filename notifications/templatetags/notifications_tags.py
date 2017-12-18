@@ -11,7 +11,7 @@ def notifications_unread(context):
     user = user_context(context)
     if not user:
         return ''
-    return user.notifications.unread().count()
+    return user.notifications_notification_related.unread().count()
 
 
 # Requires vanilla-js framework - http://vanilla-js.com/
@@ -62,7 +62,7 @@ def live_notify_badge(context, badge_class='live_notify_badge'):
         return ''
 
     html = "<span class='{badge_class}'>{unread}</span>".format(
-        badge_class=badge_class, unread=user.notifications.unread().count()
+        badge_class=badge_class, unread=user.notifications_notification_related.unread().count()
     )
     return format_html(html)
 
