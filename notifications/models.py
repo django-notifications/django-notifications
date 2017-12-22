@@ -5,11 +5,6 @@ from django.utils import timezone
 
 from distutils.version import StrictVersion
 
-if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
-    from django.contrib.contenttypes.fields import GenericForeignKey
-else:
-    from django.contrib.contenttypes.generic import GenericForeignKey
-
 from django.db import models
 from django.db.models.query import QuerySet
 from django.core.exceptions import ImproperlyConfigured
@@ -22,6 +17,11 @@ from model_utils import Choices
 from jsonfield.fields import JSONField
 
 from django.contrib.auth.models import Group
+
+if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
+    from django.contrib.contenttypes.fields import GenericForeignKey
+else:
+    from django.contrib.contenttypes.generic import GenericForeignKey
 
 
 # SOFT_DELETE = getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False)
@@ -125,13 +125,11 @@ class NotificationQuerySet(models.query.QuerySet):
         return qs.update(deleted=False)
 
     def mark_as_unsent(self, recipient=None):
-        qs = self.sent()
         if recipient:
             qs = self.filter(recipient=recipient)
         return qs.update(emailed=False)
 
     def mark_as_sent(self, recipient=None):
-        qs = self.unsent()
         if recipient:
             qs = self.filter(recipient=recipient)
         return qs.update(emailed=True)
@@ -169,21 +167,25 @@ class Notification(models.Model):
     LEVELS = Choices('success', 'info', 'warning', 'error')
     level = models.CharField(choices=LEVELS, default=LEVELS.info, max_length=20)
 
-    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, related_name='notifications')
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                  blank=False, related_name='notifications')
     unread = models.BooleanField(default=True, blank=False)
 
-    actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
+    actor_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
+                                           related_name='notify_actor')
     actor_object_id = models.CharField(max_length=255)
     actor = GenericForeignKey('actor_content_type', 'actor_object_id')
 
     verb = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
-    target_content_type = models.ForeignKey(ContentType, related_name='notify_target', blank=True, null=True)
+    target_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
+                                            related_name='notify_target', blank=True, null=True)
     target_object_id = models.CharField(max_length=255, blank=True, null=True)
     target = GenericForeignKey('target_content_type', 'target_object_id')
 
     action_object_content_type = models.ForeignKey(ContentType, blank=True, null=True,
+                                                   on_delete=models.CASCADE,
                                                    related_name='notify_action_object')
     action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
     action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
@@ -244,7 +246,9 @@ class Notification(models.Model):
 
 # 'NOTIFY_USE_JSONFIELD' is for backward compatibility
 # As app name is 'notifications', let's use 'NOTIFICATIONS' consistently from now
-EXTRA_DATA = getattr(settings, 'NOTIFY_USE_JSONFIELD', False) or getattr(settings, 'NOTIFICATIONS_USE_JSONFIELD', False)
+EXTRA_DATA = getattr(settings, 'NOTIFY_USE_JSONFIELD', None)
+if EXTRA_DATA is None:
+    EXTRA_DATA = getattr(settings, 'NOTIFICATIONS_USE_JSONFIELD', False)
 
 
 def notify_handler(verb, **kwargs):
