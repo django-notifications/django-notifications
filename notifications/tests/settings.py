@@ -12,11 +12,17 @@ DATABASES = {
     }
 }
 
-
+# Django < 2.0
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
+
+# Django >= 2.0
+MIDDLEWARE = [
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+]
 
 INSTALLED_APPS = (
     'django.contrib.admin',
