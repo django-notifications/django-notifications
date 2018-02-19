@@ -19,10 +19,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 # Django >= 2.0
-MIDDLEWARE = [
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-]
+MIDDLEWARE = MIDDLEWARE_CLASSES
 
 INSTALLED_APPS = (
     'django.contrib.admin',
