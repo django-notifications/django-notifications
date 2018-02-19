@@ -170,7 +170,7 @@ class Notification(models.Model):
     level = models.CharField(choices=LEVELS, default=LEVELS.info, max_length=20)
 
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, related_name='notifications', on_delete=models.CASCADE)
-    unread = models.BooleanField(default=True, blank=False)
+    unread = models.BooleanField(default=True, blank=False, db_index=True)
 
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor', on_delete=models.CASCADE)
     actor_object_id = models.CharField(max_length=255)
@@ -190,9 +190,9 @@ class Notification(models.Model):
 
     timestamp = models.DateTimeField(default=timezone.now)
 
-    public = models.BooleanField(default=True)
-    deleted = models.BooleanField(default=False)
-    emailed = models.BooleanField(default=False)
+    public = models.BooleanField(default=True, db_index=True)
+    deleted = models.BooleanField(default=False, db_index=True)
+    emailed = models.BooleanField(default=False, db_index=True)
 
     data = JSONField(blank=True, null=True)
     objects = NotificationQuerySet.as_manager()
