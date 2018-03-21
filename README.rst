@@ -108,7 +108,7 @@ The complete syntax is.
     notify.send(actor, recipient, verb, action_object, target, level, description, public, timestamp, **kwargs)
 
 Arguments:
- * **actor**: An object of any type. (Required)
+ * **actor**: An object of any type. (Required) Note: Use **sender** instead of **actor** if you intend to use keyword arguments
  * **recipient**: A **Group** or a **User QuerySet** or a list of **User**. (Required)
  * **verb**: An string. (Required)
  * **action_object**: An object of any type. (Optional)
