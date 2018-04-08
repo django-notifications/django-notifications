@@ -11,6 +11,7 @@ else:
     from django.contrib.contenttypes.generic import GenericForeignKey
 
 from django.db import models
+from django.db.models.query import QuerySet
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.six import text_type
 from .utils import id2slug
@@ -123,11 +124,17 @@ class NotificationQuerySet(models.query.QuerySet):
 
         return qs.update(deleted=False)
 
-    def mark_as_unsent(self):
-        return self.update(emailed=False)
+    def mark_as_unsent(self, recipient=None):
+        qs = self.sent()
+        if recipient:
+            qs = self.filter(recipient=recipient)
+        return qs.update(emailed=False)
 
-    def mark_as_sent(self):
-        return self.update(emailed=True)
+    def mark_as_sent(self, recipient=None):
+        qs = self.unsent()
+        if recipient:
+            qs = self.filter(recipient=recipient)
+        return qs.update(emailed=True)
 
 
 class Notification(models.Model):
@@ -163,7 +170,7 @@ class Notification(models.Model):
     level = models.CharField(choices=LEVELS, default=LEVELS.info, max_length=20)
 
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, related_name='notifications', on_delete=models.CASCADE)
-    unread = models.BooleanField(default=True, blank=False)
+    unread = models.BooleanField(default=True, blank=False, db_index=True)
 
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor', on_delete=models.CASCADE)
     actor_object_id = models.CharField(max_length=255)
@@ -183,9 +190,9 @@ class Notification(models.Model):
 
     timestamp = models.DateTimeField(default=timezone.now)
 
-    public = models.BooleanField(default=True)
-    deleted = models.BooleanField(default=False)
-    emailed = models.BooleanField(default=False)
+    public = models.BooleanField(default=True, db_index=True)
+    deleted = models.BooleanField(default=False, db_index=True)
+    emailed = models.BooleanField(default=False, db_index=True)
 
     data = JSONField(blank=True, null=True)
     objects = NotificationQuerySet.as_manager()
@@ -237,9 +244,7 @@ class Notification(models.Model):
 
 # 'NOTIFY_USE_JSONFIELD' is for backward compatibility
 # As app name is 'notifications', let's use 'NOTIFICATIONS' consistently from now
-EXTRA_DATA = getattr(settings, 'NOTIFY_USE_JSONFIELD', None)
-if EXTRA_DATA is None:
-    EXTRA_DATA = getattr(settings, 'NOTIFICATIONS_USE_JSONFIELD', False)
+EXTRA_DATA = getattr(settings, 'NOTIFY_USE_JSONFIELD', False) or getattr(settings, 'NOTIFICATIONS_USE_JSONFIELD', False)
 
 
 def notify_handler(verb, **kwargs):
@@ -263,8 +268,12 @@ def notify_handler(verb, **kwargs):
     # Check if User or Group
     if isinstance(recipient, Group):
         recipients = recipient.user_set.all()
+    elif isinstance(recipient, QuerySet) or isinstance(recipient, list):
+        recipients = recipient
     else:
         recipients = [recipient]
+
+    new_notifications = []
 
     for recipient in recipients:
         newnotify = Notification(
@@ -289,6 +298,9 @@ def notify_handler(verb, **kwargs):
             newnotify.data = kwargs
 
         newnotify.save()
+        new_notifications.append(newnotify)
+
+    return new_notifications
 
 
 # connect the signal
