@@ -4,7 +4,11 @@ Changelog
 1.4
 ----
 
-WIP
+- Adds support for django 2.0.0 (@jphamcsp and @nemesisdesign).
+- Adds database index for some fields (@nemesisdesign).
+- Changes the ID-based selection to a class-based selection in the methods __live_notify_badge__ and __live_notify_list__ (@AlvaroLQueiroz).
+- Now extra data and slug are returned on __live_unread_notification_list__ API (@AlvaroLQueiroz).
+- Fix documentation issues (@archatas, @yaoelvon and @AlvaroLQueiroz).
 
 1.3
 -----

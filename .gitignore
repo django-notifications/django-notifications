@@ -7,3 +7,5 @@ MANIFEST
 htmlcov
 /.idea/
 *.egg-info
+.tox/
+.python-version
