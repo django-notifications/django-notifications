@@ -30,6 +30,7 @@ else:
 class NotificationViewList(ListView):
     template_name = 'notifications/list.html'
     context_object_name = 'notifications'
+    paginate_by = 10
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -41,6 +42,7 @@ class AllNotificationsList(NotificationViewList):
     """
     Index page for authenticated user
     """
+    paginate_by = 10
 
     def get_queryset(self):
         if getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False):
@@ -51,6 +53,8 @@ class AllNotificationsList(NotificationViewList):
 
 
 class UnreadNotificationsList(NotificationViewList):
+
+    paginate_by = 10
 
     def get_queryset(self):
         return self.request.user.notifications.unread()
