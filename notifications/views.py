@@ -79,6 +79,9 @@ def mark_as_read(request, slug=None):
         Notification, recipient=request.user, id=id)
     notification.mark_as_read()
 
+    if request.is_ajax():
+        return JsonResponse({})
+
     _next = request.GET.get('next')
 
     if _next:
@@ -181,20 +184,3 @@ def live_unread_notification_list(request):
         'unread_list': unread_list
     }
     return JsonResponse(data)
-
-
-def api_mark_as_read(request, slug=None):
-    try:
-        user_is_authenticated = request.user.is_authenticated()
-    except TypeError:  # Django >= 1.11
-        user_is_authenticated = request.user.is_authenticated
-
-    if user_is_authenticated:
-
-        id = slug2id(slug)
-
-        notification = get_object_or_404(
-            Notification, recipient=request.user, id=id)
-        notification.mark_as_read()
-
-    return JsonResponse({})
