@@ -147,8 +147,8 @@ def live_unread_notification_list(request):
 
     if not user_is_authenticated:
         data = {
-           'unread_count':0,
-           'unread_list':[]
+            'unread_count': 0,
+            'unread_list': []
         }
         return JsonResponse(data)
 
@@ -181,3 +181,20 @@ def live_unread_notification_list(request):
         'unread_list': unread_list
     }
     return JsonResponse(data)
+
+
+def api_mark_as_read(request, slug=None):
+    try:
+        user_is_authenticated = request.user.is_authenticated()
+    except TypeError:  # Django >= 1.11
+        user_is_authenticated = request.user.is_authenticated
+
+    if user_is_authenticated:
+
+        id = slug2id(slug)
+
+        notification = get_object_or_404(
+            Notification, recipient=request.user, id=id)
+        notification.mark_as_read()
+
+    return JsonResponse({})
