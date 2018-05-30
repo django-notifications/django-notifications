@@ -9,3 +9,7 @@ htmlcov
 *.egg-info
 .tox/
 .python-version
+.eggs/
+.venv/
+test.sqlite3
+settings.json
