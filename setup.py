@@ -3,7 +3,10 @@
 
 import re
 import ast
-from setuptools import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 
 _version_re = re.compile(r'__version__\s+=\s+(.*)')
