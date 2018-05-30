@@ -369,10 +369,9 @@ Testing the live-updater
 ------------------------
 
 1. Clone the repo
-2. Set the 'NOTIFICATION_TEST' environment variable. E.g. `export NOTIFICATION_TEST=1`
-3. Run `./manage.py runserver`
-4. Browse to `yourserverip/test/`
-5. Click 'Make a notification' and a new notification should appear in the list in 5-10 seconds.
+2. Run `./manage.py runserver`
+3. Browse to `yourserverip/test/`
+4. Click 'Make a notification' and a new notification should appear in the list in 5-10 seconds.
 
 Serializing the django-notifications Model
 ==========================================

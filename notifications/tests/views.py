@@ -1,9 +1,12 @@
-from django.shortcuts import render
-
-from notifications import notify
 import random
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.utils.decorators import method_decorator
+from notifications import notify
 
+
+@login_required
 def live_tester(request):
     notify.send(sender=request.user, recipient=request.user, verb='you loaded the page')
 
