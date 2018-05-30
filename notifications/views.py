@@ -30,6 +30,7 @@ else:
 class NotificationViewList(ListView):
     template_name = 'notifications/list.html'
     context_object_name = 'notifications'
+    paginate_by = 10
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -41,6 +42,7 @@ class AllNotificationsList(NotificationViewList):
     """
     Index page for authenticated user
     """
+    paginate_by = 10
 
     def get_queryset(self):
         if getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False):
@@ -51,6 +53,8 @@ class AllNotificationsList(NotificationViewList):
 
 
 class UnreadNotificationsList(NotificationViewList):
+
+    paginate_by = 10
 
     def get_queryset(self):
         return self.request.user.notifications.unread()
@@ -74,6 +78,9 @@ def mark_as_read(request, slug=None):
     notification = get_object_or_404(
         Notification, recipient=request.user, id=id)
     notification.mark_as_read()
+
+    if request.is_ajax():
+        return JsonResponse({})
 
     _next = request.GET.get('next')
 
@@ -143,8 +150,8 @@ def live_unread_notification_list(request):
 
     if not user_is_authenticated:
         data = {
-           'unread_count':0,
-           'unread_list':[]
+            'unread_count': 0,
+            'unread_list': []
         }
         return JsonResponse(data)
 
