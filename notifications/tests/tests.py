@@ -114,7 +114,7 @@ class NotificationManagersTest(TestCase):
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
         self.assertEqual(self.to_user.notifications.unread().count(), 0)
 
-    @override_settings(DJANGO_NOTIFICATION_CONFIG={
+    @override_settings(DJANGO_NOTIFICATIONS_CONFIG={
         'SOFT_DELETE': True
     })
     def test_mark_all_as_read_manager_with_soft_delete(self):
@@ -140,7 +140,7 @@ class NotificationManagersTest(TestCase):
         self.assertRaises(ImproperlyConfigured, Notification.objects.mark_all_as_deleted)
         self.assertRaises(ImproperlyConfigured, Notification.objects.mark_all_as_active)
 
-    @override_settings(DJANGO_NOTIFICATION_CONFIG={
+    @override_settings(DJANGO_NOTIFICATIONS_CONFIG={
         'SOFT_DELETE': True
     })
     def test_mark_all_deleted_manager(self):
@@ -250,7 +250,7 @@ class NotificationTestPages(TestCase):
         self.assertEqual(len(response.context['notifications']), len(self.to_user.notifications.unread()))
         self.assertEqual(len(response.context['notifications']), self.message_count-1)
 
-    @override_settings(DJANGO_NOTIFICATION_CONFIG={
+    @override_settings(DJANGO_NOTIFICATIONS_CONFIG={
         'SOFT_DELETE': True
     })
     def test_soft_delete_messages_manager(self):

@@ -8,7 +8,7 @@ CONFIG_DEFAULTS = {
 }
 
 def get_config():
-    USER_CONFIG = getattr(settings, 'DJANGO_NOTIFICATION_CONFIG', {})
+    USER_CONFIG = getattr(settings, 'DJANGO_NOTIFICATIONS_CONFIG', {})
 
     CONFIG = CONFIG_DEFAULTS.copy()
     CONFIG.update(USER_CONFIG)

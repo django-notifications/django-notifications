@@ -123,7 +123,7 @@ Extra data
 
 You can attach arbitrary data to your notifications by doing the following:
 
-* Add to your settings.py: ``DJANGO_NOTIFICATION_CONFIG = { 'USE_JSONFIELD': True}``
+* Add to your settings.py: ``DJANGO_NOTIFICATIONS_CONFIG = { 'USE_JSONFIELD': True}``
 
 Then, any extra arguments you pass to ``notify.send(...)`` will be attached to the ``.data`` attribute of the notification object.
 These will be serialised using the JSONField's serialiser, so you may need to take that into account: using only objects that will be serialised is a good idea.
@@ -134,7 +134,7 @@ Soft delete
 By default, ``delete/(?P<slug>\d+)/`` deletes specified notification record from DB.
 You can change this behaviour to "mark ``Notification.deleted`` field as ``True``" by:
 
-* Add to your settings.py: ``DJANGO_NOTIFICATION_CONFIG = { 'SOFT_DELETE': True}``
+* Add to your settings.py: ``DJANGO_NOTIFICATIONS_CONFIG = { 'SOFT_DELETE': True}``
 
 With this option, QuerySet methods ``unread`` and ``read`` contain one more filter: ``deleted=False``.
 Meanwhile, QuerySet methods ``deleted``, ``active``, ``mark_all_as_deleted``, ``mark_all_as_active`` are turned on.
