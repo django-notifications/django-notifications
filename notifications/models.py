@@ -1,39 +1,34 @@
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django import get_version
-from django.utils import timezone
-
 from distutils.version import StrictVersion
+
+from django import get_version
+from django.conf import settings
+from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ImproperlyConfigured
+from django.db import models
+from django.db.models.query import QuerySet
+from django.utils import timezone
+from django.utils.six import text_type
+from jsonfield.fields import JSONField
+from model_utils import Choices
+from notifications import settings as notifications_settings
+from notifications.signals import notify
+
+from notifications.utils import id2slug
 
 if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
     from django.contrib.contenttypes.fields import GenericForeignKey
 else:
     from django.contrib.contenttypes.generic import GenericForeignKey
 
-from django.db import models
-from django.db.models.query import QuerySet
-from django.core.exceptions import ImproperlyConfigured
-from django.utils.six import text_type
-from .utils import id2slug
 
-from .signals import notify
-
-from model_utils import Choices
-from jsonfield.fields import JSONField
-
-from django.contrib.auth.models import Group
-
-
-# SOFT_DELETE = getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False)
 def is_soft_delete():
-    # TODO: SOFT_DELETE = getattr(settings, ...) doesn't work with "override_settings" decorator in unittest
-    #     But is_soft_delete is neither a very elegant way. Should try to find better approach
-    return getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False)
+    return notifications_settings.get_config()['SOFT_DELETE']
 
 
 def assert_soft_delete():
     if not is_soft_delete():
-        msg = """To use 'deleted' field, please set 'NOTIFICATIONS_SOFT_DELETE'=True in settings.
+        msg = """To use 'deleted' field, please set 'SOFT_DELETE'=True in settings.
         Otherwise NotificationQuerySet.unread and NotificationQuerySet.read do NOT filter by 'deleted' field.
         """
         raise ImproperlyConfigured(msg)
@@ -242,9 +237,7 @@ class Notification(models.Model):
             self.unread = True
             self.save()
 
-# 'NOTIFY_USE_JSONFIELD' is for backward compatibility
-# As app name is 'notifications', let's use 'NOTIFICATIONS' consistently from now
-EXTRA_DATA = getattr(settings, 'NOTIFY_USE_JSONFIELD', False) or getattr(settings, 'NOTIFICATIONS_USE_JSONFIELD', False)
+EXTRA_DATA = notifications_settings.get_config()['USE_JSONFIELD']
 
 
 def notify_handler(verb, **kwargs):

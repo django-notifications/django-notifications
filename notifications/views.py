@@ -1,16 +1,15 @@
 from distutils.version import StrictVersion
 
 from django import get_version
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView
 
-from .models import Notification
-from .utils import id2slug, slug2id
-
+from notifications.models import Notification
+from notifications.utils import id2slug, slug2id
+from notifications import settings
 if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
     from django.http import JsonResponse
 else:
@@ -30,6 +29,7 @@ else:
 class NotificationViewList(ListView):
     template_name = 'notifications/list.html'
     context_object_name = 'notifications'
+    paginate_by = settings.get_config()['PAGINATE_BY']
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -43,7 +43,7 @@ class AllNotificationsList(NotificationViewList):
     """
 
     def get_queryset(self):
-        if getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False):
+        if settings.get_config()['SOFT_DELETE']:
             qs = self.request.user.notifications.active()
         else:
             qs = self.request.user.notifications.all()
@@ -106,7 +106,7 @@ def delete(request, slug=None):
     notification = get_object_or_404(
         Notification, recipient=request.user, id=_id)
 
-    if getattr(settings, 'NOTIFICATIONS_SOFT_DELETE', False):
+    if settings.get_config()['SOFT_DELETE']:
         notification.deleted = True
         notification.save()
     else:

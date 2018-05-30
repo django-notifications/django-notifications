@@ -123,7 +123,7 @@ Extra data
 
 You can attach arbitrary data to your notifications by doing the following:
 
-* Add to your settings.py: ``NOTIFICATIONS_USE_JSONFIELD=True``
+* Add to your settings.py: ``DJANGO_NOTIFICATION_CONFIG = { 'USE_JSONFIELD': True}``
 
 Then, any extra arguments you pass to ``notify.send(...)`` will be attached to the ``.data`` attribute of the notification object.
 These will be serialised using the JSONField's serialiser, so you may need to take that into account: using only objects that will be serialised is a good idea.
@@ -134,7 +134,7 @@ Soft delete
 By default, ``delete/(?P<slug>\d+)/`` deletes specified notification record from DB.
 You can change this behaviour to "mark ``Notification.deleted`` field as ``True``" by:
 
-* Add to your settings.py: ``NOTIFICATIONS_SOFT_DELETE=True``
+* Add to your settings.py: ``DJANGO_NOTIFICATION_CONFIG = { 'SOFT_DELETE': True}``
 
 With this option, QuerySet methods ``unread`` and ``read`` contain one more filter: ``deleted=False``.
 Meanwhile, QuerySet methods ``deleted``, ``active``, ``mark_all_as_deleted``, ``mark_all_as_active`` are turned on.
@@ -171,13 +171,13 @@ Return all of the sent notifications, filtering the current queryset. (emailed=T
 ~~~~~~~~~~~~~~~
 
 Return all of the unread notifications, filtering the current queryset.
-When ``NOTIFICATIONS_SOFT_DELETE=True``, this filter contains ``deleted=False``.
+When ``SOFT_DELETE=True``, this filter contains ``deleted=False``.
 
 ``qs.read()``
 ~~~~~~~~~~~~~~~
 
 Return all of the read notifications, filtering the current queryset.
-When ``NOTIFICATIONS_SOFT_DELETE=True``, this filter contains ``deleted=False``.
+When ``SOFT_DELETE=True``, this filter contains ``deleted=False``.
 
 
 ``qs.mark_all_as_read()`` | ``qs.mark_all_as_read(recipient)``
@@ -206,25 +206,25 @@ Mark all of the sent notifications in the queryset (optionally also filtered by 
 ~~~~~~~~~~~~~~~~
 
 Return all notifications that have ``deleted=True``, filtering the current queryset.
-Must be used with ``NOTIFICATIONS_SOFT_DELETE=True``.
+Must be used with ``SOFT_DELETE=True``.
 
 ``qs.active()``
 ~~~~~~~~~~~~~~~
 
 Return all notifications that have ``deleted=False``, filtering the current queryset.
-Must be used with ``NOTIFICATIONS_SOFT_DELETE=True``.
+Must be used with ``DELETE=True``.
 
 ``qs.mark_all_as_deleted()`` | ``qs.mark_all_as_deleted(recipient)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Mark all notifications in the queryset (optionally also filtered by ``recipient``) as ``deleted=True``.
-Must be used with ``NOTIFICATIONS_SOFT_DELETE=True``.
+Must be used with ``DELETE=True``.
 
 ``qs.mark_all_as_active()`` | ``qs.mark_all_as_active(recipient)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Mark all notifications in the queryset (optionally also filtered by ``recipient``) as ``deleted=False``.
-Must be used with ``NOTIFICATIONS_SOFT_DELETE=True``.
+Must be used with ``SOFT_DELETE=True``.
 
 
 Model methods
