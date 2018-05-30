@@ -1,21 +1,26 @@
 # -*- coding: utf-8 -*-
 from distutils.version import StrictVersion
+
 from django import get_version
-from django.conf.urls import include, url
-from django.contrib import admin
 from django.contrib.auth.views import login
-
-import notifications.urls
-import notifications.tests.views
-
-urlpatterns = [
-    url(r'^login/$', login, name='login'),  # needed for Django 1.6 tests
-    url(r'^test_make/', notifications.tests.views.make_notification),
-    url(r'^test/', notifications.tests.views.live_tester),
-    url(r'^', include(notifications.urls, namespace='notifications')),
-]
+from notifications.tests.views import live_tester, make_notification
+from django.contrib import admin
 
 if StrictVersion(get_version()) >= StrictVersion('2.0'):
-    urlpatterns.append(url(r'^admin/', admin.site.urls))
+    from django.urls import include, path
+    urlpatterns = [
+        path('test_make/', make_notification),
+        path('test/', live_tester),
+        path('login/', login, name='login'),  # reverse for django login is not working
+        path('admin/', admin.site.urls),
+        path('', include('notifications.urls', namespace='notifications')),
+    ]
 else:
-    urlpatterns.append(url(r'^admin/', include(admin.site.urls)))
+    from django.conf.urls import include, url
+    urlpatterns = [
+        url(r'^login/$', login, name='login'),  # reverse for django login is not working
+        url(r'^test_make/', make_notification),
+        url(r'^test/', live_tester),
+        url(r'^', include('notifications.urls', namespace='notifications')),
+        url(r'^admin/', admin.site.urls),
+    ]
