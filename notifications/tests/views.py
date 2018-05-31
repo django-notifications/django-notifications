@@ -1,9 +1,10 @@
+''' Django notifications views for tests '''
+# -*- coding: utf-8 -*-
 import random
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from django.utils.decorators import method_decorator
-from notifications import notify
+from notifications.signals import notify
 
 
 @login_required
