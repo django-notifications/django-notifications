@@ -1,6 +1,10 @@
+''' Django notification settings for tests '''
+# -*- coding: utf-8 -*-
 import os
+
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-SECRET_KEY = 'secret_key'
+SECRET_KEY = 'secret_key' #  noqa
 
 DEBUG = True
 TESTING = True
