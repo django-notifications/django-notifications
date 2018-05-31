@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import re
 import ast
+import re
+
 try:
     from setuptools import setup
 except ImportError:

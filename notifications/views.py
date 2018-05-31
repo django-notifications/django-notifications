@@ -1,4 +1,5 @@
-from distutils.version import StrictVersion
+''' Django Notifications exemple views '''
+from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
 
 from django import get_version
 from django.contrib.auth.decorators import login_required
@@ -6,21 +7,21 @@ from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView
-
+from notifications import settings
 from notifications.models import Notification
 from notifications.utils import id2slug, slug2id
-from notifications import settings
+
 if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
-    from django.http import JsonResponse
+    from django.http import JsonResponse  # noqa
 else:
     # Django 1.6 doesn't have a proper JsonResponse
     import json
-    from django.http import HttpResponse
+    from django.http import HttpResponse  # noqa
 
     def date_handler(obj):
         return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
-    def JsonResponse(data):
+    def JsonResponse(data):  # noqa
         return HttpResponse(
             json.dumps(data, default=date_handler),
             content_type="application/json")
@@ -44,10 +45,10 @@ class AllNotificationsList(NotificationViewList):
 
     def get_queryset(self):
         if settings.get_config()['SOFT_DELETE']:
-            qs = self.request.user.notifications.active()
+            qset = self.request.user.notifications.active()
         else:
-            qs = self.request.user.notifications.all()
-        return qs
+            qset = self.request.user.notifications.all()
+        return qset
 
 
 class UnreadNotificationsList(NotificationViewList):
@@ -69,10 +70,10 @@ def mark_all_as_read(request):
 
 @login_required
 def mark_as_read(request, slug=None):
-    id = slug2id(slug)
+    notification_id = slug2id(slug)
 
     notification = get_object_or_404(
-        Notification, recipient=request.user, id=id)
+        Notification, recipient=request.user, id=notification_id)
     notification.mark_as_read()
 
     _next = request.GET.get('next')
@@ -85,10 +86,10 @@ def mark_as_read(request, slug=None):
 
 @login_required
 def mark_as_unread(request, slug=None):
-    id = slug2id(slug)
+    notification_id = slug2id(slug)
 
     notification = get_object_or_404(
-        Notification, recipient=request.user, id=id)
+        Notification, recipient=request.user, id=notification_id)
     notification.mark_as_unread()
 
     _next = request.GET.get('next')
@@ -101,10 +102,10 @@ def mark_as_unread(request, slug=None):
 
 @login_required
 def delete(request, slug=None):
-    _id = slug2id(slug)
+    notification_id = slug2id(slug)
 
     notification = get_object_or_404(
-        Notification, recipient=request.user, id=_id)
+        Notification, recipient=request.user, id=notification_id)
 
     if settings.get_config()['SOFT_DELETE']:
         notification.deleted = True
@@ -127,7 +128,9 @@ def live_unread_notification_count(request):
         user_is_authenticated = request.user.is_authenticated
 
     if not user_is_authenticated:
-        data = {'unread_count':0}
+        data = {
+            'unread_count': 0
+        }
     else:
         data = {
             'unread_count': request.user.notifications.unread().count(),
@@ -136,6 +139,7 @@ def live_unread_notification_count(request):
 
 
 def live_unread_notification_list(request):
+    ''' Return a json with a unread notification list '''
     try:
         user_is_authenticated = request.user.is_authenticated()
     except TypeError:  # Django >= 1.11
@@ -143,35 +147,38 @@ def live_unread_notification_list(request):
 
     if not user_is_authenticated:
         data = {
-           'unread_count':0,
-           'unread_list':[]
+            'unread_count': 0,
+            'unread_list': []
         }
         return JsonResponse(data)
 
     try:
-        num_to_fetch = request.GET.get('max', 5)  # If they don't specify, make it 5.
+        # If they don't specify, make it 5.
+        num_to_fetch = request.GET.get('max', 5)
         num_to_fetch = int(num_to_fetch)
-        num_to_fetch = max(1, num_to_fetch)  # if num_to_fetch is negative, force at least one fetched notifications
-        num_to_fetch = min(num_to_fetch, 100)  # put a sane ceiling on the number retrievable
+        # if num_to_fetch is negative, force at least one fetched notifications
+        num_to_fetch = max(1, num_to_fetch)
+        # put a sane ceiling on the number retrievable
+        num_to_fetch = min(num_to_fetch, 100)
     except ValueError:
         num_to_fetch = 5  # If casting to an int fails, just make it 5.
 
     unread_list = []
 
-    for n in request.user.notifications.unread()[0:num_to_fetch]:
-        struct = model_to_dict(n)
-        struct['slug'] = id2slug(n.id)
-        if n.actor:
-            struct['actor'] = str(n.actor)
-        if n.target:
-            struct['target'] = str(n.target)
-        if n.action_object:
-            struct['action_object'] = str(n.action_object)
-        if n.data:
-            struct['data'] = n.data
+    for notification in request.user.notifications.unread()[0:num_to_fetch]:
+        struct = model_to_dict(notification)
+        struct['slug'] = id2slug(notification.id)
+        if notification.actor:
+            struct['actor'] = str(notification.actor)
+        if notification.target:
+            struct['target'] = str(notification.target)
+        if notification.action_object:
+            struct['action_object'] = str(notification.action_object)
+        if notification.data:
+            struct['data'] = notification.data
         unread_list.append(struct)
         if request.GET.get('mark_as_read'):
-            n.mark_as_read()
+            notification.mark_as_read()
     data = {
         'unread_count': request.user.notifications.unread().count(),
         'unread_list': unread_list
