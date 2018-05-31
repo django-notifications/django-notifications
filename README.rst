@@ -46,7 +46,8 @@ or get it from source
 
     $ git clone https://github.com/django-notifications/django-notifications
     $ cd django-notifications
-    $ python setup.py install
+    $ python setup.py sdist
+    $ pip install dist/django-notifications-hq*a
 
 Note that `django-model-utils <http://pypi.python.org/pypi/django-model-utils>`_ will be installed: this is required for the pass-through QuerySet manager.
 
