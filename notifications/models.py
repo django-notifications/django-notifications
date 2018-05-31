@@ -1,4 +1,7 @@
-from distutils.version import StrictVersion
+''' Django notifications models file '''
+# -*- coding: utf-8 -*-
+# pylint: disable=too-many-lines
+from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
 
 from django import get_version
 from django.conf import settings
@@ -13,13 +16,15 @@ from jsonfield.fields import JSONField
 from model_utils import Choices
 from notifications import settings as notifications_settings
 from notifications.signals import notify
-
 from notifications.utils import id2slug
 
 if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
-    from django.contrib.contenttypes.fields import GenericForeignKey
+    from django.contrib.contenttypes.fields import GenericForeignKey  # noqa
 else:
-    from django.contrib.contenttypes.generic import GenericForeignKey
+    from django.contrib.contenttypes.generic import GenericForeignKey  # noqa
+
+
+EXTRA_DATA = notifications_settings.get_config()['USE_JSONFIELD']
 
 
 def is_soft_delete():
@@ -35,7 +40,7 @@ def assert_soft_delete():
 
 
 class NotificationQuerySet(models.query.QuerySet):
-
+    ''' Notification QuerySet '''
     def unsent(self):
         return self.filter(emailed=False)
 
@@ -46,21 +51,19 @@ class NotificationQuerySet(models.query.QuerySet):
         """Return only unread items in the current queryset"""
         if is_soft_delete() and not include_deleted:
             return self.filter(unread=True, deleted=False)
-        else:
-            """ when SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
-            In this case, to improve query performance, don't filter by 'deleted' field
-            """
-            return self.filter(unread=True)
+
+        # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
+        # In this case, to improve query performance, don't filter by 'deleted' field
+        return self.filter(unread=True)
 
     def read(self, include_deleted=False):
         """Return only read items in the current queryset"""
         if is_soft_delete() and not include_deleted:
             return self.filter(unread=False, deleted=False)
-        else:
-            """ when SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
-            In this case, to improve query performance, don't filter by 'deleted' field
-            """
-            return self.filter(unread=False)
+
+        # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
+        # In this case, to improve query performance, don't filter by 'deleted' field
+        return self.filter(unread=False)
 
     def mark_all_as_read(self, recipient=None):
         """Mark as read any unread messages in the current queryset.
@@ -69,23 +72,23 @@ class NotificationQuerySet(models.query.QuerySet):
         """
         # We want to filter out read ones, as later we will store
         # the time they were marked as read.
-        qs = self.unread(True)
+        qset = self.unread(True)
         if recipient:
-            qs = qs.filter(recipient=recipient)
+            qset = qset.filter(recipient=recipient)
 
-        return qs.update(unread=False)
+        return qset.update(unread=False)
 
     def mark_all_as_unread(self, recipient=None):
         """Mark as unread any read messages in the current queryset.
 
         Optionally, filter these by recipient first.
         """
-        qs = self.read(True)
+        qset = self.read(True)
 
         if recipient:
-            qs = qs.filter(recipient=recipient)
+            qset = qset.filter(recipient=recipient)
 
-        return qs.update(unread=True)
+        return qset.update(unread=True)
 
     def deleted(self):
         """Return only deleted items in the current queryset"""
@@ -102,34 +105,34 @@ class NotificationQuerySet(models.query.QuerySet):
         Optionally, filter by recipient first.
         """
         assert_soft_delete()
-        qs = self.active()
+        qset = self.active()
         if recipient:
-            qs = qs.filter(recipient=recipient)
+            qset = qset.filter(recipient=recipient)
 
-        return qs.update(deleted=True)
+        return qset.update(deleted=True)
 
     def mark_all_as_active(self, recipient=None):
         """Mark current queryset as active(un-deleted).
         Optionally, filter by recipient first.
         """
         assert_soft_delete()
-        qs = self.deleted()
+        qset = self.deleted()
         if recipient:
-            qs = qs.filter(recipient=recipient)
+            qset = qset.filter(recipient=recipient)
 
-        return qs.update(deleted=False)
+        return qset.update(deleted=False)
 
     def mark_as_unsent(self, recipient=None):
-        qs = self.sent()
+        qset = self.sent()
         if recipient:
-            qs = qs.filter(recipient=recipient)
-        return qs.update(emailed=False)
+            qset = qset.filter(recipient=recipient)
+        return qset.update(emailed=False)
 
     def mark_as_sent(self, recipient=None):
-        qs = self.unsent()
+        qset = self.unsent()
         if recipient:
-            qs = qs.filter(recipient=recipient)
-        return qs.update(emailed=True)
+            qset = qset.filter(recipient=recipient)
+        return qset.update(emailed=True)
 
 
 class Notification(models.Model):
@@ -158,13 +161,18 @@ class Notification(models.Model):
 
     HTML Representation::
 
-        <a href="http://oebfare.com/">brosner</a> commented on <a href="http://github.com/pinax/pinax">pinax/pinax</a> 2 hours ago
+        <a href="http://oebfare.com/">brosner</a> commented on <a href="http://github.com/pinax/pinax">pinax/pinax</a> 2 hours ago # noqa
 
     """
     LEVELS = Choices('success', 'info', 'warning', 'error')
     level = models.CharField(choices=LEVELS, default=LEVELS.info, max_length=20)
 
-    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, related_name='notifications', on_delete=models.CASCADE)
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        blank=False,
+        related_name='notifications',
+        on_delete=models.CASCADE
+    )
     unread = models.BooleanField(default=True, blank=False, db_index=True)
 
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor', on_delete=models.CASCADE)
@@ -174,7 +182,13 @@ class Notification(models.Model):
     verb = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
-    target_content_type = models.ForeignKey(ContentType, related_name='notify_target', blank=True, null=True, on_delete=models.CASCADE)
+    target_content_type = models.ForeignKey(
+        ContentType,
+        related_name='notify_target',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE
+    )
     target_object_id = models.CharField(max_length=255, blank=True, null=True)
     target = GenericForeignKey('target_content_type', 'target_object_id')
 
@@ -193,7 +207,7 @@ class Notification(models.Model):
     objects = NotificationQuerySet.as_manager()
 
     class Meta:
-        ordering = ('-timestamp', )
+        ordering = ('-timestamp',)
         app_label = 'notifications'
 
     def __unicode__(self):
@@ -237,8 +251,6 @@ class Notification(models.Model):
             self.unread = True
             self.save()
 
-EXTRA_DATA = notifications_settings.get_config()['USE_JSONFIELD']
-
 
 def notify_handler(verb, **kwargs):
     """
@@ -261,7 +273,7 @@ def notify_handler(verb, **kwargs):
     # Check if User or Group
     if isinstance(recipient, Group):
         recipients = recipient.user_set.all()
-    elif isinstance(recipient, QuerySet) or isinstance(recipient, list):
+    elif isinstance(recipient, (QuerySet, list)):
         recipients = recipient
     else:
         recipients = [recipient]
@@ -287,7 +299,7 @@ def notify_handler(verb, **kwargs):
                 setattr(newnotify, '%s_content_type' % opt,
                         ContentType.objects.get_for_model(obj))
 
-        if len(kwargs) and EXTRA_DATA:
+        if kwargs and EXTRA_DATA:
             newnotify.data = kwargs
 
         newnotify.save()
