@@ -1,5 +1,7 @@
+''' Django notifications settings file '''
 # -*- coding: utf-8 -*-
 from django.conf import settings
+
 
 CONFIG_DEFAULTS = {
     'PAGINATE_BY': 20,
@@ -7,10 +9,11 @@ CONFIG_DEFAULTS = {
     'SOFT_DELETE': False
 }
 
+
 def get_config():
-    USER_CONFIG = getattr(settings, 'DJANGO_NOTIFICATIONS_CONFIG', {})
+    user_config = getattr(settings, 'DJANGO_NOTIFICATIONS_CONFIG', {})
 
-    CONFIG = CONFIG_DEFAULTS.copy()
-    CONFIG.update(USER_CONFIG)
+    config = CONFIG_DEFAULTS.copy()
+    config.update(user_config)
 
-    return CONFIG
+    return config
