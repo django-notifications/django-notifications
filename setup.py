@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+''' Django notification setup file for pip package '''
 import ast
 import re
 
 try:
     from setuptools import setup
 except ImportError:
-    from distutils.core import setup
+    from distutils.core import setup  # pylint: disable=no-name-in-module,import-error
 
 
-_version_re = re.compile(r'__version__\s+=\s+(.*)')
+_version_re = re.compile(r'__version__\s+=\s+(.*)')  # pylint: disable=invalid-name
 
 with open('notifications/__init__.py', 'rb') as f:
-    version = str(ast.literal_eval(_version_re.search(
+    version = str(ast.literal_eval(_version_re.search(  # pylint: disable=invalid-name
         f.read().decode('utf-8')).group(1)))
 
 
