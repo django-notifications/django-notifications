@@ -1,3 +1,4 @@
+''' Django notification manage file '''
 #!/usr/bin/env python
 import os
 import sys
