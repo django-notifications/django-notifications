@@ -1,12 +1,13 @@
+''' Django notification urls file '''
 # -*- coding: utf-8 -*-
-from distutils.version import StrictVersion
+from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
 
 from django import get_version
 
 from . import views
 
 if StrictVersion(get_version()) >= StrictVersion('2.0'):
-    from django.urls import include, path
+    from django.urls import path
     urlpatterns = [
         path('', views.AllNotificationsList.as_view(), name='all'),
         path('unread/', views.UnreadNotificationsList.as_view(), name='unread'),
@@ -18,8 +19,7 @@ if StrictVersion(get_version()) >= StrictVersion('2.0'):
         path('api/unread_list/', views.live_unread_notification_list, name='live_unread_notification_list'),
     ]
 else:
-    from django.contrib import admin
-    from django.conf.urls import include, url
+    from django.conf.urls import url
     urlpatterns = [
         url(r'^$', views.AllNotificationsList.as_view(), name='all'),
         url(r'^unread/$', views.UnreadNotificationsList.as_view(), name='unread'),
