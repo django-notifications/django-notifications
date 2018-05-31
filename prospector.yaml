@@ -1,0 +1,19 @@
+strictness: veryhigh
+
+ignore-paths:
+  - migrations
+
+uses:
+  - django
+
+pep8:
+  full: true
+  options:
+    max-line-length: 120
+
+pylint:
+  full: true
+
+mccabe:
+  disable:
+    - MC0001
