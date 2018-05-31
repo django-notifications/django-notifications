@@ -1,6 +1,6 @@
 ''' Django notifications template tags file '''
 # -*- coding: utf-8 -*-
-from distutils.version import StrictVersion # pylint: disable=no-name-in-module,import-error
+from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
 
 from django import get_version
 from django.template import Library
@@ -9,7 +9,7 @@ from django.utils.html import format_html
 try:
     from django.urls import reverse
 except ImportError:
-    from django.core.urlresolvers import reverse # pylint: disable=no-name-in-module,import-error
+    from django.core.urlresolvers import reverse  # pylint: disable=no-name-in-module,import-error
 
 register = Library()
 
@@ -24,7 +24,7 @@ def notifications_unread(context):
 if StrictVersion(get_version()) >= StrictVersion('2.0'):
     notifications_unread = register.simple_tag(takes_context=True)(notifications_unread)  # pylint: disable=invalid-name
 else:
-    notifications_unread = register.assignment_tag(takes_context=True)(notifications_unread)  # pylint: disable=invalid-name
+    notifications_unread = register.assignment_tag(takes_context=True)(notifications_unread)  # noqa
 
 
 # Requires vanilla-js framework - http://vanilla-js.com/
@@ -35,7 +35,7 @@ def register_notify_callbacks(badge_class='live_notify_badge',  # pylint: disabl
                               callbacks='',
                               api_name='list',
                               fetch=5):
-    refresh_period = int(refresh_period)*1000
+    refresh_period = int(refresh_period) * 1000
 
     if api_name == 'list':
         api_url = reverse('notifications:live_unread_notification_list')
@@ -61,9 +61,9 @@ def register_notify_callbacks(badge_class='live_notify_badge',  # pylint: disabl
         fetch_count=fetch
     )
 
-    script = "<script>"+definitions
+    script = "<script>" + definitions
     for callback in callbacks.split(','):
-        script += "register_notifier("+callback+");"
+        script += "register_notifier(" + callback + ");"
     script += "</script>"
     return format_html(script)
 
