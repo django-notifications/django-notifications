@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ''' Django Notifications exemple views '''
 from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
 
