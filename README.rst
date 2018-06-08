@@ -28,7 +28,7 @@ Nomenclature of this specification is based on the Activity Streams Spec: `<http
 Requirements
 ============
 
-- Python 2.7, 3.3, 3.4, 3.5
+- Python 2.7, 3.4, 3.5, 3.6
 - Django 1.7, 1.8, 1.9, 1.10, 1.11, 2.0
 
 Installation
