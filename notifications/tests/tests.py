@@ -287,7 +287,7 @@ class NotificationTestPages(TestCase):
         response = self.client.get(reverse('notifications:live_unread_notification_count'))
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(list(data.keys()), ['unread_count'])
-        self.assertEqual(data['unread_count'], 10)
+        self.assertEqual(data['unread_count'], self.message_count)
 
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
         response = self.client.get(reverse('notifications:live_unread_notification_count'))
@@ -301,20 +301,40 @@ class NotificationTestPages(TestCase):
         self.assertEqual(list(data.keys()), ['unread_count'])
         self.assertEqual(data['unread_count'], 1)
 
+    def test_all_count_api(self):
+        self.login('to', 'pwd')
+
+        response = self.client.get(reverse('notifications:live_all_notification_count'))
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(list(data.keys()), ['all_count'])
+        self.assertEqual(data['all_count'], self.message_count)
+
+        Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
+        response = self.client.get(reverse('notifications:live_all_notification_count'))
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(list(data.keys()), ['all_count'])
+        self.assertEqual(data['all_count'], self.message_count)
+
+        notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
+        response = self.client.get(reverse('notifications:live_all_notification_count'))
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(list(data.keys()), ['all_count'])
+        self.assertEqual(data['all_count'], self.message_count + 1)
+
     def test_unread_list_api(self):
         self.login('to', 'pwd')
 
         response = self.client.get(reverse('notifications:live_unread_notification_list'))
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(sorted(list(data.keys())), ['unread_count', 'unread_list'])
-        self.assertEqual(data['unread_count'], 10)
-        self.assertEqual(len(data['unread_list']), 5)
+        self.assertEqual(data['unread_count'], self.message_count)
+        self.assertEqual(len(data['unread_list']), self.message_count)
 
-        response = self.client.get(reverse('notifications:live_unread_notification_list'), data={"max": "12"})
+        response = self.client.get(reverse('notifications:live_unread_notification_list'), data={"max": 5})
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(sorted(list(data.keys())), ['unread_count', 'unread_list'])
-        self.assertEqual(data['unread_count'], 10)
-        self.assertEqual(len(data['unread_list']), 10)
+        self.assertEqual(data['unread_count'], self.message_count)
+        self.assertEqual(len(data['unread_list']), 5)
 
         # Test with a bad 'max' value
         response = self.client.get(reverse('notifications:live_unread_notification_list'), data={
@@ -322,8 +342,8 @@ class NotificationTestPages(TestCase):
         })
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(sorted(list(data.keys())), ['unread_count', 'unread_list'])
-        self.assertEqual(data['unread_count'], 10)
-        self.assertEqual(len(data['unread_list']), 5)
+        self.assertEqual(data['unread_count'], self.message_count)
+        self.assertEqual(len(data['unread_list']), self.message_count)
 
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
         response = self.client.get(reverse('notifications:live_unread_notification_list'))
@@ -340,6 +360,46 @@ class NotificationTestPages(TestCase):
         self.assertEqual(len(data['unread_list']), 1)
         self.assertEqual(data['unread_list'][0]['verb'], 'commented')
         self.assertEqual(data['unread_list'][0]['slug'], id2slug(data['unread_list'][0]['id']))
+
+    def test_all_list_api(self):
+        self.login('to', 'pwd')
+
+        response = self.client.get(reverse('notifications:live_all_notification_list'))
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list'])
+        self.assertEqual(data['all_count'], self.message_count)
+        self.assertEqual(len(data['all_list']), self.message_count)
+
+        response = self.client.get(reverse('notifications:live_all_notification_list'), data={"max": 5})
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list'])
+        self.assertEqual(data['all_count'], self.message_count)
+        self.assertEqual(len(data['all_list']), 5)
+
+        # Test with a bad 'max' value
+        response = self.client.get(reverse('notifications:live_all_notification_list'), data={
+            "max": "this_is_wrong",
+        })
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list'])
+        self.assertEqual(data['all_count'], self.message_count)
+        self.assertEqual(len(data['all_list']), self.message_count)
+
+        Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
+        response = self.client.get(reverse('notifications:live_all_notification_list'))
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list'])
+        self.assertEqual(data['all_count'], self.message_count)
+        self.assertEqual(len(data['all_list']), self.message_count)
+
+        notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
+        response = self.client.get(reverse('notifications:live_all_notification_list'))
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list'])
+        self.assertEqual(data['all_count'], self.message_count + 1)
+        self.assertEqual(len(data['all_list']), self.message_count)
+        self.assertEqual(data['all_list'][0]['verb'], 'commented')
+        self.assertEqual(data['all_list'][0]['slug'], id2slug(data['all_list'][0]['id']))
 
     def test_unread_list_api_mark_as_read(self):  # pylint: disable=invalid-name
         self.login('to', 'pwd')
