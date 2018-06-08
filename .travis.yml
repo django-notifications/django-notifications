@@ -4,6 +4,7 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
+  - "3.6"
 env:
   - DJANGO=1.7
   - DJANGO=1.8
@@ -22,19 +23,14 @@ script:
   - coverage run --branch --source=notifications manage.py test
 matrix:
   exclude:
-    - python: "3.5"
-      env: DJANGO=1.7
-    - python: "3.3"
-      env: DJANGO=1.9
-    - python: "3.3"
-      env: DJANGO=1.10
-    - python: "3.3"
-      env: DJANGO=1.11
-    - python: "3.3"
-      env: DJANGO=2.0
     - python: "2.7"
       env: DJANGO=2.0
-
+    - python: "3.3"
+      env: DJANGO=2.0
+    - python: "3.5"
+      env: DJANGO=1.7
+    - python: "3.6"
+      env: DJANGO=1.7
 
 
 after_success:
