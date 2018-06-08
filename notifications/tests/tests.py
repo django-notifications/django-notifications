@@ -6,16 +6,17 @@ Replace this with more appropriate tests for your application.
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines,missing-docstring
 import json
-import pytz
 
+import pytz
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ImproperlyConfigured
+from django.template import Context, Template
 from django.test import RequestFactory, TestCase
 from django.utils import timezone
 from django.utils.timezone import localtime, utc
-from notifications.signals import notify
 from notifications.models import Notification, notify_handler
+from notifications.signals import notify
 from notifications.utils import id2slug
 
 try:
@@ -224,22 +225,24 @@ class NotificationTestPages(TestCase):
 
     def test_next_pages(self):
         self.login('to', 'pwd')
-        response = self.client.get(reverse('notifications:mark_all_as_read'), data={
-            "next": reverse('notifications:unread'),
+        query_parameters = '?var1=hello&var2=world'
+
+        response = self.client.get(reverse('notifications:mark_all_as_read'),data={
+            "next": reverse('notifications:unread')  + query_parameters,
         })
-        self.assertRedirects(response, reverse('notifications:unread'))
+        self.assertRedirects(response, reverse('notifications:unread') + query_parameters)
 
         slug = id2slug(self.to_user.notifications.first().id)
         response = self.client.get(reverse('notifications:mark_as_read', args=[slug]), data={
-            "next": reverse('notifications:unread'),
+            "next": reverse('notifications:unread') + query_parameters,
         })
-        self.assertRedirects(response, reverse('notifications:unread'))
+        self.assertRedirects(response, reverse('notifications:unread') + query_parameters)
 
         slug = id2slug(self.to_user.notifications.first().id)
         response = self.client.get(reverse('notifications:mark_as_unread', args=[slug]), {
-            "next": reverse('notifications:unread'),
+            "next": reverse('notifications:unread') + query_parameters,
         })
-        self.assertRedirects(response, reverse('notifications:unread'))
+        self.assertRedirects(response, reverse('notifications:unread') + query_parameters)
 
     def test_delete_messages_pages(self):
         self.login('to', 'pwd')
@@ -417,3 +420,33 @@ class NotificationTestExtraData(TestCase):
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['unread_list'][0]['data']['url'], "/learn/ask-a-pro/q/test-question-9/299/")
         self.assertEqual(data['unread_list'][0]['data']['other_content'], "Hello my 'world'")
+
+
+class TagTest(TestCase):
+    ''' Django notifications automated tags tests '''
+    def setUp(self):
+        self.message_count = 1
+        self.from_user = User.objects.create_user(username="from", password="pwd", email="example@example.com")
+        self.to_user = User.objects.create_user(username="to", password="pwd", email="example@example.com")
+        self.to_user.is_staff = True
+        self.to_user.save()
+        for _ in range(self.message_count):
+            notify.send(
+                self.from_user,
+                recipient=self.to_user,
+                verb='commented',
+                action_object=self.from_user,
+                url="/learn/ask-a-pro/q/test-question-9/299/",
+                other_content="Hello my 'world'"
+            )
+
+    def tag_test(self, template, context, output):
+        t = Template('{% load notifications_tags %}'+template)
+        c = Context(context)
+        self.assertEqual(t.render(c), output)
+
+    def test_has_notification(self):
+        template = "{{ user|has_notification }}"
+        context = {"user":self.to_user}
+        output = u"True"
+        self.tag_test(template, context, output)

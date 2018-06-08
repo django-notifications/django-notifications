@@ -27,6 +27,13 @@ else:
     notifications_unread = register.assignment_tag(takes_context=True)(notifications_unread)  # noqa
 
 
+@register.filter
+def has_notification(user):
+    if user:
+        return user.notifications.unread().exists()
+    return False
+
+
 # Requires vanilla-js framework - http://vanilla-js.com/
 @register.simple_tag
 def register_notify_callbacks(badge_class='live_notify_badge',  # pylint: disable=too-many-arguments,missing-docstring
