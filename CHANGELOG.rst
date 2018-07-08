@@ -1,6 +1,29 @@
 Changelog
 =========
 
+1.5
+----
+__THIS VERSION HAS BREAKING CHANGES__:
+Now all configs for the app are made inside the dictionary *DJANGO_NOTIFICATION_CONFIG* in *settings.py*.
+
+Default configs:
+```Python
+DJANGO_NOTIFICATION_CONFIG = {
+    'PAGINATE_BY': 20,
+    'USE_JSONFIELD': False,
+    'SOFT_DELETE': False,
+    'NUM_TO_FETCH': 10,
+}
+```
+
+- Improve code quality. (@AlvaroLQueiroz)
+- Improve url patterns and remove duplicated code. (@julianogouveia)
+- Added a view for show all notifications. #205 (@AlvaroLQueiroz)
+- Added a new tag to verify if an user has unread notifications. #164 (@AlvaroLQueiroz)
+- Improve documentation. (@pandabearcoder)
+- Fix pagination in list views. #69 (@AlvaroLQueiroz)
+- Improve test matrix. (@AlvaroLQueiroz)
+
 1.4
 ----
 
