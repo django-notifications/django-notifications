@@ -42,8 +42,8 @@ def register_notify_callbacks(badge_class='live_notify_badge',  # pylint: disabl
                               callbacks='',
                               api_name='list',
                               fetch=5,
-                              nonce=None
-                              ):
+                              nonce=None,
+                              mark_as_read=False):
     refresh_period = int(refresh_period) * 1000
 
     if api_name == 'list':
@@ -60,6 +60,7 @@ def register_notify_callbacks(badge_class='live_notify_badge',  # pylint: disabl
         notify_unread_url='{unread_url}';
         notify_mark_all_unread_url='{mark_all_unread_url}';
         notify_refresh_period={refresh};
+        notify_mark_as_read={mark_as_read};
     """.format(
         badge_class=badge_class,
         menu_class=menu_class,
@@ -67,7 +68,8 @@ def register_notify_callbacks(badge_class='live_notify_badge',  # pylint: disabl
         api_url=api_url,
         unread_url=reverse('notifications:unread'),
         mark_all_unread_url=reverse('notifications:mark_all_as_read'),
-        fetch_count=fetch
+        fetch_count=fetch,
+        mark_as_read=mark_as_read
     )
 
     # add a nonce value to the script tag if one is provided
