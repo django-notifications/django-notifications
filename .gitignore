@@ -13,3 +13,4 @@ htmlcov
 .venv/
 test.sqlite3
 settings.json
+env/
