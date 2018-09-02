@@ -118,6 +118,22 @@ class NotificationManagersTest(TestCase):
         for notification in Notification.objects.read():
             self.assertFalse(notification.unread)
 
+    def test_unseen_manager(self):
+        self.assertEqual(Notification.objects.unseen().count(), self.message_count)
+        notification = Notification.objects.filter(recipient=self.to_user).first()
+        notification.mark_as_seen()
+        self.assertEqual(Notification.objects.unseen().count(), self.message_count-1)
+        for notification in Notification.objects.unseen():
+            self.assertTrue(notification.unseen)
+
+    def test_seen_manager(self):
+        self.assertEqual(Notification.objects.unseen().count(), self.message_count)
+        notification = Notification.objects.filter(recipient=self.to_user).first()
+        notification.mark_as_seen()
+        self.assertEqual(Notification.objects.seen().count(), 1)
+        for notification in Notification.objects.seen():
+            self.assertFalse(notification.unseen)
+
     def test_mark_all_as_read_manager(self):
         self.assertEqual(Notification.objects.unread().count(), self.message_count)
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
@@ -142,6 +158,37 @@ class NotificationManagersTest(TestCase):
         self.assertEqual(self.to_user.notifications.unread().count(), 0)
         Notification.objects.filter(recipient=self.to_user).mark_all_as_unread()
         self.assertEqual(Notification.objects.unread().count(), self.message_count)
+
+    def test_mark_all_deleted_manager_without_soft_delete(self):  # pylint: disable=invalid-name
+        self.assertRaises(ImproperlyConfigured, Notification.objects.active)
+        self.assertRaises(ImproperlyConfigured, Notification.objects.active)
+        self.assertRaises(ImproperlyConfigured, Notification.objects.mark_all_as_deleted)
+        self.assertRaises(ImproperlyConfigured, Notification.objects.mark_all_as_active)
+
+    def test_mark_all_as_seen_manager(self):
+        self.assertEqual(Notification.objects.unseen().count(), self.message_count)
+        Notification.objects.filter(recipient=self.to_user).mark_all_as_seen()
+        self.assertEqual(self.to_user.notifications.unseen().count(), 0)
+
+    @override_settings(DJANGO_NOTIFICATIONS_CONFIG={
+        'SOFT_DELETE': True
+    })  # pylint: disable=invalid-name
+    def test_mark_all_as_seen_manager_with_soft_delete(self):
+        # even soft-deleted notifications should be marked as seen
+        # refer: https://github.com/django-notifications/django-notifications/issues/126
+        to_delete = Notification.objects.filter(recipient=self.to_user).order_by('id')[0]
+        to_delete.deleted = True
+        to_delete.save()
+        self.assertTrue(Notification.objects.filter(recipient=self.to_user).order_by('id')[0].unseen)
+        Notification.objects.filter(recipient=self.to_user).mark_all_as_seen()
+        self.assertFalse(Notification.objects.filter(recipient=self.to_user).order_by('id')[0].unseen)
+
+    def test_mark_all_as_unseen_manager(self):
+        self.assertEqual(Notification.objects.unseen().count(), self.message_count)
+        Notification.objects.filter(recipient=self.to_user).mark_all_as_seen()
+        self.assertEqual(self.to_user.notifications.unseen().count(), 0)
+        Notification.objects.filter(recipient=self.to_user).mark_all_as_unseen()
+        self.assertEqual(Notification.objects.unseen().count(), self.message_count)
 
     def test_mark_all_deleted_manager_without_soft_delete(self):  # pylint: disable=invalid-name
         self.assertRaises(ImproperlyConfigured, Notification.objects.active)
