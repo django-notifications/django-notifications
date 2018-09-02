@@ -65,6 +65,24 @@ class NotificationQuerySet(models.query.QuerySet):
         # In this case, to improve query performance, don't filter by 'deleted' field
         return self.filter(unread=False)
 
+    def unseen(self, include_deleted=False):
+        """Return only unseen items in the current queryset"""
+        if is_soft_delete() and not include_deleted:
+            return self.filter(unseen=True, deleted=False)
+
+        # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
+        # In this case, to improve query performance, don't filter by 'deleted' field
+        return self.filter(unread=True)
+
+    def seen(self, include_deleted=False):
+        """Return only seen items in the current queryset"""
+        if is_soft_delete() and not include_deleted:
+            return self.filter(unseen=False, deleted=False)
+
+        # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
+        # In this case, to improve query performance, don't filter by 'deleted' field
+        return self.filter(unseen=False)
+
     def mark_all_as_read(self, recipient=None):
         """Mark as read any unread messages in the current queryset.
 
@@ -89,6 +107,31 @@ class NotificationQuerySet(models.query.QuerySet):
             qset = qset.filter(recipient=recipient)
 
         return qset.update(unread=True)
+
+    def mark_all_as_seen(self, recipient=None):
+        """Mark as read any unseen messages in the current queryset.
+
+        Optionally, filter these by recipient first.
+        """
+        # We want to filter out seen ones, as later we will store
+        # the time they were marked as seen.
+        qset = self.unseen(True)
+        if recipient:
+            qset = qset.filter(recipient=recipient)
+
+        return qset.update(unseen=False)
+
+    def mark_all_as_unseen(self, recipient=None):
+        """Mark as unseen any read messages in the current queryset.
+
+        Optionally, filter these by recipient first.
+        """
+        qset = self.seen(True)
+
+        if recipient:
+            qset = qset.filter(recipient=recipient)
+
+        return qset.update(unseen=True)
 
     def deleted(self):
         """Return only deleted items in the current queryset"""
@@ -202,6 +245,7 @@ class Notification(models.Model):
     public = models.BooleanField(default=True, db_index=True)
     deleted = models.BooleanField(default=False, db_index=True)
     emailed = models.BooleanField(default=False, db_index=True)
+    unseen = models.BooleanField(default=True, blank=False, db_index=True)
 
     data = JSONField(blank=True, null=True)
     objects = NotificationQuerySet.as_manager()
