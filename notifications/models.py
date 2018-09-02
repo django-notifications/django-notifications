@@ -72,7 +72,7 @@ class NotificationQuerySet(models.query.QuerySet):
 
         # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
         # In this case, to improve query performance, don't filter by 'deleted' field
-        return self.filter(unread=True)
+        return self.filter(unseen=True)
 
     def seen(self, include_deleted=False):
         """Return only seen items in the current queryset"""
