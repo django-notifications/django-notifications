@@ -295,6 +295,15 @@ class Notification(models.Model):
             self.unread = True
             self.save()
 
+    def mark_as_seen(self):
+        if self.unseen:
+            self.unseen = False
+            self.save()
+
+    def mark_as_unseen(self):
+        if not self.unseen:
+            self.unseen = True
+            self.save()
 
 def notify_handler(verb, **kwargs):
     """
