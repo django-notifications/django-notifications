@@ -343,7 +343,6 @@ def notify_handler(verb, **kwargs):
             description=description,
             timestamp=timestamp,
             level=level,
-            unseen=True
         )
 
         # Set optional objects
