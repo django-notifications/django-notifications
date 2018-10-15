@@ -1,7 +1,6 @@
 ''' Django notifications settings file '''
 # -*- coding: utf-8 -*-
 from django.conf import settings
-from django.utils.functional import cached_property
 
 
 CONFIG_DEFAULTS = {
