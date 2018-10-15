@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.utils.six import text_type
 from jsonfield.fields import JSONField
 from model_utils import Choices
-from notifications import settings as notifications_settings
+from notifications.settings import notifications_settings
 from notifications.signals import notify
 from notifications.utils import id2slug
 
@@ -24,11 +24,8 @@ else:
     from django.contrib.contenttypes.generic import GenericForeignKey  # noqa
 
 
-EXTRA_DATA = notifications_settings.get_config()['USE_JSONFIELD']
-
-
 def is_soft_delete():
-    return notifications_settings.get_config()['SOFT_DELETE']
+    return notifications_settings.SOFT_DELETE
 
 
 def assert_soft_delete():
@@ -299,7 +296,7 @@ def notify_handler(verb, **kwargs):
                 setattr(newnotify, '%s_content_type' % opt,
                         ContentType.objects.get_for_model(obj))
 
-        if kwargs and EXTRA_DATA:
+        if kwargs and notifications_settings.USE_JSONFIELD:
             newnotify.data = kwargs
 
         newnotify.save()
