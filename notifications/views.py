@@ -8,10 +8,9 @@ from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView
-from notifications import settings
+from notifications.settings import notifications_settings
 from notifications.models import Notification
 from notifications.utils import id2slug, slug2id
-from notifications.settings import get_config
 
 if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
     from django.http import JsonResponse  # noqa
@@ -32,7 +31,7 @@ else:
 class NotificationViewList(ListView):
     template_name = 'notifications/list.html'
     context_object_name = 'notifications'
-    paginate_by = settings.get_config()['PAGINATE_BY']
+    paginate_by = notifications_settings.PAGINATE_BY
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -46,7 +45,7 @@ class AllNotificationsList(NotificationViewList):
     """
 
     def get_queryset(self):
-        if settings.get_config()['SOFT_DELETE']:
+        if notifications_settings.SOFT_DELETE:
             qset = self.request.user.notifications.active()
         else:
             qset = self.request.user.notifications.all()
@@ -109,7 +108,7 @@ def delete(request, slug=None):
     notification = get_object_or_404(
         Notification, recipient=request.user, id=notification_id)
 
-    if settings.get_config()['SOFT_DELETE']:
+    if notifications_settings.SOFT_DELETE:
         notification.deleted = True
         notification.save()
     else:
@@ -154,7 +153,7 @@ def live_unread_notification_list(request):
         }
         return JsonResponse(data)
 
-    default_num_to_fetch = get_config()['NUM_TO_FETCH']
+    default_num_to_fetch = notifications_settings.NUM_TO_FETCH
     try:
         # If they don't specify, make it 5.
         num_to_fetch = request.GET.get('max', default_num_to_fetch)
@@ -201,7 +200,7 @@ def live_all_notification_list(request):
         }
         return JsonResponse(data)
 
-    default_num_to_fetch = get_config()['NUM_TO_FETCH']
+    default_num_to_fetch = notifications_settings.NUM_TO_FETCH
     try:
         # If they don't specify, make it 5.
         num_to_fetch = request.GET.get('max', default_num_to_fetch)
