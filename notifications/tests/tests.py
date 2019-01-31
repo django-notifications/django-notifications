@@ -510,3 +510,60 @@ class TagTest(TestCase):
         context = {"user":self.to_user}
         output = u"True"
         self.tag_test(template, context, output)
+
+
+class NotificationTestGrouping(TestCase):
+    def setUp(self):
+        self.from_user = User.objects.create_user(username="from", password="pwd", email="example@example.com")
+        self.to_user = User.objects.create_user(username="to", password="pwd", email="example@example.com")
+
+    @override_settings(DJANGO_NOTIFICATIONS_CONFIG={
+        'GROUP_SIMILAR': True
+    })
+    def test_grouping(self):
+        # initial notification
+
+        notify.send(
+            self.from_user,
+            recipient=self.to_user,
+            verb='commented',
+            action_object=self.from_user,
+            url="/learn/ask-a-pro/q/test-question-9/299/",
+            other_content="Hello my 'world'"
+        )
+
+        notifications = Notification.objects.filter(recipient=self.to_user)
+        self.assertEqual(len(notifications), 1)
+
+        # second time
+
+        notify.send(
+            self.from_user,
+            recipient=self.to_user,
+            verb='commented',
+            action_object=self.from_user,
+            url="/learn/ask-a-pro/q/test-question-9/299/",
+            other_content="Hello my 'world'"
+        )
+
+        notifications = Notification.objects.filter(recipient=self.to_user)
+        self.assertEqual(len(notifications), 1)
+
+        # mark as read
+        notification = notifications.first()
+        notification.unread = False
+        notification.save()
+
+        # send again notification
+
+        notify.send(
+            self.from_user,
+            recipient=self.to_user,
+            verb='commented',
+            action_object=self.from_user,
+            url="/learn/ask-a-pro/q/test-question-9/299/",
+            other_content="Hello my 'world'"
+        )
+
+        notifications = Notification.objects.filter(recipient=self.to_user).count()
+        self.assertEqual(notifications, 2)
