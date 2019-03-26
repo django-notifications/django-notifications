@@ -1,0 +1,8 @@
+{% load notifications_tags %}
+
+{% register_notify_callbacks callbacks='fill_notification_menu,fill_notification_badge' %}
+
+{% notifications_unread as unread %}
+{{ unread }}
+{% live_notify_badge %}
+{% live_notify_list %}
