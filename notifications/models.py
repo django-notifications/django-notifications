@@ -1,7 +1,9 @@
 ''' Django notifications models file '''
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
-from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
+from distutils.version import (
+    StrictVersion,
+)  # pylint: disable=no-name-in-module,import-error
 
 from django import get_version
 from django.conf import settings
@@ -12,6 +14,7 @@ from django.db import models
 from django.db.models.query import QuerySet
 from django.utils import timezone
 from django.utils.six import text_type
+
 from jsonfield.fields import JSONField
 from model_utils import Choices
 from notifications import settings as notifications_settings
@@ -41,6 +44,7 @@ def assert_soft_delete():
 
 class NotificationQuerySet(models.query.QuerySet):
     ''' Notification QuerySet '''
+
     def unsent(self):
         return self.filter(emailed=False)
 
@@ -164,6 +168,7 @@ class Notification(models.Model):
         <a href="http://oebfare.com/">brosner</a> commented on <a href="http://github.com/pinax/pinax">pinax/pinax</a> 2 hours ago # noqa
 
     """
+
     LEVELS = Choices('success', 'info', 'warning', 'error')
     level = models.CharField(choices=LEVELS, default=LEVELS.info, max_length=20)
 
@@ -171,11 +176,13 @@ class Notification(models.Model):
         settings.AUTH_USER_MODEL,
         blank=False,
         related_name='notifications',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
     unread = models.BooleanField(default=True, blank=False, db_index=True)
 
-    actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor', on_delete=models.CASCADE)
+    actor_content_type = models.ForeignKey(
+        ContentType, related_name='notify_actor', on_delete=models.CASCADE
+    )
     actor_object_id = models.CharField(max_length=255)
     actor = GenericForeignKey('actor_content_type', 'actor_object_id')
 
@@ -187,15 +194,22 @@ class Notification(models.Model):
         related_name='notify_target',
         blank=True,
         null=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
     target_object_id = models.CharField(max_length=255, blank=True, null=True)
     target = GenericForeignKey('target_content_type', 'target_object_id')
 
-    action_object_content_type = models.ForeignKey(ContentType, blank=True, null=True,
-                                                   related_name='notify_action_object', on_delete=models.CASCADE)
+    action_object_content_type = models.ForeignKey(
+        ContentType,
+        blank=True,
+        null=True,
+        related_name='notify_action_object',
+        on_delete=models.CASCADE,
+    )
     action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
-    action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
+    action_object = GenericForeignKey(
+        'action_object_content_type', 'action_object_object_id'
+    )
 
     timestamp = models.DateTimeField(default=timezone.now)
 
@@ -216,11 +230,14 @@ class Notification(models.Model):
             'verb': self.verb,
             'action_object': self.action_object,
             'target': self.target,
-            'timesince': self.timesince()
+            'timesince': self.timesince(),
         }
         if self.target:
             if self.action_object:
-                return u'%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago' % ctx
+                return (
+                    u'%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago'
+                    % ctx
+                )
             return u'%(actor)s %(verb)s %(target)s %(timesince)s ago' % ctx
         if self.action_object:
             return u'%(actor)s %(verb)s %(action_object)s %(timesince)s ago' % ctx
@@ -235,7 +252,23 @@ class Notification(models.Model):
         current timestamp.
         """
         from django.utils.timesince import timesince as timesince_
+
         return timesince_(self.timestamp, now)
+
+    def humanize_timestamp(self, humanize_type):
+        """
+        Shortcut for the ``humanize``.
+        Return ``today``, ``yesterday``etc.
+        """
+        if humanize_type == 'naturalday':
+            from django.contrib.humanize.templatetags.humanize import naturalday
+
+            return naturalday(self.timestamp)
+        elif humanize_type == 'naturaltime':
+            from django.contrib.humanize.templatetags.humanize import naturaltime
+
+            return naturaltime(self.timestamp)
+        return self.timestamp
 
     @property
     def slug(self):
@@ -262,8 +295,7 @@ def notify_handler(verb, **kwargs):
     recipient = kwargs.pop('recipient')
     actor = kwargs.pop('sender')
     optional_objs = [
-        (kwargs.pop(opt, None), opt)
-        for opt in ('target', 'action_object')
+        (kwargs.pop(opt, None), opt) for opt in ('target', 'action_object')
     ]
     public = bool(kwargs.pop('public', True))
     description = kwargs.pop('description', None)
@@ -296,8 +328,11 @@ def notify_handler(verb, **kwargs):
         for obj, opt in optional_objs:
             if obj is not None:
                 setattr(newnotify, '%s_object_id' % opt, obj.pk)
-                setattr(newnotify, '%s_content_type' % opt,
-                        ContentType.objects.get_for_model(obj))
+                setattr(
+                    newnotify,
+                    '%s_content_type' % opt,
+                    ContentType.objects.get_for_model(obj),
+                )
 
         if kwargs and EXTRA_DATA:
             newnotify.data = kwargs
