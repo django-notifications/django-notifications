@@ -1,0 +1,22 @@
+strictness: veryhigh
+
+ignore-paths:
+  - migrations
+  - build
+  - dist
+  - django_notifications_hq.egg-info
+
+uses:
+  - django
+
+pep8:
+  full: true
+  options:
+    max-line-length: 120
+
+pylint:
+  full: true
+
+mccabe:
+  disable:
+    - MC0001

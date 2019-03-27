@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import notifications.models
+from django.utils import timezone
 
 
 class Migration(migrations.Migration):
@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='notification',
             name='timestamp',
-            field=models.DateTimeField(default=notifications.models.now),
+            field=models.DateTimeField(default=timezone.now),
         ),
     ]

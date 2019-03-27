@@ -1,0 +1,10 @@
+{% load static notifications_tags %}
+
+<script src="{% static 'notifications/notify.js' %}" type="text/javascript"></script>
+<script src="{% static 'notifications/live-test.js' %}" type="text/javascript"></script>
+{% register_notify_callbacks callbacks='fill_notification_list,fill_notification_badge' fetch=20 refresh_period=5 %}
+
+There are this many notifications pending: {% live_notify_badge %}
+
+<button onclick='make_notification()'>Make a notification</button>
+{% live_notify_list %}
