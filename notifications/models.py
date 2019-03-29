@@ -255,22 +255,19 @@ class Notification(models.Model):
 
         return timesince_(self.timestamp, now)
 
-    def humanize_timestamp(self, humanize_type='naturalday'):
+    def naturalday(self):
         """
         Shortcut for the ``humanize``.
         Take a parameter humanize_type. This parameter control the which humanize method use.
 
         Return ``today``, ``yesterday`` ,``now``, ``2 seconds ago``etc. 
         """
-        if humanize_type == 'naturalday':
-            from django.contrib.humanize.templatetags.humanize import naturalday
+        from django.contrib.humanize.templatetags.humanize import naturalday
+        return naturalday(self.timestamp)
 
-            return naturalday(self.timestamp)
-        elif humanize_type == 'naturaltime':
-            from django.contrib.humanize.templatetags.humanize import naturaltime
-
-            return naturaltime(self.timestamp)
-        return self.timestamp
+    def naturaltime(self):
+        from django.contrib.humanize.templatetags.humanize import naturaltime
+        return naturaltime(self.timestamp)        
 
     @property
     def slug(self):
