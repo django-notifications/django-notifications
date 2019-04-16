@@ -29,16 +29,20 @@ setup(
         'django>=1.7',
         'django-model-utils>=2.0.3',
         'jsonfield>=1.0.3',
-        'pytz'
+        'pytz',
+        'djangorestframework>=3.8.0'
     ],
     test_requires=[
         'django>=1.7',
         'django-model-utils>=2.0.3',
         'jsonfield>=1.0.3',
-        'pytz'
+        'pytz',
+        'factory_boy==2.6.1',
+        'faker==0.7.10',
     ],
     packages=[
         'notifications',
+        'notifications.drf',
         'notifications.templatetags',
         'notifications.migrations',
     ],

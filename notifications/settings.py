@@ -8,6 +8,12 @@ CONFIG_DEFAULTS = {
     'USE_JSONFIELD': False,
     'SOFT_DELETE': False,
     'NUM_TO_FETCH': 10,
+    'SERIALIZERS': {
+        'user': 'notifications.drf.serializers.UserSerializer'
+    },
+    'FIELDS': {
+        'generic_relation': 'notifications.drf.serializers.GenericNotificationRelatedField'
+    }
 }
 
 

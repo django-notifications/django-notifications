@@ -15,6 +15,7 @@ from django.utils.six import text_type
 from jsonfield.fields import JSONField
 from model_utils import Choices
 from notifications import settings as notifications_settings
+from notifications.managers import NotificationQuerySet
 from notifications.signals import notify
 from notifications.utils import id2slug
 
@@ -25,114 +26,6 @@ else:
 
 
 EXTRA_DATA = notifications_settings.get_config()['USE_JSONFIELD']
-
-
-def is_soft_delete():
-    return notifications_settings.get_config()['SOFT_DELETE']
-
-
-def assert_soft_delete():
-    if not is_soft_delete():
-        msg = """To use 'deleted' field, please set 'SOFT_DELETE'=True in settings.
-        Otherwise NotificationQuerySet.unread and NotificationQuerySet.read do NOT filter by 'deleted' field.
-        """
-        raise ImproperlyConfigured(msg)
-
-
-class NotificationQuerySet(models.query.QuerySet):
-    ''' Notification QuerySet '''
-    def unsent(self):
-        return self.filter(emailed=False)
-
-    def sent(self):
-        return self.filter(emailed=True)
-
-    def unread(self, include_deleted=False):
-        """Return only unread items in the current queryset"""
-        if is_soft_delete() and not include_deleted:
-            return self.filter(unread=True, deleted=False)
-
-        # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
-        # In this case, to improve query performance, don't filter by 'deleted' field
-        return self.filter(unread=True)
-
-    def read(self, include_deleted=False):
-        """Return only read items in the current queryset"""
-        if is_soft_delete() and not include_deleted:
-            return self.filter(unread=False, deleted=False)
-
-        # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
-        # In this case, to improve query performance, don't filter by 'deleted' field
-        return self.filter(unread=False)
-
-    def mark_all_as_read(self, recipient=None):
-        """Mark as read any unread messages in the current queryset.
-
-        Optionally, filter these by recipient first.
-        """
-        # We want to filter out read ones, as later we will store
-        # the time they were marked as read.
-        qset = self.unread(True)
-        if recipient:
-            qset = qset.filter(recipient=recipient)
-
-        return qset.update(unread=False)
-
-    def mark_all_as_unread(self, recipient=None):
-        """Mark as unread any read messages in the current queryset.
-
-        Optionally, filter these by recipient first.
-        """
-        qset = self.read(True)
-
-        if recipient:
-            qset = qset.filter(recipient=recipient)
-
-        return qset.update(unread=True)
-
-    def deleted(self):
-        """Return only deleted items in the current queryset"""
-        assert_soft_delete()
-        return self.filter(deleted=True)
-
-    def active(self):
-        """Return only active(un-deleted) items in the current queryset"""
-        assert_soft_delete()
-        return self.filter(deleted=False)
-
-    def mark_all_as_deleted(self, recipient=None):
-        """Mark current queryset as deleted.
-        Optionally, filter by recipient first.
-        """
-        assert_soft_delete()
-        qset = self.active()
-        if recipient:
-            qset = qset.filter(recipient=recipient)
-
-        return qset.update(deleted=True)
-
-    def mark_all_as_active(self, recipient=None):
-        """Mark current queryset as active(un-deleted).
-        Optionally, filter by recipient first.
-        """
-        assert_soft_delete()
-        qset = self.deleted()
-        if recipient:
-            qset = qset.filter(recipient=recipient)
-
-        return qset.update(deleted=False)
-
-    def mark_as_unsent(self, recipient=None):
-        qset = self.sent()
-        if recipient:
-            qset = qset.filter(recipient=recipient)
-        return qset.update(emailed=False)
-
-    def mark_as_sent(self, recipient=None):
-        qset = self.unsent()
-        if recipient:
-            qset = qset.filter(recipient=recipient)
-        return qset.update(emailed=True)
 
 
 class Notification(models.Model):
@@ -165,7 +58,11 @@ class Notification(models.Model):
 
     """
     LEVELS = Choices('success', 'info', 'warning', 'error')
-    level = models.CharField(choices=LEVELS, default=LEVELS.info, max_length=20)
+    level = models.CharField(
+        choices=LEVELS,
+        default=LEVELS.info,
+        max_length=20
+    )
 
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -173,9 +70,12 @@ class Notification(models.Model):
         related_name='notifications',
         on_delete=models.CASCADE
     )
-    unread = models.BooleanField(default=True, blank=False, db_index=True)
 
-    actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor', on_delete=models.CASCADE)
+    actor_content_type = models.ForeignKey(
+        ContentType,
+        related_name='notify_actor',
+        on_delete=models.CASCADE
+    )
     actor_object_id = models.CharField(max_length=255)
     actor = GenericForeignKey('actor_content_type', 'actor_object_id')
 
@@ -189,16 +89,49 @@ class Notification(models.Model):
         null=True,
         on_delete=models.CASCADE
     )
-    target_object_id = models.CharField(max_length=255, blank=True, null=True)
+    target_object_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
     target = GenericForeignKey('target_content_type', 'target_object_id')
 
-    action_object_content_type = models.ForeignKey(ContentType, blank=True, null=True,
-                                                   related_name='notify_action_object', on_delete=models.CASCADE)
-    action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
+    action_object_content_type = models.ForeignKey(
+        ContentType,
+        blank=True,
+        null=True,
+        related_name='notify_action_object',
+        on_delete=models.CASCADE
+    )
+    action_object_object_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
     action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
 
-    timestamp = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        default=timezone.now
+    )
+    archived_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
 
+    read_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+    seen_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    # not used anymore
+    unread = models.BooleanField(default=True, blank=False, db_index=True)
+    timestamp = models.DateTimeField(default=timezone.now)
     public = models.BooleanField(default=True, db_index=True)
     deleted = models.BooleanField(default=False, db_index=True)
     emailed = models.BooleanField(default=False, db_index=True)
@@ -218,12 +151,16 @@ class Notification(models.Model):
             'target': self.target,
             'timesince': self.timesince()
         }
+
         if self.target:
             if self.action_object:
                 return u'%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago' % ctx
+
             return u'%(actor)s %(verb)s %(target)s %(timesince)s ago' % ctx
+
         if self.action_object:
             return u'%(actor)s %(verb)s %(action_object)s %(timesince)s ago' % ctx
+
         return u'%(actor)s %(verb)s %(timesince)s ago' % ctx
 
     def __str__(self):  # Adds support for Python 3
@@ -235,20 +172,30 @@ class Notification(models.Model):
         current timestamp.
         """
         from django.utils.timesince import timesince as timesince_
-        return timesince_(self.timestamp, now)
+        return timesince_(self.created_at, now)
 
     @property
     def slug(self):
         return id2slug(self.id)
 
     def mark_as_read(self):
-        if self.unread:
-            self.unread = False
+        if not self.read_at:
+            self.read_at = timezone.now()
             self.save()
 
     def mark_as_unread(self):
-        if not self.unread:
-            self.unread = True
+        if self.read_at:
+            self.read_at = None
+            self.save()
+
+    def mark_as_seen(self):
+        if not self.seen_at:
+            self.seen_at = timezone.now()
+            self.save()
+
+    def mark_as_unseen(self):
+        if self.seen_at:
+            self.seen_at = None
             self.save()
 
 
@@ -288,7 +235,7 @@ def notify_handler(verb, **kwargs):
             verb=text_type(verb),
             public=public,
             description=description,
-            timestamp=timestamp,
+            created_at=timestamp,
             level=level,
         )
 

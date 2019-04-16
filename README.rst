@@ -180,6 +180,16 @@ When ``SOFT_DELETE=True``, this filter contains ``deleted=False``.
 Return all of the read notifications, filtering the current queryset.
 When ``SOFT_DELETE=True``, this filter contains ``deleted=False``.
 
+``qs.unseen()``
+~~~~~~~~~~~~~~~
+
+Return all of the unseen notifications, filtering the current queryset.
+
+``qs.seen()``
+~~~~~~~~~~~~~~~
+
+Return all of the seen notifications, filtering the current queryset.
+
 
 ``qs.mark_all_as_read()`` | ``qs.mark_all_as_read(recipient)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -197,11 +207,20 @@ Mark all of the read notifications in the queryset (optionally also filtered by 
 
 Mark all of the unsent notifications in the queryset (optionally also filtered by ``recipient``) as sent.
 
-
 ``qs.mark_as_unsent()`` | ``qs.mark_as_unsent(recipient)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Mark all of the sent notifications in the queryset (optionally also filtered by ``recipient``) as unsent.
+
+``qs.mark_as_unseen()`` | ``qs.mark_as_unseen(recipient)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Mark all of the seen notifications in the queryset (optionally also filtered by ``recipient``) as unseen.
+
+``qs.mark_as_seen()`` | ``qs.mark_as_seen(recipient)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Mark all of the unseen notifications in the queryset (optionally also filtered by ``recipient``) as seen.
 
 ``qs.deleted()``
 ~~~~~~~~~~~~~~~~
@@ -240,6 +259,16 @@ A wrapper for Django's ``timesince`` function.
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Mark the current object as read.
+
+``obj.mark_as_seen()``
+~~~~~~~~~~~~~~~~~~~~~~
+
+Mark the current object as seen.
+
+``obj.mark_as_unseen()``
+~~~~~~~~~~~~~~~~~~~~~~
+
+Mark the current object as unseen.
 
 
 Template tags
@@ -400,6 +429,20 @@ In this example the target object can be of type Foo or Bar and the appropriate 
         target = GenericNotificationRelatedField(read_only=True)
 
 Thanks to @DaWy
+
+Specifying a custom user serializer
+===================================
+
+It is possible to override the serializer used to serialize the User object by doing the following:
+
+* Add to your settings.py: ``DJANGO_NOTIFICATIONS_CONFIG = { 'SERIALIZERS': { 'user': 'app.serializers.MyCustomUserSerializer'}``
+
+Thanks to @iberben
+
+Django Rest Framework
+=====================
+
+TODO
 
 Notes
 =====
