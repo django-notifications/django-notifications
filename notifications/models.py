@@ -197,7 +197,7 @@ class Notification(models.Model):
     action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
     action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
 
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(default=timezone.now, db_index=True)
 
     public = models.BooleanField(default=True, db_index=True)
     deleted = models.BooleanField(default=False, db_index=True)
