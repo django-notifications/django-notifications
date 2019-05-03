@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
 from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
+import copy
 
 from django import get_version
 from django.conf import settings
@@ -10,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.query import QuerySet
-from django.utils import timezone
+from django.utils import timezone, six
 from django.utils.six import text_type
 from jsonfield.fields import JSONField
 from model_utils import Choices
@@ -270,6 +271,8 @@ def notify_handler(verb, **kwargs):
     timestamp = kwargs.pop('timestamp', timezone.now())
     level = kwargs.pop('level', Notification.LEVELS.info)
 
+    local_kwargs = locals()
+
     # Check if User or Group
     if isinstance(recipient, Group):
         recipients = recipient.user_set.all()
@@ -280,7 +283,44 @@ def notify_handler(verb, **kwargs):
 
     new_notifications = []
 
+    GROUP_SIMILAR = notifications_settings.get_config()['GROUP_SIMILAR']
+    GROUP_SIMILAR_FIELDS = notifications_settings.get_config()['GROUP_SIMILAR_FIELDS']
+
     for recipient in recipients:
+        if GROUP_SIMILAR:
+            copied_fields = copy.deepcopy(GROUP_SIMILAR_FIELDS)
+
+            for k, v in copied_fields.items():
+                if isinstance(v, six.string_types) and v.startswith('$'):
+                    copied_fields[k] = local_kwargs[v[1:]]
+
+            # Set optional objects
+            for obj, opt in optional_objs:
+                if obj is not None:
+                    copied_fields['%s_object_id' % opt] = obj.pk
+                    copied_fields['%s_content_type' % opt] = ContentType.objects.get_for_model(obj)
+
+            oldnotify = Notification.objects.filter(
+                recipient=recipient,
+                actor_content_type=ContentType.objects.get_for_model(actor),
+                actor_object_id=actor.pk,
+                verb=text_type(verb)
+            ).filter(**copied_fields)
+
+            for n in oldnotify:
+                if kwargs and EXTRA_DATA:
+                    n.data = kwargs
+
+                n.timestamp = timestamp
+                n.description = description
+                n.emailed = False
+                n.save()
+
+                new_notifications.append(n)
+
+            if len(oldnotify) > 0:
+                continue
+
         newnotify = Notification(
             recipient=recipient,
             actor_content_type=ContentType.objects.get_for_model(actor),

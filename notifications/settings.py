@@ -8,6 +8,14 @@ CONFIG_DEFAULTS = {
     'USE_JSONFIELD': False,
     'SOFT_DELETE': False,
     'NUM_TO_FETCH': 10,
+    'GROUP_SIMILAR': False,  # False by default
+    'GROUP_SIMILAR_FIELDS': {  # The fields that will determine uniqueness of the notification
+        'unread': True,
+        'public': '$public',  # if starts with $, it is a variable
+        'emailed': False,
+        'level': '$level',
+        'deleted': False
+    }
 }
 
 
