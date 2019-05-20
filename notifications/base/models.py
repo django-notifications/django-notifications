@@ -3,6 +3,7 @@
 from distutils.version import \
     StrictVersion  # pylint: disable=no-name-in-module,import-error
 
+import uuid
 from django import get_version
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -206,6 +207,7 @@ class AbstractNotification(models.Model):
     emailed = models.BooleanField(default=False, db_index=True)
 
     data = JSONField(blank=True, null=True)
+    uuid = models.UUIDField(db_index=True, default=uuid.uuid4)
     objects = NotificationQuerySet.as_manager()
 
     class Meta:
