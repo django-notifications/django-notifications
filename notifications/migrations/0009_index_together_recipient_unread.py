@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('notifications', '0007_add_timestamp_index'),
+        ('notifications', '0008_add_notification_uuid'),
     ]
 
     operations = [

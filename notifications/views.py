@@ -2,6 +2,7 @@
 ''' Django Notifications example views '''
 from distutils.version import \
     StrictVersion  # pylint: disable=no-name-in-module,import-error
+import dateutil.parser
 
 from django import get_version
 from django.contrib.auth.decorators import login_required
@@ -204,6 +205,7 @@ def live_all_notification_list(request):
     if not user_is_authenticated:
         data = {
             'all_count': 0,
+            'unread_count': 0,
             'all_list': []
         }
         return JsonResponse(data)
@@ -218,9 +220,14 @@ def live_all_notification_list(request):
     except ValueError:  # If casting to an int fails.
         num_to_fetch = default_num_to_fetch
 
+    before_datetime = request.GET.get('before')
+    all_notifications_qs = request.user.notifications.all()
+    if before_datetime:
+        all_notifications_qs = all_notifications_qs.filter(timestamp__lt=dateutil.parser.parse(before_datetime))
+
     all_list = []
 
-    for notification in request.user.notifications.all()[0:num_to_fetch]:
+    for notification in all_notifications_qs[0:num_to_fetch]:
         struct = model_to_dict(notification)
         struct['slug'] = id2slug(notification.id)
         if notification.actor:
@@ -236,6 +243,7 @@ def live_all_notification_list(request):
             notification.mark_as_read()
     data = {
         'all_count': request.user.notifications.count(),
+        'unread_count': request.user.notifications.unread().count(),
         'all_list': all_list
     }
     return JsonResponse(data)

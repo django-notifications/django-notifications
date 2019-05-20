@@ -36,7 +36,9 @@ setup(
         'django>=2.2',
         'django-model-utils>=3.1.0',
         'jsonfield>=2.1.0',
-        'pytz'
+        'pytz',
+        'python-dateutil',
+        'click',
     ],
     packages=[
         'notifications',

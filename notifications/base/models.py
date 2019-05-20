@@ -2,6 +2,7 @@
 # pylint: disable=too-many-lines
 from distutils.version import \
     StrictVersion  # pylint: disable=no-name-in-module,import-error
+import uuid
 
 from django import get_version
 from django.conf import settings
@@ -207,6 +208,7 @@ class AbstractNotification(models.Model):
 
     data = JSONField(blank=True, null=True)
     objects = NotificationQuerySet.as_manager()
+    uuid = models.UUIDField(db_index=True, default=uuid.uuid4)
 
     class Meta:
         abstract = True
