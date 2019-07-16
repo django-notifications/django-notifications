@@ -401,6 +401,27 @@ In this example the target object can be of type Foo or Bar and the appropriate 
 
 Thanks to @DaWy
 
+``AbstractNotification`` model
+------------------------------
+
+In case you need to customize the notification model in order to add field or
+customised features that depend on your application, you can inherit and extend
+the ``AbstractNotification`` model, example:
+
+.. code-block:: python
+
+    from django.db import models
+    from notifications.base.models import AbstractNotification
+
+
+    class Notification(AbstractNotification):
+        # custom field example
+        category = models.ForeignKey('myapp.Category',
+                                     on_delete=models.CASCADE)
+
+        class Meta(AbstractNotification.Meta):
+            abstract = False
+
 Notes
 =====
 
