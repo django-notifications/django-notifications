@@ -4,13 +4,17 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+  - "3.7"
 env:
   - DJANGO=1.7
   - DJANGO=1.8
   - DJANGO=1.9
   - DJANGO=1.10
   - DJANGO=1.11
+  - DJANGO=1.11.17
   - DJANGO=2.0
+  - DJANGO=2.1
+  - DJANGO=2.2
 install:
 # command to install dependencies
   - "pip install coveralls"
@@ -24,11 +28,27 @@ matrix:
   exclude:
     - python: "2.7"
       env: DJANGO=2.0
+    - python: "2.7"
+      env: DJANGO=2.1
+    - python: "2.7"
+      env: DJANGO=2.2
+    - python: "3.4"
+      env: DJANGO=2.1
+    - python: "3.4"
+      env: DJANGO=2.2
     - python: "3.5"
       env: DJANGO=1.7
     - python: "3.6"
       env: DJANGO=1.7
-
-
+    - python: "3.7"
+      env: DJANGO=1.7
+    - python: "3.7"
+      env: DJANGO=1.8
+    - python: "3.7"
+      env: DJANGO=1.9
+    - python: "3.7"
+      env: DJANGO=1.10
+    - python: "3.7"
+      env: DJANGO=1.11
 after_success:
   - coveralls
