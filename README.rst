@@ -49,8 +49,6 @@ or get it from source
     $ python setup.py sdist
     $ pip install dist/django-notifications-hq*a
 
-Note that `django-model-utils <http://pypi.python.org/pypi/django-model-utils>`_ will be installed: this is required for the pass-through QuerySet manager.
-
 Then to add the Django Notifications to your project add the app ``notifications`` to your ``INSTALLED_APPS`` and urlconf.
 
 The app should go somewhere after all the apps that are going to be generating notifications like ``django.contrib.auth``
@@ -147,7 +145,7 @@ API
 QuerySet methods
 -----------------
 
-Using ``django-model-utils``, we get the ability to add queryset methods to not only the manager, but to all querysets that will be used, including related objects. This enables us to do things like::
+We have the ability to add queryset methods to not only the manager, but to all querysets that will be used, including related objects. This enables us to do things like::
 
   Notification.objects.unread()
 
