@@ -10,5 +10,9 @@ class NotificationAdmin(admin.ModelAdmin):
                     'level', 'target', 'unread', 'public')
     list_filter = ('level', 'unread', 'public', 'timestamp',)
 
+    def get_queryset(self, request):
+        qs = super(NotificationAdmin, self).get_queryset(request)
+        return qs.prefetch_related('actor')
+
 
 admin.site.register(Notification, NotificationAdmin)
