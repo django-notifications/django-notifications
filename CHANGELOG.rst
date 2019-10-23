@@ -23,6 +23,7 @@ DJANGO_NOTIFICATION_CONFIG = {
 - Improve documentation. (@pandabearcoder)
 - Fix pagination in list views. #69 (@AlvaroLQueiroz)
 - Improve test matrix. (@AlvaroLQueiroz)
+- Remove the dependency on django-model-utils (@tdruez)
 
 1.4
 ----
