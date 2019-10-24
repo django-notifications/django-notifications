@@ -40,6 +40,7 @@ setup(
     ],
     packages=[
         'notifications',
+        'notifications.base',
         'notifications.templatetags',
         'notifications.migrations',
     ],
