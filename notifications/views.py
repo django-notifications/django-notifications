@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-''' Django Notifications exemple views '''
+''' Django Notifications example views '''
 from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
 
 from django import get_version
@@ -12,6 +12,7 @@ from notifications import settings
 from notifications.models import Notification
 from notifications.utils import id2slug, slug2id
 from notifications.settings import get_config
+from django.views.decorators.cache import never_cache
 
 if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
     from django.http import JsonResponse  # noqa
@@ -123,6 +124,7 @@ def delete(request, slug=None):
     return redirect('notifications:all')
 
 
+@never_cache
 def live_unread_notification_count(request):
     try:
         user_is_authenticated = request.user.is_authenticated()
@@ -140,6 +142,7 @@ def live_unread_notification_count(request):
     return JsonResponse(data)
 
 
+@never_cache
 def live_unread_notification_list(request):
     ''' Return a json with a unread notification list '''
     try:
@@ -187,6 +190,7 @@ def live_unread_notification_list(request):
     return JsonResponse(data)
 
 
+@never_cache
 def live_all_notification_list(request):
     ''' Return a json with a unread notification list '''
     try:
