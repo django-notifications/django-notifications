@@ -11,8 +11,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.query import QuerySet
 from django.utils import timezone
-from django.utils.six import python_2_unicode_compatible
-from django.utils.six import text_type
+from six import python_2_unicode_compatible, text_type
 from jsonfield.fields import JSONField
 from model_utils import Choices
 
