@@ -11,8 +11,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.query import QuerySet
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.six import text_type
 from jsonfield.fields import JSONField
 from model_utils import Choices
 
@@ -139,7 +137,6 @@ class NotificationQuerySet(models.query.QuerySet):
         return qset.update(emailed=True)
 
 
-@python_2_unicode_compatible
 class AbstractNotification(models.Model):
     """
     Action model describing the actor acting out a verb (on an optional
@@ -290,7 +287,7 @@ def notify_handler(verb, **kwargs):
             recipient=recipient,
             actor_content_type=ContentType.objects.get_for_model(actor),
             actor_object_id=actor.pk,
-            verb=text_type(verb),
+            verb=str(verb),
             public=public,
             description=description,
             timestamp=timestamp,

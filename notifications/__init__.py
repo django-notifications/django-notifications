@@ -11,3 +11,16 @@
 __version__ = '1.4.0'
 
 default_app_config = 'notifications.apps.Config'  # pylint: disable=invalid-name
+
+
+# patch jsonfield expectations until they actually update
+def _patch_jsonfield_six():
+    import django
+    if django.VERSION >= (3,):
+        from django import utils
+        import six
+        utils.six = six
+
+
+_patch_jsonfield_six()
+del _patch_jsonfield_six
