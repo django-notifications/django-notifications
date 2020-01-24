@@ -26,16 +26,16 @@ setup(
     author_email='yang@yangyubo.com',
     url='http://github.com/django-notifications/django-notifications',
     install_requires=[
-        'django>=1.7',
-        'django-model-utils>=2.0.3',
+        'django>=2.2',
+        'django-model-utils>=3.1.0',
         'jsonfield>=1.0.3',
         'six',  # for jsonfield on django 3.0 until it drops py2 compat
         'pytz',
         'swapper'
     ],
     test_requires=[
-        'django>=1.7',
-        'django-model-utils>=2.0.3',
+        'django>=2.2',
+        'django-model-utils>=3.1.0',
         'jsonfield>=1.0.3',
         'pytz'
     ],
@@ -56,9 +56,6 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Framework :: Django',
-        'Framework :: Django :: 1.11',
-        'Framework :: Django :: 2.0',
-        'Framework :: Django :: 2.1',
         'Framework :: Django :: 2.2',
         'Framework :: Django :: 3.0',
         # Specify the Python versions you support here. In particular, ensure
