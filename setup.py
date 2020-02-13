@@ -28,15 +28,14 @@ setup(
     install_requires=[
         'django>=2.2',
         'django-model-utils>=3.1.0',
-        'jsonfield>=1.0.3',
-        'six',  # for jsonfield on django 3.0 until it drops py2 compat
+        'jsonfield>=2.1.0',
         'pytz',
         'swapper'
     ],
     test_requires=[
         'django>=2.2',
         'django-model-utils>=3.1.0',
-        'jsonfield>=1.0.3',
+        'jsonfield>=2.1.0',
         'pytz'
     ],
     packages=[
