@@ -21,6 +21,7 @@ urlpatterns = [
     pattern(r'^delete/(?P<slug>\d+)/$', views.delete, name='delete'),
     pattern(r'^api/unread_count/$', views.live_unread_notification_count, name='live_unread_notification_count'),
     pattern(r'^api/all_count/$', views.live_all_notification_count, name='live_all_notification_count'),
+    pattern(r'^api/counts/$', views.live_notification_count, name='live_notification_count'),
     pattern(r'^api/unread_list/$', views.live_unread_notification_list, name='live_unread_notification_list'),
     pattern(r'^api/all_list/', views.live_all_notification_list, name='live_all_notification_list'),
 ]

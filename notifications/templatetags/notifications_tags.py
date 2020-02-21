@@ -46,6 +46,8 @@ def register_notify_callbacks(badge_class='live_notify_badge',  # pylint: disabl
 
     if api_name == 'list':
         api_url = reverse('notifications:live_unread_notification_list')
+    if api_name == 'list_all':
+        api_url = reverse('notifications:live_all_notification_list')
     elif api_name == 'count':
         api_url = reverse('notifications:live_unread_notification_count')
     else:

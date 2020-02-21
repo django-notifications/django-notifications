@@ -310,7 +310,7 @@ How to use:
    #. ``refresh_period`` (default ``15``) - How often to fetch unread items from the server (integer in seconds).
    #. ``fetch`` (default ``5``) - How many notifications to fetch each time.
    #. ``callbacks`` (default ``<empty string>``) - A comma-separated list of javascript functions to call each period.
-   #. ``api_name`` (default ``list``) - The name of the API to call (this can be either ``list`` or ``count``).
+   #. ``api_name`` (default ``list``) - The name of the API to call (this can be either ``list``, ``list_all``  , ``count``).
 
 3. To insert a live-updating unread count, use the following template::
 
