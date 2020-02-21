@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.6.0
+-----
+
+- Added support to Django up to version 3.0
+- Added ``AbstractNotification`` model
+- Added prefetch for actor field in admin
+- Added never_cache to some views to avoid no-update bug
+
 1.5
 ----
 __THIS VERSION HAS BREAKING CHANGES__:
