@@ -437,6 +437,7 @@ Sending email to users has not been integrated into this library. So for now you
 Core contributors (in alphabetical order):
 
 - `Alvaro Leonel <https://github.com/AlvaroLQueiroz>`_
+- `Federico Capoano <https://github.com/nemesisdesign>`_
 - `Samuel Spencer <https://github.com/LegoStormtroopr>`_
 - `Yang Yubo <https://github.com/yangyubo>`_
 - `Zhongyuan Zhang <https://github.com/zhang-z>`_
