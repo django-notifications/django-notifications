@@ -368,13 +368,13 @@ class NotificationTestPages(TestCase):
 
         response = self.client.get(reverse('notifications:live_all_notification_list'))
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list'])
+        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list', 'unread_count'])
         self.assertEqual(data['all_count'], self.message_count)
         self.assertEqual(len(data['all_list']), self.message_count)
 
         response = self.client.get(reverse('notifications:live_all_notification_list'), data={"max": 5})
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list'])
+        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list', 'unread_count'])
         self.assertEqual(data['all_count'], self.message_count)
         self.assertEqual(len(data['all_list']), 5)
 
@@ -383,21 +383,21 @@ class NotificationTestPages(TestCase):
             "max": "this_is_wrong",
         })
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list'])
+        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list', 'unread_count'])
         self.assertEqual(data['all_count'], self.message_count)
         self.assertEqual(len(data['all_list']), self.message_count)
 
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
         response = self.client.get(reverse('notifications:live_all_notification_list'))
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list'])
+        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list', 'unread_count'])
         self.assertEqual(data['all_count'], self.message_count)
         self.assertEqual(len(data['all_list']), self.message_count)
 
         notify.send(self.from_user, recipient=self.to_user, verb='commented', action_object=self.from_user)
         response = self.client.get(reverse('notifications:live_all_notification_list'))
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list'])
+        self.assertEqual(sorted(list(data.keys())), ['all_count', 'all_list', 'unread_count'])
         self.assertEqual(data['all_count'], self.message_count + 1)
         self.assertEqual(len(data['all_list']), self.message_count)
         self.assertEqual(data['all_list'][0]['verb'], 'commented')
