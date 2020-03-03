@@ -11,7 +11,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.query import QuerySet
 from django.utils import timezone
-from jsonfield.fields import JSONField
+from django.contrib.postgres.fields import JSONField
 from notifications import settings as notifications_settings
 from notifications.signals import notify
 from notifications.utils import id2slug
