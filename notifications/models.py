@@ -13,6 +13,7 @@ from django.db.models.query import QuerySet
 from django.utils import timezone
 from django.utils.six import text_type
 from jsonfield.fields import JSONField
+from model_utils import Choices
 from notifications import settings as notifications_settings
 from notifications.signals import notify
 from notifications.utils import id2slug
@@ -206,13 +207,8 @@ class Notification(models.Model):
         <a href="http://oebfare.com/">brosner</a> commented on <a href="http://github.com/pinax/pinax">pinax/pinax</a> 2 hours ago # noqa
 
     """
-    LEVELS = (
-        ('success', 'success'),
-        ('info', 'info'),
-        ('warning', 'warning'),
-        ('error', 'error'),
-    )
-    level = models.CharField(choices=LEVELS, default='info', max_length=20)
+    LEVELS = Choices('success', 'info', 'warning', 'error')
+    level = models.CharField(choices=LEVELS, default=LEVELS.info, max_length=20)
 
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -325,7 +321,7 @@ def notify_handler(verb, **kwargs):
     public = bool(kwargs.pop('public', True))
     description = kwargs.pop('description', None)
     timestamp = kwargs.pop('timestamp', timezone.now())
-    level = kwargs.pop('level', 'info')
+    level = kwargs.pop('level', Notification.LEVELS.info)
 
     # Check if User or Group
     if isinstance(recipient, Group):
