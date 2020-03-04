@@ -27,10 +27,12 @@ setup(
     url='http://github.com/django-notifications/django-notifications',
     install_requires=[
         'django>=1.7',
+        'jsonfield>=1.0.3',
         'pytz'
     ],
     test_requires=[
         'django>=1.7',
+        'jsonfield>=1.0.3',
         'pytz'
     ],
     packages=[
