@@ -17,7 +17,7 @@ from jsonfield.fields import JSONField
 from model_utils import Choices
 
 from notifications import settings as notifications_settings
-from notifications.signals import notify
+from notifications.signals import notify, revoke_notification
 from notifications.utils import id2slug
 from swapper import load_model
 
@@ -261,19 +261,20 @@ def notify_handler(verb, **kwargs):
     """
     Handler function to create Notification instance upon action signal call.
     """
+    Notification = load_model('notifications', 'Notification')
     # Pull the options out of kwargs
     kwargs.pop('signal', None)
     recipient = kwargs.pop('recipient')
     actor = kwargs.pop('sender')
-    optional_objs = [
-        (kwargs.pop(opt, None), opt)
+    optional_objs = {
+        opt: kwargs.pop(opt, None)
         for opt in ('target', 'action_object')
-    ]
+    }
     public = bool(kwargs.pop('public', True))
     description = kwargs.pop('description', None)
     timestamp = kwargs.pop('timestamp', timezone.now())
-    Notification = load_model('notifications', 'Notification')
     level = kwargs.pop('level', Notification.LEVELS.info)
+    indempotent = kwargs.pop('indempotent', False)
 
     # Check if User or Group
     if isinstance(recipient, Group):
@@ -286,19 +287,33 @@ def notify_handler(verb, **kwargs):
     new_notifications = []
 
     for recipient in recipients:
-        newnotify = Notification(
-            recipient=recipient,
-            actor_content_type=ContentType.objects.get_for_model(actor),
-            actor_object_id=actor.pk,
-            verb=text_type(verb),
-            public=public,
-            description=description,
-            timestamp=timestamp,
-            level=level,
-        )
+        newnotify = None
+        if indempotent:
+            action_object = optional_objs["action_object"]
+            if action_object is None:
+                raise KeyError("action_object must be set when sending indempotent notifications.")
+
+            newnotify = Notification.objects.filter(
+                recipient=recipient,
+                action_object_object_id=action_object.pk,
+                action_object_content_type=ContentType.objects.get_for_model(action_object),
+            ).first()
+
+        if newnotify is None:
+            newnotify = Notification(
+                recipient=recipient,
+            )
+
+        newnotify.actor_content_type=ContentType.objects.get_for_model(actor)
+        newnotify.actor_object_id=actor.pk
+        newnotify.verb=text_type(verb)
+        newnotify.public=public
+        newnotify.description=description
+        newnotify.timestamp=timestamp
+        newnotify.level=level
 
         # Set optional objects
-        for obj, opt in optional_objs:
+        for opt, obj in optional_objs.items():
             if obj is not None:
                 setattr(newnotify, '%s_object_id' % opt, obj.pk)
                 setattr(newnotify, '%s_content_type' % opt,
@@ -315,3 +330,19 @@ def notify_handler(verb, **kwargs):
 
 # connect the signal
 notify.connect(notify_handler, dispatch_uid='notifications.models.notification')
+
+
+def revoke_notification_handler(**kwargs):
+    Notification = load_model('notifications', 'Notification')
+    actor = kwargs.pop('sender')
+    recipient = kwargs.pop('recipient')
+    action_object = kwargs.pop('action_object')
+    Notification.objects.filter(
+        actor_object_id=actor.pk,
+        actor_content_type=ContentType.objects.get_for_model(actor),
+        recipient=recipient,
+        action_object_object_id=action_object.pk,
+        action_object_content_type=ContentType.objects.get_for_model(action_object),
+    ).delete()
+
+revoke_notification.connect(revoke_notification_handler, dispatch_uid='notifications.models.notification')

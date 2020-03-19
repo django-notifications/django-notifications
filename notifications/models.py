@@ -8,3 +8,4 @@ class Notification(AbstractNotification):
     class Meta(AbstractNotification.Meta):
         abstract = False
         swappable = swappable_setting('notifications', 'Notification')
+

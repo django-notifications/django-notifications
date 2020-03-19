@@ -4,5 +4,10 @@ from django.dispatch import Signal
 
 notify = Signal(providing_args=[  # pylint: disable=invalid-name
     'recipient', 'actor', 'verb', 'action_object', 'target', 'description',
-    'timestamp', 'level'
+    'timestamp', 'level', 'indempotent'
 ])
+
+revoke_notification = Signal(providing_args=[  # pylint: disable=invalid-name
+    'recipient', 'action_object'
+])
+

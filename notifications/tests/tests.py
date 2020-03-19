@@ -18,7 +18,7 @@ from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django.utils.timezone import localtime, utc
 from notifications.models import Notification, notify_handler
-from notifications.signals import notify
+from notifications.signals import notify, revoke_notification
 from notifications.utils import id2slug
 
 try:
@@ -103,6 +103,24 @@ class NotificationManagersTest(TestCase):
                 for notification in result[1]:
                     # only check types for now
                     self.assertEqual(type(notification), Notification)
+
+    def test_notify_send_indempotent(self):
+        self.assertEqual(Notification.objects.filter(recipient=self.to_user).count(), 12)
+        notify.send(sender=self.from_user, recipient=self.to_user, verb='commented', action_object=self.to_group, indempotent=True)
+        notify.send(sender=self.from_user, recipient=self.to_user, verb='commented', action_object=self.to_group, indempotent=True)
+        self.assertEqual(Notification.objects.filter(recipient=self.to_user).count(), 13)
+        notify.send(sender=self.from_user, recipient=self.to_user, verb='commented', action_object=self.to_group, indempotent=True)
+        self.assertEqual(Notification.objects.filter(recipient=self.to_user).count(), 13)
+        notify.send(sender=self.from_user, recipient=self.to_user, verb='commented', action_object=self.to_group, indempotent=False)
+        self.assertEqual(Notification.objects.filter(recipient=self.to_user).count(), 14)
+
+    def test_revoke_notification(self):
+        self.assertEqual(Notification.objects.filter(recipient=self.to_user).count(), 12)
+        notify.send(sender=self.from_user, recipient=self.to_user, verb='commented', action_object=self.to_group)
+        self.assertEqual(Notification.objects.filter(recipient=self.to_user).count(), 13)
+        revoke_notification.send(self.from_user, recipient=self.to_user, action_object=self.to_group)
+        self.assertEqual(Notification.objects.filter(recipient=self.to_user).count(), 12)
+
 
     def test_unread_manager(self):
         self.assertEqual(Notification.objects.unread().count(), self.message_count)
