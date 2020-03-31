@@ -23,7 +23,7 @@ class NotificationAdmin(admin.ModelAdmin):
 
 
 class NotificationTemplateAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('verb', )
 
 
 # Most of this is stolen from django-import-export :)
