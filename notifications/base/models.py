@@ -260,7 +260,7 @@ class AbstractNotification(models.Model):
 class AbstractNotificationTemplate(models.Model):
     verb = models.CharField(max_length=255)
     url = models.CharField(max_length=255)
-    icon = models.FileField(max_length=255)
+    icon = models.ImageField(max_length=255, blank=True, null=True)
     slug = models.CharField(max_length=60, unique=True)
 
     class Meta:

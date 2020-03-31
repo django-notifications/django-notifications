@@ -3,6 +3,8 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.admin.helpers import ActionForm
+from django.utils.translation import ugettext_lazy as _
+
 from .models import Notification
 
 import swapper

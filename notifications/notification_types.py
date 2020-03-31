@@ -1,11 +1,16 @@
+from abc import ABC, abstractmethod
+
 import swapper
 
 NotificationTemplate = swapper.load_model("notifications", "NotificationTemplate")
 
 
-class NotificationType(AbstractClass):
+class NotificationType(ABC):
     @abstractmethod
-    def populate():
+    def populate(self, template):
+        """
+        Assigns initial values for newly created template objects
+        """
         pass
 
     @abstractmethod
