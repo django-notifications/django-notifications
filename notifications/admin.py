@@ -1,12 +1,13 @@
 ''' Django notifications admin file '''
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from notifications.base.admin import AbstractNotificationAdmin
 from swapper import load_model
 
 Notification = load_model('notifications', 'Notification')
 
 
-class NotificationAdmin(admin.ModelAdmin):
+class NotificationAdmin(AbstractNotificationAdmin):
     raw_id_fields = ('recipient',)
     list_display = ('recipient', 'actor',
                     'level', 'target', 'unread', 'public')

@@ -1,12 +1,15 @@
 language: python
+
 python:
   - "3.5"
   - "3.6"
   - "3.7"
   - "3.8"
+
 env:
   - DJANGO=2.2
   - DJANGO=3.0
+
 install:
 # command to install dependencies
   - "pip install coveralls"
@@ -14,13 +17,15 @@ install:
   - pip install -q Django==$DJANGO
   - "pip install ."
 # command to run tests
+
 script:
+  - SAMPLE_APP=1 coverage run --branch --source=notifications manage.py test
   - coverage run --branch --source=notifications manage.py test
+
 matrix:
   exclude:
     - python: "3.5"
       env: DJANGO=3.0
-
 
 after_success:
   - coveralls
