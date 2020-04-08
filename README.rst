@@ -440,6 +440,20 @@ Email Notification
 
 Sending email to users has not been integrated into this library. So for now you need to implement it if needed. There is a reserved field `Notification.emailed` to make it easier.
 
+Sample App
+----------
+
+A sample app has been implemented in ``notifications/tests/sample_notifications`` that extends ``django-notifications`` with the sole purpose of testing its extensibility.
+You can run the SAMPLE APP by setting the environment variable ``SAMPLE_APP`` as follows
+
+..  code-block:: shell
+
+    export SAMPLE_APP=1
+    # Run the Django development server with sample_notifications app installed
+    python manage.py runserver
+    # Unset SAMPLE_APP to remove sample_notifications app from list of INSTALLED_APPS
+    unset SAMPLE_APP
+
 
 ``django-notifications`` Team
 ==============================
