@@ -408,7 +408,9 @@ In case you need to customize the notification model in order to add field or
 customised features that depend on your application, you can inherit and extend
 the ``AbstractNotification`` model, example:
 
-.. code-block:: python
+..  code-block:: python
+
+    #In your_app/models.py
 
     from django.db import models
     from notifications.base.models import AbstractNotification
@@ -421,6 +423,14 @@ the ``AbstractNotification`` model, example:
 
         class Meta(AbstractNotification.Meta):
             abstract = False
+
+You will require to define ``NOTIFICATIONS_NOTIFICATION_MODEL`` setting in `setting.py` as follows:
+
+..  code-block:: python
+
+    # In your_project/settings.py
+
+    NOTIFICATIONS_NOTIFICATION_MODEL = 'your_app.Notification'
 
 Notes
 =====

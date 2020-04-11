@@ -1,7 +1,9 @@
 ''' Django notifications admin file '''
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from .models import Notification
+from swapper import load_model
+
+Notification = load_model('notifications', 'Notification')
 
 
 class NotificationAdmin(admin.ModelAdmin):

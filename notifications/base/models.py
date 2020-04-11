@@ -211,7 +211,6 @@ class AbstractNotification(models.Model):
     class Meta:
         abstract = True
         ordering = ('-timestamp',)
-        app_label = 'notifications'
         # speed up notifications count query
         index_together = ('recipient', 'unread')
 
