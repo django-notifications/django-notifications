@@ -8,6 +8,7 @@ Replace this with more appropriate tests for your application.
 import json
 
 import pytz
+
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ImproperlyConfigured
@@ -17,9 +18,12 @@ from django.test import RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django.utils.timezone import localtime, utc
-from notifications.models import Notification, notify_handler
+from notifications.models import notify_handler
 from notifications.signals import notify
 from notifications.utils import id2slug
+from swapper import load_model
+
+Notification = load_model('notifications', 'Notification')
 
 try:
     # Django >= 1.7
