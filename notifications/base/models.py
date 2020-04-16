@@ -12,6 +12,8 @@ from django.db import models
 from django.db.models.query import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.utils.html import format_html
+
 from jsonfield.fields import JSONField
 from model_utils import Choices
 from notifications import settings as notifications_settings
@@ -24,6 +26,12 @@ if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
 else:
     from django.contrib.contenttypes.generic import GenericForeignKey  # noqa
 
+try:
+    # Django >= 1.7
+    from django.urls import reverse, NoReverseMatch
+except ImportError:
+    # Django <= 1.6
+    from django.core.urlresolvers import reverse, NoReverseMatch  # pylint: disable=no-name-in-module,import-error
 
 EXTRA_DATA = notifications_settings.get_config()['USE_JSONFIELD']
 
@@ -179,9 +187,9 @@ class AbstractNotification(models.Model):
     unread = models.BooleanField(_('unread'), default=True, blank=False, db_index=True)
 
     actor_content_type = models.ForeignKey(
-        ContentType, 
-        on_delete=models.CASCADE, 
-        related_name='notify_actor', 
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name='notify_actor',
         verbose_name=_('actor content type')
     )
     actor_object_id = models.CharField(_('actor object id'), max_length=255)
@@ -204,11 +212,11 @@ class AbstractNotification(models.Model):
     target.short_description = _('target')
 
     action_object_content_type = models.ForeignKey(
-        ContentType, 
+        ContentType,
         on_delete=models.CASCADE,
         related_name='notify_action_object',
         verbose_name=_('action object content type'),
-        blank=True, 
+        blank=True,
         null=True
     )
     action_object_object_id = models.CharField(_('action object object id'), max_length=255, blank=True, null=True)
@@ -222,7 +230,7 @@ class AbstractNotification(models.Model):
     emailed = models.BooleanField(_('emailed'), default=False, db_index=True)
 
     data = JSONField(_('data'), blank=True, null=True)
-    
+
     objects = NotificationQuerySet.as_manager()
 
     class Meta:
@@ -270,6 +278,33 @@ class AbstractNotification(models.Model):
         if not self.unread:
             self.unread = True
             self.save()
+
+    def actor_object_url(self):
+        try:
+            url = reverse("admin:{0}_{1}_change".format(self.actor_content_type.app_label,
+                                                        self.actor_content_type.model),
+                          args=(self.actor_object_id,))
+            return format_html("<a href='{url}'>{id}</a>", url=url, id=self.actor_object_id)
+        except NoReverseMatch:
+            return self.actor_object_id
+
+    def action_object_url(self):
+        try:
+            url = reverse("admin:{0}_{1}_change".format(self.action_object_content_type.app_label,
+                                                        self.action_content_type.model),
+                          args=(self.action_object_id,))
+            return format_html("<a href='{url}'>{id}</a>", url=url, id=self.action_object_object_id)
+        except NoReverseMatch:
+            return self.action_object_object_id
+
+    def target_object_url(self):
+        try:
+            url = reverse("admin:{0}_{1}_change".format(self.target_content_type.app_label,
+                                                        self.target_content_type.model),
+                          args=(self.target_object_id,))
+            return format_html("<a href='{url}'>{id}</a>", url=url, id=self.target_object_id)
+        except NoReverseMatch:
+            return self.target_object_id
 
 
 def notify_handler(verb, **kwargs):
