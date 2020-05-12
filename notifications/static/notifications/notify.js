@@ -56,7 +56,9 @@ function fetch_api_data() {
                 if (this.status === 200){
                     consecutive_misfires = 0;
                     var data = JSON.parse(r.responseText);
-                    registered_functions.forEach(function (func) { func(data); });
+                    for(var i = 0; i < registered_functions.length; i++) {
+                       registered_functions[i](data);
+                    }
                 }else{
                     consecutive_misfires++;
                 }
