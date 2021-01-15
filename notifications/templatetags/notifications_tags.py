@@ -41,7 +41,9 @@ def register_notify_callbacks(badge_class='live_notify_badge',  # pylint: disabl
                               refresh_period=15,
                               callbacks='',
                               api_name='list',
-                              fetch=5):
+                              fetch=5,
+                              nonce=None
+                              ):
     refresh_period = int(refresh_period) * 1000
 
     if api_name == 'list':
@@ -68,7 +70,10 @@ def register_notify_callbacks(badge_class='live_notify_badge',  # pylint: disabl
         fetch_count=fetch
     )
 
-    script = "<script>" + definitions
+    # add a nonce value to the script tag if one is provided
+    nonce_str = f' nonce="{nonce}"' if nonce is not None else ""
+
+    script = f'<script type="text/javascript"{nonce_str}>' + definitions
     for callback in callbacks.split(','):
         script += "register_notifier(" + callback + ");"
     script += "</script>"
