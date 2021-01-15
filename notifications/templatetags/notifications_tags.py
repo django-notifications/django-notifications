@@ -71,9 +71,9 @@ def register_notify_callbacks(badge_class='live_notify_badge',  # pylint: disabl
     )
 
     # add a nonce value to the script tag if one is provided
-    nonce_str = f' nonce="{nonce}"' if nonce is not None else ""
+    nonce_str = ' nonce="{nonce}"'.format(nonce=nonce) if nonce is not None else ""
 
-    script = f'<script type="text/javascript"{nonce_str}>' + definitions
+    script = '<script type="text/javascript"{nonce}>'.format(nonce=nonce_str) + definitions
     for callback in callbacks.split(','):
         script += "register_notifier(" + callback + ");"
     script += "</script>"
