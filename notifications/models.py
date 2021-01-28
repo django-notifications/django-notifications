@@ -228,16 +228,21 @@ def notify_handler(verb, **kwargs):
     new_notifications = []
 
     for recipient in recipients:
-        newnotify = Notification(
-            recipient=recipient,
-            actor_content_type=ContentType.objects.get_for_model(actor),
-            actor_object_id=actor.pk,
-            verb=text_type(verb),
-            public=public,
-            description=description,
-            created_at=timestamp,
-            level=level,
-        )
+        values = {
+            'recipient': recipient,
+            'verb': text_type(verb),
+            'public': public,
+            'description': description,
+            'created_at': timestamp,
+            'level': level,
+        }
+        if actor:
+            values.update({
+                'actor_content_type': ContentType.objects.get_for_model(actor),
+                'actor_object_id': actor.pk,
+            })
+
+        newnotify = Notification(**values)
 
         # Set optional objects
         for obj, opt in optional_objs:
