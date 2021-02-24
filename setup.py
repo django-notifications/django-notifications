@@ -18,17 +18,18 @@ with open('notifications/__init__.py', 'rb') as f:
 
 
 setup(
-    name='django-notifications-hq',
+    name='django-rest-notifications-hq',
     version=version,
-    description='GitHub notifications alike app for Django.',
+    description='GitHub notifications alike app for Django Rest Framework.',
     long_description=open('README.rst').read(),
-    author='django-notifications team',
-    author_email='yang@yangyubo.com',
-    url='http://github.com/django-notifications/django-notifications',
+    author='django-notifications team pluse iamAmirrezaSaki',
+    author_email='amirreza.m.saki@gmail.com',
+    url='https://github.com/iamAmirrezaSaki/django-notifications/tree/AMS',
     install_requires=[
         'django>=2.2',
         'django-model-utils>=3.1.0',
         'jsonfield>=2.1.0',
+        'djangorestframework',
         'pytz',
         'swapper'
     ],
