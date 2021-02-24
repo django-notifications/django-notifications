@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
 ''' Django Notifications example views '''
-from distutils.version import \
-    StrictVersion  # pylint: disable=no-name-in-module,import-error
-
+from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
 from django import get_version
-from django.contrib.auth.decorators import login_required
-from django.forms import model_to_dict
-from django.shortcuts import get_object_or_404, redirect
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import never_cache
-from django.views.generic import ListView
+from django.shortcuts import get_object_or_404
 from notifications import settings
-from notifications.settings import get_config
+from notifications.models import Notification
 from notifications.utils import id2slug, slug2id
-from swapper import load_model
+from notifications.settings import get_config
+from django.views.decorators.cache import never_cache
 
-Notification = load_model('notifications', 'Notification')
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+from .serializers import NotificationSerializer
+
 
 if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
     from django.http import JsonResponse  # noqa
@@ -33,48 +34,21 @@ else:
             content_type="application/json")
 
 
-class NotificationViewList(ListView):
-    template_name = 'notifications/list.html'
-    context_object_name = 'notifications'
-    paginate_by = settings.get_config()['PAGINATE_BY']
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super(NotificationViewList, self).dispatch(
-            request, *args, **kwargs)
 
 
-class AllNotificationsList(NotificationViewList):
-    """
-    Index page for authenticated user
-    """
-
-    def get_queryset(self):
-        if settings.get_config()['SOFT_DELETE']:
-            qset = self.request.user.notifications.active()
-        else:
-            qset = self.request.user.notifications.all()
-        return qset
-
-
-class UnreadNotificationsList(NotificationViewList):
-
-    def get_queryset(self):
-        return self.request.user.notifications.unread()
-
-
-@login_required
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def mark_all_as_read(request):
     request.user.notifications.mark_all_as_read()
 
-    _next = request.GET.get('next')
-
-    if _next:
-        return redirect(_next)
-    return redirect('notifications:unread')
+    return Response(status=status.HTTP_200_OK)
 
 
-@login_required
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def mark_as_read(request, slug=None):
     notification_id = slug2id(slug)
 
@@ -82,15 +56,13 @@ def mark_as_read(request, slug=None):
         Notification, recipient=request.user, id=notification_id)
     notification.mark_as_read()
 
-    _next = request.GET.get('next')
-
-    if _next:
-        return redirect(_next)
-
-    return redirect('notifications:unread')
+    return Response(status=status.HTTP_200_OK)
 
 
-@login_required
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def mark_as_unread(request, slug=None):
     notification_id = slug2id(slug)
 
@@ -98,15 +70,13 @@ def mark_as_unread(request, slug=None):
         Notification, recipient=request.user, id=notification_id)
     notification.mark_as_unread()
 
-    _next = request.GET.get('next')
-
-    if _next:
-        return redirect(_next)
-
-    return redirect('notifications:unread')
+    return Response(status=status.HTTP_200_OK)
 
 
-@login_required
+
+@api_view(['DELETE'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def delete(request, slug=None):
     notification_id = slug2id(slug)
 
@@ -119,47 +89,28 @@ def delete(request, slug=None):
     else:
         notification.delete()
 
-    _next = request.GET.get('next')
-
-    if _next:
-        return redirect(_next)
-
-    return redirect('notifications:all')
+    return Response(status=status.HTTP_200_OK)
 
 
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 @never_cache
 def live_unread_notification_count(request):
-    try:
-        user_is_authenticated = request.user.is_authenticated()
-    except TypeError:  # Django >= 1.11
-        user_is_authenticated = request.user.is_authenticated
-
-    if not user_is_authenticated:
-        data = {
-            'unread_count': 0
-        }
-    else:
-        data = {
-            'unread_count': request.user.notifications.unread().count(),
-        }
-    return JsonResponse(data)
+    data = {
+        'unread_count': request.user.notifications.unread().count(),
+    }
+    return Response(data=data, status=status.HTTP_200_OK)
 
 
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 @never_cache
 def live_unread_notification_list(request):
     ''' Return a json with a unread notification list '''
-    try:
-        user_is_authenticated = request.user.is_authenticated()
-    except TypeError:  # Django >= 1.11
-        user_is_authenticated = request.user.is_authenticated
-
-    if not user_is_authenticated:
-        data = {
-            'unread_count': 0,
-            'unread_list': []
-        }
-        return JsonResponse(data)
-
     default_num_to_fetch = get_config()['NUM_TO_FETCH']
     try:
         # If they don't specify, make it 5.
@@ -173,41 +124,22 @@ def live_unread_notification_list(request):
     unread_list = []
 
     for notification in request.user.notifications.unread()[0:num_to_fetch]:
-        struct = model_to_dict(notification)
-        struct['slug'] = id2slug(notification.id)
-        if notification.actor:
-            struct['actor'] = str(notification.actor)
-        if notification.target:
-            struct['target'] = str(notification.target)
-        if notification.action_object:
-            struct['action_object'] = str(notification.action_object)
-        if notification.data:
-            struct['data'] = notification.data
-        unread_list.append(struct)
+        serializer = NotificationSerializer(notification)
         if request.GET.get('mark_as_read'):
             notification.mark_as_read()
     data = {
         'unread_count': request.user.notifications.unread().count(),
-        'unread_list': unread_list
+        'unread_list': serializer.data
     }
-    return JsonResponse(data)
+    return Response(data=data, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 @never_cache
 def live_all_notification_list(request):
     ''' Return a json with a unread notification list '''
-    try:
-        user_is_authenticated = request.user.is_authenticated()
-    except TypeError:  # Django >= 1.11
-        user_is_authenticated = request.user.is_authenticated
-
-    if not user_is_authenticated:
-        data = {
-            'all_count': 0,
-            'all_list': []
-        }
-        return JsonResponse(data)
-
     default_num_to_fetch = get_config()['NUM_TO_FETCH']
     try:
         # If they don't specify, make it 5.
@@ -221,38 +153,21 @@ def live_all_notification_list(request):
     all_list = []
 
     for notification in request.user.notifications.all()[0:num_to_fetch]:
-        struct = model_to_dict(notification)
-        struct['slug'] = id2slug(notification.id)
-        if notification.actor:
-            struct['actor'] = str(notification.actor)
-        if notification.target:
-            struct['target'] = str(notification.target)
-        if notification.action_object:
-            struct['action_object'] = str(notification.action_object)
-        if notification.data:
-            struct['data'] = notification.data
-        all_list.append(struct)
+        serializer = NotificationSerializer(notification)
         if request.GET.get('mark_as_read'):
             notification.mark_as_read()
     data = {
         'all_count': request.user.notifications.count(),
-        'all_list': all_list
+        'all_list': serializer.data
     }
-    return JsonResponse(data)
+    return Response(data=data, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def live_all_notification_count(request):
-    try:
-        user_is_authenticated = request.user.is_authenticated()
-    except TypeError:  # Django >= 1.11
-        user_is_authenticated = request.user.is_authenticated
-
-    if not user_is_authenticated:
-        data = {
-            'all_count': 0
-        }
-    else:
-        data = {
-            'all_count': request.user.notifications.count(),
-        }
-    return JsonResponse(data)
+    data = {
+        'all_count': request.user.notifications.count(),
+    }
+    return Response(data=data, status=status.HTTP_200_OK)
