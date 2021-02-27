@@ -38,7 +38,7 @@ Installation is easy using ``pip`` and will install all required libraries.
 
 ::
 
-    $ pip install django-notifications-hq
+    $ pip install git+https://git.pe42.ir/glist/Django_rest_notification.git
 
 or get it from source
 
