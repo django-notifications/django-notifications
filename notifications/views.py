@@ -15,7 +15,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from .serializers import NotificationSerializer
+from django.utils.module_loading import import_string
 
 
 if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
@@ -34,7 +34,7 @@ else:
             content_type="application/json")
 
 
-
+NotificationSerializer = import_string(settings.get_config()['SERIALIZER_CLASS'])
 
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])

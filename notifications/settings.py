@@ -8,6 +8,7 @@ CONFIG_DEFAULTS = {
     'USE_JSONFIELD': False,
     'SOFT_DELETE': False,
     'NUM_TO_FETCH': 10,
+    'SERIALIZER_CLASS': 'notifications.serializers.NotificationSerializer'
 }
 
 
