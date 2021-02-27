@@ -1,10 +1,12 @@
-``django-notifications`` Documentation
+``django-rest-notifications`` 
+
+Documentation
 =======================================
 
 
 |build-status| |coveralls|
 
-`django-notifications <https://github.com/django-notifications/django-notifications>`_ is a GitHub notification alike app for Django, it was derived from `django-activity-stream <https://github.com/justquick/django-activity-stream>`_
+`django-notifications` https://github.com/django-notifications/django-notifications is a GitHub notification alike app for Django, it was derived from `django-activity-stream` https://github.com/justquick/django-activity-stream
 
 The major difference between ``django-notifications`` and ``django-activity-stream``:
 
@@ -21,9 +23,14 @@ Notifications are actually actions events, which are categorized by four main co
 ``Actor``, ``Action Object`` and ``Target`` are ``GenericForeignKeys`` to any arbitrary Django object.
 An action is a description of an action that was performed (``Verb``) at some instant in time by some ``Actor`` on some optional ``Target`` that results in an ``Action Object`` getting created/updated/deleted.
 
-For example: `justquick <https://github.com/justquick/>`_ ``(actor)`` *closed* ``(verb)`` `issue 2 <https://github.com/justquick/django-activity-stream/issues/2>`_ ``(action_object)`` on `activity-stream <https://github.com/justquick/django-activity-stream/>`_ ``(target)`` 12 hours ago
+For example: justquick https://github.com/justquick/ (actor) *closed* (verb) issue 2 https://github.com/justquick/django-activity-stream/issues/2 (action_object) on activity-stream https://github.com/justquick/django-activity-stream/ (target) 12 hours ago
 
-Nomenclature of this specification is based on the Activity Streams Spec: `<http://activitystrea.ms/specs/atom/1.0/>`_
+Nomenclature of this specification is based on the Activity Streams Spec: http://activitystrea.ms/specs/atom/1.0/
+
+and this is a repository forked from `django-notifications` named `django-rest-notification` is a django application especially for `djangorestframework`
+
+difference between ``django-notifications`` and ``django-rest-notifications``:
+- `django-rest-notifications` is more customizing for djangorestframework
 
 Requirements
 ============
@@ -38,34 +45,26 @@ Installation is easy using ``pip`` and will install all required libraries.
 
 ::
 
-    $ pip install git+https://git.pe42.ir/glist/Django_rest_notification.git
+    $ pip install git+https://github.com/iamAmirrezaSaki/django-notifications.git
 
-or get it from source
 
-::
-
-    $ git clone https://github.com/django-notifications/django-notifications
-    $ cd django-notifications
-    $ python setup.py sdist
-    $ pip install dist/django-notifications-hq*
-
-Note that `django-model-utils <http://pypi.python.org/pypi/django-model-utils>`_ will be installed: this is required for the pass-through QuerySet manager.
+Note that [django-model-utils](http://pypi.python.org/pypi/django-model-utils) will be installed: this is required for the pass-through QuerySet manager.
 
 Then to add the Django Notifications to your project add the app ``notifications`` to your ``INSTALLED_APPS`` and urlconf.
 
 The app should go somewhere after all the apps that are going to be generating notifications like ``django.contrib.auth``
 
-::
+``` python
 
     INSTALLED_APPS = (
         'django.contrib.auth',
         ...
-        'notifications',
+        'notifications.apps.NotificationsConfig',
         ...
     )
-
+```
 Add the notifications urls to your urlconf::
-
+``` python
     import notifications.urls
 
     urlpatterns = [
@@ -73,7 +72,7 @@ Add the notifications urls to your urlconf::
         url('^inbox/notifications/', include(notifications.urls, namespace='notifications')),
         ...
     ]
-
+```
 The method of installing these urls, importing rather than using ``'notifications.urls'``, is required to ensure that the urls are installed in the ``notifications`` namespace.
 
 To run schema migration, execute ``python manage.py migrate notifications``.
@@ -83,7 +82,7 @@ Generating Notifications
 
 Generating notifications is probably best done in a separate signal.
 
-::
+``` python
 
     from django.db.models.signals import post_save
     from notifications.signals import notify
@@ -96,18 +95,17 @@ Generating notifications is probably best done in a separate signal.
 
 To generate an notification anywhere in your code, simply import the notify signal and send it with your actor, recipient, and verb.
 
-::
-
+```
+``` python
     from notifications.signals import notify
 
     notify.send(user, recipient=user, verb='you reached level 10')
-
+```
 The complete syntax is.
 
-::
-
+``` python
     notify.send(actor, recipient, verb, action_object, target, level, description, public, timestamp, **kwargs)
-
+```
 Arguments:
  * **actor**: An object of any type. (Required) Note: Use **sender** instead of **actor** if you intend to use keyword arguments
  * **recipient**: A **Group** or a **User QuerySet** or a list of **User**. (Required)
@@ -141,6 +139,15 @@ With this option, QuerySet methods ``unread`` and ``read`` contain one more filt
 Meanwhile, QuerySet methods ``deleted``, ``active``, ``mark_all_as_deleted``, ``mark_all_as_active`` are turned on.
 See more details in QuerySet methods section.
 
+Set custom Serializer
+---------------------
+
+for setting your custom serializer add `SERIALIZER_CLASS` to settings.py :
+
+``` python
+DJANGO_NOTIFICATIONS_CONFIG = { 'SERIALIZER': 'yourapp.serializers.CustomNotificationSerializer'}
+```
+
 API
 ====
 
@@ -168,18 +175,19 @@ Return all of the unsent notifications, filtering the current queryset. (emailed
 
 Return all of the sent notifications, filtering the current queryset. (emailed=True)
 
-``qs.unread()``
+`qs.unread()`
 ~~~~~~~~~~~~~~~
 
 Return all of the unread notifications, filtering the current queryset.
 When ``SOFT_DELETE=True``, this filter contains ``deleted=False``.
+~~~~~~~~~~~~~~~~~
 
-``qs.read()``
+`qs.read()`
 ~~~~~~~~~~~~~~~
 
 Return all of the read notifications, filtering the current queryset.
 When ``SOFT_DELETE=True``, this filter contains ``deleted=False``.
-
+~~~~~~~~~~~~~~~~~~~~~
 
 ``qs.mark_all_as_read()`` | ``qs.mark_all_as_read(recipient)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -187,7 +195,7 @@ When ``SOFT_DELETE=True``, this filter contains ``deleted=False``.
 Mark all of the unread notifications in the queryset (optionally also filtered by ``recipient``) as read.
 
 
-``qs.mark_all_as_unread()`` | ``qs.mark_all_as_unread(recipient)``
+qs.mark_all_as_unread() | qs.mark_all_as_unread(recipient)`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Mark all of the read notifications in the queryset (optionally also filtered by ``recipient``) as unread.
