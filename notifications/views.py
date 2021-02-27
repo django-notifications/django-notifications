@@ -151,11 +151,9 @@ def live_all_notification_list(request):
         num_to_fetch = default_num_to_fetch
 
     all_list = []
+    notification = request.user.notifications
+    serializer = NotificationSerializer(notification, many=True)
 
-    for notification in request.user.notifications.all()[0:num_to_fetch]:
-        serializer = NotificationSerializer(notification)
-        if request.GET.get('mark_as_read'):
-            notification.mark_as_read()
     data = {
         'all_count': request.user.notifications.count(),
         'all_list': serializer.data
