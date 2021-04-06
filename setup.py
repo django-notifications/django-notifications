@@ -44,6 +44,7 @@ setup(
         'notifications.templatetags',
         'notifications.migrations',
     ],
+    include_package_data=True,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
