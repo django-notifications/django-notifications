@@ -6,7 +6,8 @@ class AbstractNotificationAdmin(admin.ModelAdmin):
     list_display = ('recipient', 'actor',
                     'level', 'target', 'unread', 'public')
     list_filter = ('level', 'unread', 'public', 'timestamp',)
+    search_fields = ('recipient__email', 'id',)
 
     def get_queryset(self, request):
-        qs = super(AbstractNotificationAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         return qs.prefetch_related('actor')
