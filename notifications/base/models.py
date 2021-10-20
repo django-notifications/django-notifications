@@ -304,6 +304,7 @@ def notify_handler(verb, **kwargs):
     timestamp = kwargs.pop('timestamp', timezone.now())
     Notification = load_model('notifications', 'Notification')
     level = kwargs.pop('level', Notification.LEVELS.info)
+    actor_for_concrete_model = kwargs.pop('actor_for_concrete_model', True)
 
     # Check if User or Group
     if isinstance(recipient, Group):
@@ -318,7 +319,7 @@ def notify_handler(verb, **kwargs):
     for recipient in recipients:
         newnotify = Notification(
             recipient=recipient,
-            actor_content_type=ContentType.objects.get_for_model(actor),
+            actor_content_type=ContentType.objects.get_for_model(actor, for_concrete_model=actor_for_concrete_model),
             actor_object_id=actor.pk,
             verb=str(verb),
             public=public,
@@ -330,9 +331,10 @@ def notify_handler(verb, **kwargs):
         # Set optional objects
         for obj, opt in optional_objs:
             if obj is not None:
+                for_concrete_model = kwargs.pop(f'{opt}_for_concrete_model', True)
                 setattr(newnotify, '%s_object_id' % opt, obj.pk)
                 setattr(newnotify, '%s_content_type' % opt,
-                        ContentType.objects.get_for_model(obj))
+                        ContentType.objects.get_for_model(obj, for_concrete_model=for_concrete_model))
 
         if kwargs and EXTRA_DATA:
             newnotify.data = kwargs.copy()
