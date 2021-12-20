@@ -473,3 +473,8 @@ Core contributors (in alphabetical order):
     :alt: Code coverage on coveralls
     :scale: 100%
     :target: https://coveralls.io/r/django-notifications/django-notifications?branch=master
+
+Contribute
+==========
+
+We are looking for contributors, for anyone who'd like to contribute and willing to put time and energy on this project, please contact `Yang Yubo <https://github.com/yangyubo>`_.
