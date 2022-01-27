@@ -1,6 +1,13 @@
 Changelog
 =========
 
+
+1.7.0
+-----
+
+- Added support for Django 3.2 and Django 4.0
+- Fixed bug on IE11 for using ``forEach`` in notify.js
+
 1.6.0
 -----
 
