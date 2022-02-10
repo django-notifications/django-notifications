@@ -145,6 +145,20 @@ def live_unread_notification_count(request):
     return JsonResponse(data)
 
 
+def get_object_url(instance, notification, request):
+    """
+    Get url representing the instance object.
+    This will return instance.get_url_for_notifications()
+    with parameters `notification` and `request`,
+    if it is defined and get_absolute_url() otherwise
+    """
+    if hasattr(instance, 'get_url_for_notifications'):
+        return instance.get_url_for_notifications(notification, request)
+    elif hasattr(instance, 'get_absolute_url'):
+        return instance.get_absolute_url()
+    return None
+
+
 @never_cache
 def live_unread_notification_list(request):
     ''' Return a json with a unread notification list '''
@@ -177,10 +191,22 @@ def live_unread_notification_list(request):
         struct['slug'] = id2slug(notification.id)
         if notification.actor:
             struct['actor'] = str(notification.actor)
+            actor_url = get_object_url(
+                notification.actor, notification, request)
+            if actor_url:
+                struct['actor_url'] = actor_url
         if notification.target:
             struct['target'] = str(notification.target)
+            target_url = get_object_url(
+                notification.target, notification, request)
+            if target_url:
+                struct['target_url'] = target_url
         if notification.action_object:
             struct['action_object'] = str(notification.action_object)
+            action_object_url = get_object_url(
+                notification.action_object, notification, request)
+            if action_object_url:
+                struct['action_object_url'] = action_object_url
         if notification.data:
             struct['data'] = notification.data
         unread_list.append(struct)
