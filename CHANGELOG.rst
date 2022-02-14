@@ -1,6 +1,15 @@
 Changelog
 =========
 
+(in development)
+-----
+
+- Dropped support for Python 3.5 and Django before 3.1
+- Added support for Python up to version 3.10
+- Added support for Django up to version 4.0
+- Migrated the data field to Django's native JSONField
+    - The dependency on the external jsonfield has to remain for one more version for migrations to work, it will be removed next version though so DO NOT skip this version when updating.
+
 1.6.0
 -----
 
