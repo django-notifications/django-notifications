@@ -1,29 +1,19 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
-from distutils.version import \
-    StrictVersion  # pylint: disable=no-name-in-module,import-error
-
-from django import get_version
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.query import QuerySet
 from django.utils import timezone
-from jsonfield.fields import JSONField
 from model_utils import Choices
 
 from notifications import settings as notifications_settings
 from notifications.signals import notify
 from notifications.utils import id2slug
 from swapper import load_model
-
-if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
-    from django.contrib.contenttypes.fields import GenericForeignKey  # noqa
-else:
-    from django.contrib.contenttypes.generic import GenericForeignKey  # noqa
-
 
 EXTRA_DATA = notifications_settings.get_config()['USE_JSONFIELD']
 
@@ -205,7 +195,7 @@ class AbstractNotification(models.Model):
     deleted = models.BooleanField(default=False, db_index=True)
     emailed = models.BooleanField(default=False, db_index=True)
 
-    data = JSONField(blank=True, null=True)
+    data = models.JSONField(blank=True, null=True)
     objects = NotificationQuerySet.as_manager()
 
     class Meta:
@@ -224,11 +214,11 @@ class AbstractNotification(models.Model):
         }
         if self.target:
             if self.action_object:
-                return u'%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago' % ctx
-            return u'%(actor)s %(verb)s %(target)s %(timesince)s ago' % ctx
+                return '%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago' % ctx
+            return '%(actor)s %(verb)s %(target)s %(timesince)s ago' % ctx
         if self.action_object:
-            return u'%(actor)s %(verb)s %(action_object)s %(timesince)s ago' % ctx
-        return u'%(actor)s %(verb)s %(timesince)s ago' % ctx
+            return '%(actor)s %(verb)s %(action_object)s %(timesince)s ago' % ctx
+        return '%(actor)s %(verb)s %(timesince)s ago' % ctx
 
     def timesince(self, now=None):
         """
