@@ -14,8 +14,9 @@ from django.contrib.auth.models import Group, User
 from django.core.exceptions import ImproperlyConfigured
 from django.db import connection
 from django.template import Context, Template
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.timezone import localtime, utc
 from notifications.base.models import notify_handler
@@ -24,21 +25,6 @@ from notifications.utils import id2slug
 from swapper import load_model
 
 Notification = load_model('notifications', 'Notification')
-
-try:
-    # Django >= 1.7
-    from django.test import override_settings  # noqa
-except ImportError:
-    # Django <= 1.6
-    from django.test.utils import override_settings  # noqa
-
-try:
-    # Django >= 1.7
-    from django.urls import reverse
-except ImportError:
-    # Django <= 1.6
-    from django.core.urlresolvers import reverse  # pylint: disable=no-name-in-module,import-error
-
 
 
 class NotificationTest(TestCase):
@@ -514,7 +500,7 @@ class TagTest(TestCase):
     def test_has_notification(self):
         template = "{{ user|has_notification }}"
         context = {"user":self.to_user}
-        output = u"True"
+        output = "True"
         self.tag_test(template, context, output)
 
 

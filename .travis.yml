@@ -1,20 +1,22 @@
 language: python
 
 python:
-  - "3.5"
   - "3.6"
   - "3.7"
   - "3.8"
+  - "3.9"
+  - "3.10"
 
 env:
   - DJANGO=2.2
-  - DJANGO=3.0
+  - DJANGO=3.1
+  - DJANGO=3.2
+  - DJANGO=4.0
 
 install:
 # command to install dependencies
   - "pip install coveralls"
-  - "pip install pytz" # Needed for tests
-  - pip install -q Django==$DJANGO
+  - pip install -q Django~=$DJANGO
   - "pip install ."
 # command to run tests
 
@@ -24,8 +26,14 @@ script:
 
 matrix:
   exclude:
-    - python: "3.5"
-      env: DJANGO=3.0
+    - python: "3.6"
+      env: DJANGO=4.0
+    - python: "3.7"
+      env: DJANGO=4.0
+    - python: "3.10"
+      env: DJANGO=2.2
+    - python: "3.10"
+      env: DJANGO=3.1
 
 after_success:
   - coveralls
