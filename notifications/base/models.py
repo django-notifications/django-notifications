@@ -301,7 +301,7 @@ def notify_handler(verb, **kwargs):
                         ContentType.objects.get_for_model(obj))
 
         if kwargs and EXTRA_DATA:
-            newnotify.data = kwargs
+            newnotify.data = kwargs.copy()
 
         newnotify.save()
         new_notifications.append(newnotify)
