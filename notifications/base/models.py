@@ -285,7 +285,7 @@ def notify_handler(verb, **kwargs):
     optional_objs = [
         (kwargs.pop(opt, None), opt) for opt in ("target", "action_object")
     ]
-    site_id = bool(kwargs.pop("site_id", 1))
+    site = kwargs.pop("site", Site.objects.get_current())
     public = bool(kwargs.pop("public", True))
     description = kwargs.pop("description", None)
     timestamp = kwargs.pop("timestamp", timezone.now())
@@ -312,7 +312,7 @@ def notify_handler(verb, **kwargs):
             description=description,
             timestamp=timestamp,
             level=level,
-            site_id=site_id,
+            site=site,
         )
 
         # Set optional objects
