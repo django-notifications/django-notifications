@@ -223,13 +223,13 @@ class AbstractNotification(models.Model):
 
     data = JSONField(blank=True, null=True)
     objects = NotificationQuerySet.as_manager()
-    on_site = CurrentSiteManager.from_queryset(NotificationQuerySet)
+    on_site = CurrentSiteManager.from_queryset(NotificationQuerySet)()
 
     class Meta:
         abstract = True
         ordering = ("-timestamp",)
         # speed up notifications count query
-        index_together = ("site_id", "recipient", "unread")
+        index_together = ("site", "recipient", "unread")
 
     def __str__(self):
         ctx = {
