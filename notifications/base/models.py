@@ -139,6 +139,18 @@ class NotificationQuerySet(models.query.QuerySet):
         return qset.update(emailed=True)
 
 
+NotificationOnSiteManager = CurrentSiteManager.from_queryset(NotificationQuerySet)
+
+
+class NotificationOnSiteManagerWithQuerySet(NotificationOnSiteManager):
+    """
+    A manager that combines the CurrentSiteManager and the NotificationQuerySet.
+    We need to inherit to make `makemigrations` happy.
+    """
+
+    pass
+
+
 class AbstractNotification(models.Model):
     """
     Action model describing the actor acting out a verb (on an optional
@@ -223,7 +235,7 @@ class AbstractNotification(models.Model):
 
     data = JSONField(blank=True, null=True)
     objects = NotificationQuerySet.as_manager()
-    on_site = CurrentSiteManager.from_queryset(NotificationQuerySet)()
+    on_site = NotificationOnSiteManagerWithQuerySet()
 
     class Meta:
         abstract = True
