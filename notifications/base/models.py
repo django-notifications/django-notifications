@@ -7,29 +7,30 @@ from django import get_version
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.managers import CurrentSiteManager
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.query import QuerySet
 from django.utils import timezone
 from jsonfield.fields import JSONField
 from model_utils import Choices
-
 from notifications import settings as notifications_settings
 from notifications.signals import notify
 from notifications.utils import id2slug
 from swapper import load_model
 
-if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
+if StrictVersion(get_version()) >= StrictVersion("1.8.0"):
     from django.contrib.contenttypes.fields import GenericForeignKey  # noqa
 else:
     from django.contrib.contenttypes.generic import GenericForeignKey  # noqa
 
 
-EXTRA_DATA = notifications_settings.get_config()['USE_JSONFIELD']
+EXTRA_DATA = notifications_settings.get_config()["USE_JSONFIELD"]
 
 
 def is_soft_delete():
-    return notifications_settings.get_config()['SOFT_DELETE']
+    return notifications_settings.get_config()["SOFT_DELETE"]
 
 
 def assert_soft_delete():
@@ -37,12 +38,13 @@ def assert_soft_delete():
         # msg = """To use 'deleted' field, please set 'SOFT_DELETE'=True in settings.
         # Otherwise NotificationQuerySet.unread and NotificationQuerySet.read do NOT filter by 'deleted' field.
         # """
-        msg = 'REVERTME'
+        msg = "REVERTME"
         raise ImproperlyConfigured(msg)
 
 
 class NotificationQuerySet(models.query.QuerySet):
-    ''' Notification QuerySet '''
+    """Notification QuerySet"""
+
     def unsent(self):
         return self.filter(emailed=False)
 
@@ -166,38 +168,52 @@ class AbstractNotification(models.Model):
         <a href="http://oebfare.com/">brosner</a> commented on <a href="http://github.com/pinax/pinax">pinax/pinax</a> 2 hours ago # noqa
 
     """
-    LEVELS = Choices('success', 'info', 'warning', 'error')
+
+    LEVELS = Choices("success", "info", "warning", "error")
     level = models.CharField(choices=LEVELS, default=LEVELS.info, max_length=20)
+
+    site = models.ForeignKey(
+        Site, related_name="notifications", on_delete=models.CASCADE
+    )
 
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         blank=False,
-        related_name='notifications',
-        on_delete=models.CASCADE
+        related_name="notifications",
+        on_delete=models.CASCADE,
     )
     unread = models.BooleanField(default=True, blank=False, db_index=True)
 
-    actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor', on_delete=models.CASCADE)
+    actor_content_type = models.ForeignKey(
+        ContentType, related_name="notify_actor", on_delete=models.CASCADE
+    )
     actor_object_id = models.CharField(max_length=255)
-    actor = GenericForeignKey('actor_content_type', 'actor_object_id')
+    actor = GenericForeignKey("actor_content_type", "actor_object_id")
 
     verb = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
     target_content_type = models.ForeignKey(
         ContentType,
-        related_name='notify_target',
+        related_name="notify_target",
         blank=True,
         null=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
     target_object_id = models.CharField(max_length=255, blank=True, null=True)
-    target = GenericForeignKey('target_content_type', 'target_object_id')
+    target = GenericForeignKey("target_content_type", "target_object_id")
 
-    action_object_content_type = models.ForeignKey(ContentType, blank=True, null=True,
-                                                   related_name='notify_action_object', on_delete=models.CASCADE)
+    action_object_content_type = models.ForeignKey(
+        ContentType,
+        blank=True,
+        null=True,
+        related_name="notify_action_object",
+        on_delete=models.CASCADE,
+    )
     action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
-    action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
+    action_object = GenericForeignKey(
+        "action_object_content_type", "action_object_object_id"
+    )
 
     timestamp = models.DateTimeField(default=timezone.now, db_index=True)
 
@@ -207,28 +223,32 @@ class AbstractNotification(models.Model):
 
     data = JSONField(blank=True, null=True)
     objects = NotificationQuerySet.as_manager()
+    on_site = CurrentSiteManager.from_queryset(NotificationQuerySet)
 
     class Meta:
         abstract = True
-        ordering = ('-timestamp',)
+        ordering = ("-timestamp",)
         # speed up notifications count query
-        index_together = ('recipient', 'unread')
+        index_together = ("site_id", "recipient", "unread")
 
     def __str__(self):
         ctx = {
-            'actor': self.actor,
-            'verb': self.verb,
-            'action_object': self.action_object,
-            'target': self.target,
-            'timesince': self.timesince()
+            "actor": self.actor,
+            "verb": self.verb,
+            "action_object": self.action_object,
+            "target": self.target,
+            "timesince": self.timesince(),
         }
         if self.target:
             if self.action_object:
-                return u'%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago' % ctx
-            return u'%(actor)s %(verb)s %(target)s %(timesince)s ago' % ctx
+                return (
+                    "%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago"
+                    % ctx
+                )
+            return "%(actor)s %(verb)s %(target)s %(timesince)s ago" % ctx
         if self.action_object:
-            return u'%(actor)s %(verb)s %(action_object)s %(timesince)s ago' % ctx
-        return u'%(actor)s %(verb)s %(timesince)s ago' % ctx
+            return "%(actor)s %(verb)s %(action_object)s %(timesince)s ago" % ctx
+        return "%(actor)s %(verb)s %(timesince)s ago" % ctx
 
     def timesince(self, now=None):
         """
@@ -236,6 +256,7 @@ class AbstractNotification(models.Model):
         current timestamp.
         """
         from django.utils.timesince import timesince as timesince_
+
         return timesince_(self.timestamp, now)
 
     @property
@@ -258,18 +279,18 @@ def notify_handler(verb, **kwargs):
     Handler function to create Notification instance upon action signal call.
     """
     # Pull the options out of kwargs
-    kwargs.pop('signal', None)
-    recipient = kwargs.pop('recipient')
-    actor = kwargs.pop('sender')
+    kwargs.pop("signal", None)
+    recipient = kwargs.pop("recipient")
+    actor = kwargs.pop("sender")
     optional_objs = [
-        (kwargs.pop(opt, None), opt)
-        for opt in ('target', 'action_object')
+        (kwargs.pop(opt, None), opt) for opt in ("target", "action_object")
     ]
-    public = bool(kwargs.pop('public', True))
-    description = kwargs.pop('description', None)
-    timestamp = kwargs.pop('timestamp', timezone.now())
-    Notification = load_model('notifications', 'Notification')
-    level = kwargs.pop('level', Notification.LEVELS.info)
+    site_id = bool(kwargs.pop("site_id", 1))
+    public = bool(kwargs.pop("public", True))
+    description = kwargs.pop("description", None)
+    timestamp = kwargs.pop("timestamp", timezone.now())
+    Notification = load_model("notifications", "Notification")
+    level = kwargs.pop("level", Notification.LEVELS.info)
 
     # Check if User or Group
     if isinstance(recipient, Group):
@@ -291,14 +312,18 @@ def notify_handler(verb, **kwargs):
             description=description,
             timestamp=timestamp,
             level=level,
+            site_id=site_id,
         )
 
         # Set optional objects
         for obj, opt in optional_objs:
             if obj is not None:
-                setattr(newnotify, '%s_object_id' % opt, obj.pk)
-                setattr(newnotify, '%s_content_type' % opt,
-                        ContentType.objects.get_for_model(obj))
+                setattr(newnotify, "%s_object_id" % opt, obj.pk)
+                setattr(
+                    newnotify,
+                    "%s_content_type" % opt,
+                    ContentType.objects.get_for_model(obj),
+                )
 
         if kwargs and EXTRA_DATA:
             newnotify.data = kwargs.copy()
@@ -310,4 +335,4 @@ def notify_handler(verb, **kwargs):
 
 
 # connect the signal
-notify.connect(notify_handler, dispatch_uid='notifications.models.notification')
+notify.connect(notify_handler, dispatch_uid="notifications.models.notification")

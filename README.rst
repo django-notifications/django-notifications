@@ -53,12 +53,14 @@ Note that `django-model-utils <http://pypi.python.org/pypi/django-model-utils>`_
 
 Then to add the Django Notifications to your project add the app ``notifications`` to your ``INSTALLED_APPS`` and urlconf.
 
-The app should go somewhere after all the apps that are going to be generating notifications like ``django.contrib.auth``
+The app should go somewhere after all the apps that are going to be generating notifications like ``django.contrib.auth``.
+Make sure you also have ``django.contrib.site`` in your ``INSTALLED_APPS``
 
 ::
 
     INSTALLED_APPS = (
         'django.contrib.auth',
+        'django.contrib.site',
         ...
         'notifications',
         ...
