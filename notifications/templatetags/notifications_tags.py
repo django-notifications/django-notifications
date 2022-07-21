@@ -82,7 +82,7 @@ def live_notify_badge(context, badge_class='live_notify_badge'):
         return ''
     live_unread_count = user.notifications.unread().count()
     if live_unread_count == 0:
-        live_unread_count = ''
+        live_unread_count = ""
     
     html = "<span class='{badge_class}'>{unread}</span>".format(
         badge_class=badge_class, unread=live_unread_count
