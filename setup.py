@@ -25,27 +25,6 @@ setup(
     author='django-notifications team',
     author_email='yang@yangyubo.com',
     url='http://github.com/django-notifications/django-notifications',
-    install_requires=[
-        'django>=2.2',
-        'django-model-utils>=3.1.0',
-        'jsonfield>=2.1.0',
-        'pytz',
-        'swapper'
-    ],
-    test_requires=[
-        'django>=2.2',
-        'django-model-utils>=3.1.0',
-        'jsonfield>=2.1.0',
-        'pytz'
-        'python-dateutil',
-        'click',
-    ],
-    packages=[
-        'notifications',
-        'notifications.base',
-        'notifications.templatetags',
-        'notifications.migrations',
-    ],
     package_data={
         'notifications': ['templates/notifications/*.html', 'static/notifications/*.js']
     },
