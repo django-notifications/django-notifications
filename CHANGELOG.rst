@@ -2,6 +2,13 @@ Changelog
 =========
 
 
+1.8.0
+-----
+
+- Added support for Django 4.1
+- Dropped support for Django < 3.2 and Python < 3.7
+- Added indexes for GenericForeignKey fields in AbstractNotificationModel (see https://docs.djangoproject.com/en/4.1/ref/contrib/contenttypes/#generic-relations)
+
 1.7.0
 -----
 
