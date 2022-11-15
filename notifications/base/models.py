@@ -211,8 +211,15 @@ class AbstractNotification(models.Model):
     class Meta:
         abstract = True
         ordering = ('-timestamp',)
-        # speed up notifications count query
-        index_together = ('recipient', 'unread')
+        indexes = [
+            # speed up notifications count query
+            models.Index(fields=['recipient', 'unread']),
+
+            # Speed up lookups from related objects.
+            models.Index(fields=['actor_content_type', 'actor_object_id']),
+            models.Index(fields=['target_content_type', 'target_object_id']),
+            models.Index(fields=['action_object_content_type', 'action_object_object_id']),
+        ]
 
     def __str__(self):
         ctx = {
