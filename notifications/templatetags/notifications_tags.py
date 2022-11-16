@@ -5,6 +5,9 @@ from distutils.version import StrictVersion  # pylint: disable=no-name-in-module
 from django import get_version
 from django.template import Library
 from django.utils.html import format_html
+from django.core.cache import cache
+from notifications import settings
+from notifications.settings import get_config
 
 try:
     from django.urls import reverse
@@ -14,11 +17,19 @@ except ImportError:
 register = Library()
 
 
+def get_cached_notification_unread_count(user):
+
+    return cache.get_or_set(
+        'cache_notification_unread_count',
+        user.notifications.unread().count,
+        settings.get_config()['CACHE_TIMEOUT']
+    )
+
 def notifications_unread(context):
     user = user_context(context)
     if not user:
         return ''
-    return user.notifications.unread().count()
+    return get_cached_notification_unread_count(user)
 
 
 if StrictVersion(get_version()) >= StrictVersion('2.0'):
@@ -82,7 +93,7 @@ def live_notify_badge(context, badge_class='live_notify_badge'):
         return ''
 
     html = "<span class='{badge_class}'>{unread}</span>".format(
-        badge_class=badge_class, unread=user.notifications.unread().count()
+        badge_class=badge_class, unread=get_cached_notification_unread_count(user)
     )
     return format_html(html)
 

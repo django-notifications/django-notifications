@@ -2,6 +2,9 @@ Changelog
 =========
 
 
+- new setting 'CACHE_TIMEOUT' to cache certain result such as "notifications.unread().count".
+  (a timeout value of 0 won’t cache anything).
+
 1.7.0
 -----
 
