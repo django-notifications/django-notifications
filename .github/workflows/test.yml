@@ -1,0 +1,29 @@
+# Based on
+# https://pypi.org/project/tox-gh-actions/
+
+---
+name: Test the application using Tox.
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11"]
+
+    steps:
+      - name: apt update
+        run: sudo apt update
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox tox-gh-actions
+      - name: Test with tox
+        run: tox -v
