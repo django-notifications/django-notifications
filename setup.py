@@ -21,7 +21,7 @@ setup(
     name='django-notifications-hq',
     version=version,
     description='GitHub notifications alike app for Django.',
-    long_description=open('README.rst').read(),
+    long_description=open('README.md').read(),
     author='django-notifications team',
     author_email='yang@yangyubo.com',
     url='http://github.com/django-notifications/django-notifications',
