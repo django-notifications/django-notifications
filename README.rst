@@ -464,6 +464,7 @@ Core contributors (in alphabetical order):
 - `Federico Capoano <https://github.com/nemesisdesign>`_
 - `Samuel Spencer <https://github.com/LegoStormtroopr>`_
 - `Yang Yubo <https://github.com/yangyubo>`_
+- `YPCrumble` <https://github.com/YPCrumble>`_
 - `Zhongyuan Zhang <https://github.com/zhang-z>`_
 
 .. |build-status| image:: https://travis-ci.org/django-notifications/django-notifications.svg
