@@ -28,14 +28,12 @@ setup(
     install_requires=[
         'django>=3.2',
         'django-model-utils>=3.1.0',
-        'jsonfield>=2.1.0',
         'pytz',
         'swapper'
     ],
     test_requires=[
         'django>=3.2',
         'django-model-utils>=3.1.0',
-        'jsonfield>=2.1.0',
         'pytz'
     ],
     packages=[
