@@ -8,17 +8,22 @@ Replace this with more appropriate tests for your application.
 import json
 
 import pytz
+
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ImproperlyConfigured
+from django.db import connection
 from django.template import Context, Template
 from django.test import RequestFactory, TestCase
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django.utils.timezone import localtime, utc
-
-from notifications.models import Notification, notify_handler
+from notifications.base.models import notify_handler
 from notifications.signals import notify
 from notifications.utils import id2slug
+from swapper import load_model
+
+Notification = load_model('notifications', 'Notification')
 
 try:
     # Django >= 1.7
@@ -524,3 +529,30 @@ class TagTest(TestCase):
         context = {"user":self.to_user}
         output = u"True"
         self.tag_test(template, context, output)
+
+
+class AdminTest(TestCase):
+    app_name = "notifications"
+    def setUp(self):
+        self.message_count = 10
+        self.from_user = User.objects.create_user(username="from", password="pwd", email="example@example.com")
+        self.to_user = User.objects.create_user(username="to", password="pwd", email="example@example.com")
+        self.to_user.is_staff = True
+        self.to_user.is_superuser = True
+        self.to_user.save()
+        for _ in range(self.message_count):
+            notify.send(
+                self.from_user,
+                recipient=self.to_user,
+                verb='commented',
+                action_object=self.from_user,
+            )
+
+    def test_list(self):
+        self.client.login(username='to', password='pwd')
+
+        with CaptureQueriesContext(connection=connection) as context:
+            response = self.client.get(reverse('admin:{0}_notification_changelist'.format(self.app_name)))
+            self.assertLessEqual(len(context), 6)
+
+        self.assertEqual(response.status_code, 200, response.content)

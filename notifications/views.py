@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
-''' Django Notifications exemple views '''
-from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
+''' Django Notifications example views '''
+from distutils.version import \
+    StrictVersion  # pylint: disable=no-name-in-module,import-error
 
 from django import get_version
 from django.contrib.auth.decorators import login_required
 from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.generic import ListView
 from notifications import settings
-from notifications.models import Notification
-from notifications.utils import id2slug, slug2id
 from notifications.settings import get_config
+from notifications.utils import id2slug, slug2id
+from swapper import load_model
+
+Notification = load_model('notifications', 'Notification')
 
 if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
     from django.http import JsonResponse  # noqa
@@ -123,6 +127,7 @@ def delete(request, slug=None):
     return redirect('notifications:all')
 
 
+@never_cache
 def live_unread_notification_count(request):
     try:
         user_is_authenticated = request.user.is_authenticated()
@@ -140,6 +145,7 @@ def live_unread_notification_count(request):
     return JsonResponse(data)
 
 
+@never_cache
 def live_unread_notification_list(request):
     ''' Return a json with a unread notification list '''
     try:
@@ -187,6 +193,7 @@ def live_unread_notification_list(request):
     return JsonResponse(data)
 
 
+@never_cache
 def live_all_notification_list(request):
     ''' Return a json with a unread notification list '''
     try:
