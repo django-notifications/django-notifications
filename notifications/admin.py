@@ -9,7 +9,7 @@ Notification = load_model('notifications', 'Notification')
 
 def mark_unread(modeladmin, request, queryset):
     queryset.update(unread=True)
-mark_unread.short_description = "Mark selected notifications as unread"
+mark_unread.short_description = gettext_lazy('Mark selected notifications as unread')
 
 class NotificationAdmin(AbstractNotificationAdmin):
     raw_id_fields = ('recipient',)
