@@ -1,0 +1,1 @@
+from notifications.templatetags.notifications_tags import register
