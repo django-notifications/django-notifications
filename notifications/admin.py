@@ -3,6 +3,7 @@
 from django.contrib import admin
 from notifications.base.admin import AbstractNotificationAdmin
 from swapper import load_model
+from django.utils.translation import gettext_lazy
 
 Notification = load_model('notifications', 'Notification')
 
