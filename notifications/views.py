@@ -10,7 +10,6 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import ListView
 from notifications import settings
-from notifications.models import Notification
 from notifications.helpers import get_notification_list
 from notifications.settings import get_config
 from notifications.utils import id2slug, slug2id
