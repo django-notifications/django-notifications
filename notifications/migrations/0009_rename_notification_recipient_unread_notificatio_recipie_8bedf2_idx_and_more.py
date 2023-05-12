@@ -10,10 +10,13 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameIndex(
-            model_name="notification",
-            new_name="notificatio_recipie_8bedf2_idx",
-            old_fields=("recipient", "unread"),
+        migrations.AlterIndexTogether(
+            name='notification',
+            index_together=set(),
+        ),
+        migrations.AddIndex(
+            model_name='notification',
+            index=models.Index(fields=['recipient', 'unread'], name='notificatio_recipie_8bedf2_idx'),
         ),
         migrations.AddIndex(
             model_name="notification",
