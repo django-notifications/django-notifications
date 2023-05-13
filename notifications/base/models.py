@@ -11,9 +11,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.query import QuerySet
 from django.utils import timezone
+from django.utils.html import format_html
+
 from jsonfield.fields import JSONField
 from model_utils import Choices
-
 from notifications import settings as notifications_settings
 from notifications.signals import notify
 from notifications.utils import id2slug
@@ -24,6 +25,12 @@ if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
 else:
     from django.contrib.contenttypes.generic import GenericForeignKey  # noqa
 
+try:
+    # Django >= 1.7
+    from django.urls import reverse, NoReverseMatch
+except ImportError:
+    # Django <= 1.6
+    from django.core.urlresolvers import reverse, NoReverseMatch  # pylint: disable=no-name-in-module,import-error
 
 EXTRA_DATA = notifications_settings.get_config()['USE_JSONFIELD']
 
@@ -252,6 +259,33 @@ class AbstractNotification(models.Model):
             self.unread = True
             self.save()
 
+    def actor_object_url(self):
+        try:
+            url = reverse("admin:{0}_{1}_change".format(self.actor_content_type.app_label,
+                                                        self.actor_content_type.model),
+                          args=(self.actor_object_id,))
+            return format_html("<a href='{url}'>{id}</a>", url=url, id=self.actor_object_id)
+        except NoReverseMatch:
+            return self.actor_object_id
+
+    def action_object_url(self):
+        try:
+            url = reverse("admin:{0}_{1}_change".format(self.action_object_content_type.app_label,
+                                                        self.action_content_type.model),
+                          args=(self.action_object_id,))
+            return format_html("<a href='{url}'>{id}</a>", url=url, id=self.action_object_object_id)
+        except NoReverseMatch:
+            return self.action_object_object_id
+
+    def target_object_url(self):
+        try:
+            url = reverse("admin:{0}_{1}_change".format(self.target_content_type.app_label,
+                                                        self.target_content_type.model),
+                          args=(self.target_object_id,))
+            return format_html("<a href='{url}'>{id}</a>", url=url, id=self.target_object_id)
+        except NoReverseMatch:
+            return self.target_object_id
+
 
 def notify_handler(verb, **kwargs):
     """
@@ -270,6 +304,7 @@ def notify_handler(verb, **kwargs):
     timestamp = kwargs.pop('timestamp', timezone.now())
     Notification = load_model('notifications', 'Notification')
     level = kwargs.pop('level', Notification.LEVELS.info)
+    actor_for_concrete_model = kwargs.pop('actor_for_concrete_model', True)
 
     # Check if User or Group
     if isinstance(recipient, Group):
@@ -284,7 +319,7 @@ def notify_handler(verb, **kwargs):
     for recipient in recipients:
         newnotify = Notification(
             recipient=recipient,
-            actor_content_type=ContentType.objects.get_for_model(actor),
+            actor_content_type=ContentType.objects.get_for_model(actor, for_concrete_model=actor_for_concrete_model),
             actor_object_id=actor.pk,
             verb=str(verb),
             public=public,
@@ -296,9 +331,10 @@ def notify_handler(verb, **kwargs):
         # Set optional objects
         for obj, opt in optional_objs:
             if obj is not None:
+                for_concrete_model = kwargs.pop(f'{opt}_for_concrete_model', True)
                 setattr(newnotify, '%s_object_id' % opt, obj.pk)
                 setattr(newnotify, '%s_content_type' % opt,
-                        ContentType.objects.get_for_model(obj))
+                        ContentType.objects.get_for_model(obj, for_concrete_model=for_concrete_model))
 
         if kwargs and EXTRA_DATA:
             newnotify.data = kwargs.copy()
