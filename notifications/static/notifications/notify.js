@@ -13,7 +13,7 @@ var registered_functions = [];
 function fill_notification_badge(data) {
     var badges = document.getElementsByClassName(notify_badge_class);
     if (badges) {
-        for(var i = 0; i < badges.length; i++) {
+        for (var i = 0; i < badges.length; i++) {
             badges[i].innerHTML = data.unread_count;
         }
     }
