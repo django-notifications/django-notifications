@@ -43,7 +43,8 @@ def register_notify_callbacks(badge_class='live_notify_badge',  # pylint: disabl
                               api_name='list',
                               fetch=5,
                               nonce=None,
-                              mark_as_read=False):
+                              mark_as_read=False
+                              ):
     refresh_period = int(refresh_period) * 1000
 
     if api_name == 'list':
