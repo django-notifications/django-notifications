@@ -139,8 +139,13 @@ def live_unread_notification_count(request):
             'unread_count': 0
         }
     else:
+        live_unread_count = request.user.notifications.unread().count()
+
+        if live_unread_count == 0:
+
+            live_unread_count = ""
         data = {
-            'unread_count': request.user.notifications.unread().count(),
+            'unread_count': live_unread_count,
         }
     return JsonResponse(data)
 
@@ -155,7 +160,7 @@ def live_unread_notification_list(request):
 
     if not user_is_authenticated:
         data = {
-            'unread_count': 0,
+            'unread_count': "",
             'unread_list': []
         }
         return JsonResponse(data)
@@ -186,8 +191,13 @@ def live_unread_notification_list(request):
         unread_list.append(struct)
         if request.GET.get('mark_as_read'):
             notification.mark_as_read()
+    live_unread_count = request.user.notifications.unread().count()
+
+    if live_unread_count == 0:
+
+        live_unread_count = ""    
     data = {
-        'unread_count': request.user.notifications.unread().count(),
+        'unread_count': live_unread_count,
         'unread_list': unread_list
     }
     return JsonResponse(data)
