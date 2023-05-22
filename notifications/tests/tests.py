@@ -14,7 +14,7 @@ from django.contrib.auth.models import Group, User
 from django.core.exceptions import ImproperlyConfigured
 from django.db import connection
 from django.template import Context, Template
-from django.test import RequestFactory, TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django.utils.timezone import localtime, utc
@@ -39,7 +39,13 @@ except ImportError:
     # Django <= 1.6
     from django.core.urlresolvers import reverse  # pylint: disable=no-name-in-module,import-error
 
-
+MALICIOUS_NEXT_URLS = [
+    "http://bla.com",
+    "http://www.bla.com",
+    "https://bla.com",
+    "https://www.bla.com",
+    "ftp://www.bla.com/file.exe",
+]
 
 class NotificationTest(TestCase):
     ''' Django notifications automated tests '''
@@ -249,6 +255,17 @@ class NotificationTestPages(TestCase):
             "next": reverse('notifications:unread') + query_parameters,
         })
         self.assertRedirects(response, reverse('notifications:unread') + query_parameters)
+
+    @override_settings(ALLOWED_HOSTS=["www.notifications.com"])
+    def test_malicious_next_pages(self):
+        self.client.force_login(self.to_user)
+        query_parameters = '?var1=hello&var2=world'
+
+        for next_url in MALICIOUS_NEXT_URLS:
+            response = self.client.get(reverse('notifications:mark_all_as_read'),data={
+                "next": next_url  + query_parameters,
+            })
+            self.assertRedirects(response, reverse('notifications:unread'))
 
     def test_delete_messages_pages(self):
         self.login('to', 'pwd')
