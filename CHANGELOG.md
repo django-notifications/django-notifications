@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.0
+
+  - #263 Fix vunerability in views
+
 ## 1.7.0
 
   - Added support for Django 3.2 and Django 4.0
