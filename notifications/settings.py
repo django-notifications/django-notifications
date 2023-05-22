@@ -8,6 +8,7 @@ CONFIG_DEFAULTS = {
     'USE_JSONFIELD': False,
     'SOFT_DELETE': False,
     'NUM_TO_FETCH': 10,
+    'CACHE_TIMEOUT': 2,
 }
 
 
