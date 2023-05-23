@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.8.0
+
+  - Added support for Django 4.1
+  - Dropped support for Django < 3.2 and Python < 3.7
+  - Added indexes for GenericForeignKey fields in AbstractNotificationModel (see https://docs.djangoproject.com/en/4.1/ref/contrib/contenttypes/#generic-relations)
+  - new setting 'CACHE_TIMEOUT' to cache certain result such as "notifications.unread().count".
+  (a timeout value of 0 won’t cache anything).
+  - #263 Fix vunerability in views
+  - #233 Adds methods to convert to human readable type
+  - Translate project all strings
+
 ## 1.7.0
 
   - Added support for Django 3.2 and Django 4.0
