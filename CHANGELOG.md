@@ -5,6 +5,7 @@
   - new setting 'CACHE_TIMEOUT' to cache certain result such as "notifications.unread().count".
   (a timeout value of 0 won’t cache anything).
   - #263 Fix vunerability in views
+  - #233 Adds methods to convert to human readable type
 
 ## 1.7.0
 

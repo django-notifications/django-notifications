@@ -74,6 +74,19 @@ class NotificationTest(TestCase):
         delta = timezone.now() - notification.timestamp
         self.assertTrue(delta.seconds < 60)
 
+    def test_humanize_naturalday_timestamp(self):
+        from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
+        to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
+        notify.send(from_user, recipient=to_user, verb='commented', action_object=from_user)
+        notification = Notification.objects.get(recipient=to_user)
+        self.assertEqual(notification.naturalday(), 'today')        
+
+    def test_humanize_naturaltime_timestamp(self):
+        from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
+        to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
+        notify.send(from_user, recipient=to_user, verb='commented', action_object=from_user)
+        notification = Notification.objects.get(recipient=to_user)
+        self.assertEqual(notification.naturaltime(), 'now')
 
 class NotificationManagersTest(TestCase):
     ''' Django notifications Manager automated tests '''
