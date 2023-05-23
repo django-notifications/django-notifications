@@ -9,6 +9,7 @@
   (a timeout value of 0 won’t cache anything).
   - #263 Fix vunerability in views
   - #233 Adds methods to convert to human readable type
+  - Translate project all strings
 
 ## 1.7.0
 
