@@ -44,9 +44,7 @@ setup(
         'notifications.templatetags',
         'notifications.migrations',
     ],
-    package_data={
-        'notifications': ['templates/notifications/*.html', 'static/notifications/*.js']
-    },
+    include_package_data=True,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',

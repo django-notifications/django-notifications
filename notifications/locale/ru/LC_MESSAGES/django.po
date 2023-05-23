@@ -1,0 +1,122 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-05 08:47-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: notifications/apps.py:9 notifications/base/models.py:234
+msgid "Notifications"
+msgstr "Уведомления"
+
+#: notifications/base/models.py:170
+msgid "level"
+msgstr "уровень"
+
+#: notifications/base/models.py:176
+msgid "recipient"
+msgstr "получатель"
+
+#: notifications/base/models.py:179
+msgid "unread"
+msgstr "не прочитано"
+
+#: notifications/base/models.py:185
+msgid "actor content type"
+msgstr "тип содержимого (действующее лицо)"
+
+#: notifications/base/models.py:187
+msgid "actor object id"
+msgstr "идентификатор объекта (действующее лицо)"
+
+#: notifications/base/models.py:189
+msgid "actor"
+msgstr "действующее лицо"
+
+#: notifications/base/models.py:191
+msgid "verb"
+msgstr "глагол"
+
+#: notifications/base/models.py:192
+msgid "description"
+msgstr "описание"
+
+#: notifications/base/models.py:198
+msgid "target content type"
+msgstr "тип содержимого (целевой объект)"
+
+#: notifications/base/models.py:202
+msgid "target object id"
+msgstr "идентификатор объекта (целевой объект)"
+
+#: notifications/base/models.py:204
+msgid "target"
+msgstr "целевой объект"
+
+#: notifications/base/models.py:210
+msgid "action object content type"
+msgstr "тип содержимого (объект действия)"
+
+#: notifications/base/models.py:214
+msgid "action object object id"
+msgstr "идентификатор объекта (объект действия)"
+
+#: notifications/base/models.py:216
+msgid "action object"
+msgstr "объект действия"
+
+#: notifications/base/models.py:218
+msgid "timestamp"
+msgstr "отметка времени"
+
+#: notifications/base/models.py:220
+msgid "public"
+msgstr "публичный"
+
+#: notifications/base/models.py:221
+msgid "deleted"
+msgstr "удален"
+
+#: notifications/base/models.py:222
+msgid "emailed"
+msgstr "отправлено по электронной почте"
+
+#: notifications/base/models.py:224
+msgid "data"
+msgstr "данные"
+
+#: notifications/base/models.py:233
+msgid "Notification"
+msgstr "Уведомление"
+
+#: notifications/base/models.py:246
+#, python-format
+msgid "%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago"
+msgstr "%(actor)s %(verb)s %(action_object)s %(target)s %(timesince)s назад"
+
+#: notifications/base/models.py:247
+#, python-format
+msgid "%(actor)s %(verb)s %(target)s %(timesince)s ago"
+msgstr "%(actor)s %(verb)s %(target)s %(timesince)s назад"
+
+#: notifications/base/models.py:249
+#, python-format
+msgid "%(actor)s %(verb)s %(action_object)s %(timesince)s ago"
+msgstr "%(actor)s %(verb)s %(action_object)s %(timesince)s назад"
+
+#: notifications/base/models.py:250
+#, python-format
+msgid "%(actor)s %(verb)s %(timesince)s ago"
+msgstr "%(actor)s %(verb)s %(timesince)s назад"

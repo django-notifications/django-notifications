@@ -77,3 +77,5 @@ if os.environ.get('SAMPLE_APP', False):
     INSTALLED_APPS.append('notifications.tests.sample_notifications')
     NOTIFICATIONS_NOTIFICATION_MODEL = 'sample_notifications.Notification'
     TEMPLATES[0]['DIRS'] += [os.path.join(BASE_DIR, '../templates')]
+
+ALLOWED_HOSTS = []
