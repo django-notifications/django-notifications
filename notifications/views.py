@@ -179,6 +179,8 @@ def live_unread_notification_list(request):
         struct['slug'] = id2slug(notification.id)
         if notification.actor:
             struct['actor'] = str(notification.actor)
+        if notification.recipient_id:
+            struct['recipient'] = str(notification.recipient_id)
         if notification.target:
             struct['target'] = str(notification.target)
         if notification.action_object:
@@ -227,6 +229,8 @@ def live_all_notification_list(request):
         struct['slug'] = id2slug(notification.id)
         if notification.actor:
             struct['actor'] = str(notification.actor)
+        if notification.recipient_id:
+            struct['recipient'] = str(notification.recipient_id)
         if notification.target:
             struct['target'] = str(notification.target)
         if notification.action_object:
