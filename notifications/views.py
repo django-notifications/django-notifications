@@ -14,7 +14,6 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import ListView
 from swapper import load_model
 
-from notifications import settings
 from notifications import settings as notification_settings
 from notifications.helpers import get_notification_list
 from notifications.models import Notification
