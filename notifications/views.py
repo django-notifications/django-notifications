@@ -8,16 +8,17 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import ListView
-from notifications import settings
-from notifications.models import Notification
-from notifications.utils import slug2id
-from notifications.helpers import get_notification_list
+from django.utils.encoding import iri_to_uri
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
 from django.views.generic import ListView
-from notifications import settings as notification_settings
-from notifications.utils import id2slug, slug2id
 from swapper import load_model
+
+from notifications import settings
+from notifications import settings as notification_settings
+from notifications.helpers import get_notification_list
+from notifications.models import Notification
+from notifications.utils import slug2id
 
 Notification = load_model('notifications', 'Notification')
 
@@ -26,6 +27,7 @@ if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
 else:
     # Django 1.6 doesn't have a proper JsonResponse
     import json
+
     from django.http import HttpResponse  # noqa
 
     def date_handler(obj):
