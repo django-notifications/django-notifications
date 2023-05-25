@@ -28,7 +28,7 @@
 Now all configs for the app are made inside the dictionary
 *DJANGO\_NOTIFICATION\_CONFIG* in *settings.py*.
 
-Default configs: `` `Python DJANGO_NOTIFICATION_CONFIG = {
+Default configs: `` `Python DJANGO_NOTIFICATIONS_CONFIG = {
 'PAGINATE_BY': 20, 'USE_JSONFIELD': False, 'SOFT_DELETE': False,
 'NUM_TO_FETCH': 10, } ``\`
 
