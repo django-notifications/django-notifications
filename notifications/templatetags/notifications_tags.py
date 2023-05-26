@@ -81,7 +81,7 @@ def register_notify_callbacks(badge_class='live_notify_badge',  # pylint: disabl
         unread_url=reverse('notifications:unread'),
         mark_all_unread_url=reverse('notifications:mark_all_as_read'),
         fetch_count=fetch,
-        mark_as_read=mark_as_read
+        mark_as_read=str(mark_as_read).lower()
     )
 
     # add a nonce value to the script tag if one is provided
