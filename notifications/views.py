@@ -16,7 +16,6 @@ from swapper import load_model
 
 from notifications import settings as notification_settings
 from notifications.helpers import get_notification_list
-from notifications.models import Notification
 from notifications.utils import slug2id
 
 Notification = load_model('notifications', 'Notification')
