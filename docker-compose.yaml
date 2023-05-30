@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  development:
+    build: .
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/django-notifications
+    ports:
+      - "8000:8000"

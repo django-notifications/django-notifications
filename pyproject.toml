@@ -1,0 +1,155 @@
+[tool.poetry]
+name = "django-notifications-hq"
+version = "2.0.0"
+description = "GitHub notifications alike app for Django."
+authors = [
+    "Justin Quick <justquick@gmail.com>",
+    "Yang Yubo <yang@yangyubo.com>",
+]
+maintainers = [
+    # Team members
+    "Alvaro Mariano <https://github.com/AlvaroLQueiroz>",
+    "Samuel Spencer <https://github.com/LegoStormtroopr)>",
+    "YPCrumble <https://github.com/YPCrumble>",
+
+    # Contributors
+    "Adriaan <https://github.com/ChocolateCookies>",
+    "blag <https://github.com/blag>",
+    "Dan DeFelippi <https://github.com/driverdan>",
+    "Daniel Shapiro <https://github.com/danxshap>",
+    "Fábio C. Barrionuevo da Luz <https://github.com/luzfcb>",
+    "fay <https://github.com/fay>",
+    "Jesper Håkansson <https://github.com/drager>",
+    "Konrad Hałas <https://github.com/konradhalas>",
+    "Matthew Schinckel <https://github.com/schinckel>",
+    "Mirat Can Bayrak <https://github.com/miratcan>",
+    "Peppe Bergqvist <https://github.com/peppelorum>",
+    "randomfish <https://github.com/randomfish>",
+    "Sandro Rodrigues <https://github.com/srtab>",
+    "Utkucan Bıyıklı <https://github.com/UtkucanBykl>",
+    "Zhongyuan Zhang <http://github.com/zhang-z>",
+]
+license = "MIT"
+readme = "README.md"
+homepage = "https://pypi.org/project/django-notifications-hq"
+documentation = "https://pypi.org/project/django-notifications-hq"
+repository = "https://github.com/django-notifications/django-notifications"
+keywords = [
+    "django",
+    "notifications",
+    "github",
+    "action",
+    "event",
+    "stream",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+
+    "Framework :: Django",
+    "Framework :: Django :: 3.2",
+    "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.1",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Communications :: Notification",
+    "Topic :: Internet",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Utilities",
+]
+packages = [
+    {include = "notifications/*.py"},
+    {include = "notifications/base/"},
+    {include = "notifications/migrations/"},
+    {include = "notifications/templatetags/"},
+    {include = "notifications/templatetags/"},
+]
+include = [
+    "CHANGELOG.md",
+    "notifications/locale/",
+    "notifications/static/",
+    "notifications/templates/",
+]
+
+[tool.poetry.dependencies]
+python = "^3.8.1"
+django = ">3.2"
+swapper = "^1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23"
+bandit = "^1"
+coverage = "^7"#### TODO
+django-debug-toolbar = "^4"
+isort = "^5"
+mypy = "^1" ### TODO
+pre-commit = "^3"
+pylint = "^2"
+pylint-django = "^2"
+pytest = "^7"
+pytest-cov = "^4"
+pytest-django = "^4"
+pytz = "^2023.3"
+tox = "^4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pylint.MASTER]
+load-plugins = [
+    "pylint_django"
+]
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = [
+]
+
+[tool.pylint.FORMAT]
+max-line-length = 120
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+
+[tool.bandit]
+    skips = ["B106"]
+
+[tool.bandit.assert_used]
+    skips = ["*test*.py"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q"
+norecursedirs = [
+    ".git",
+    ".github",
+    ".idea",
+    ".pytest_cache",
+    ".tox",
+    ".vscode",
+    "dist",
+    "django_notifications_hq.egg-info",
+]
+python_files = [
+    "tests.py",
+    "test_*.py",
+    "*_tests.py",
+]
+testpaths = [
+    "tests",
+    "integration",
+]
+DJANGO_SETTINGS_MODULE = "notifications.tests.settings"

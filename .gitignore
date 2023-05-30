@@ -13,3 +13,5 @@ htmlcov
 .venv/
 test.sqlite3
 settings.json
+.pytest_cache
+.vscode
