@@ -4,6 +4,10 @@
 
   - Added URLs for actor, target and action_object in the unread notification list API view
 
+## 1.8.1
+
+  - Added the migration for verbose_name changes
+
 ## 1.8.0
 
   - Added support for Django 4.1
