@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.1
+
+  - Added the migration for verbose_name changes
+
 ## 1.8.0
 
   - Added support for Django 4.1
