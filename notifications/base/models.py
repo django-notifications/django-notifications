@@ -14,7 +14,6 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
 
-from jsonfield.fields import JSONField
 from model_utils import Choices
 from notifications import settings as notifications_settings
 from notifications.signals import notify
@@ -229,7 +228,7 @@ class AbstractNotification(models.Model):
     deleted = models.BooleanField(_('deleted'), default=False, db_index=True)
     emailed = models.BooleanField(_('emailed'), default=False, db_index=True)
 
-    data = JSONField(_('data'), blank=True, null=True)
+    data = models.JSONField(_('data'), blank=True, null=True)
 
     objects = NotificationQuerySet.as_manager()
 

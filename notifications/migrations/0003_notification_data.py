@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.db import models, migrations
-import jsonfield.fields
+
+
+try:
+    from jsonfield.fields import JSONField
+except ModuleNotFoundError:
+    JSONField = models.JSONField
 
 
 class Migration(migrations.Migration):
@@ -13,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='notification',
             name='data',
-            field=jsonfield.fields.JSONField(null=True, blank=True),
+            field=JSONField(null=True, blank=True),
             preserve_default=True,
         ),
     ]

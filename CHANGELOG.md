@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.0
+  - Added docker environment and migrated to Poetry and pyproject.toml
+  - Added verbose_name migration
+  - Migrated from jsonfield to Django JSONField
+
 ## 1.8.0
 
   - Added support for Django 4.1
