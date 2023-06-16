@@ -3,7 +3,8 @@
 ## 2.0.0
   - Added docker environment and migrated to Poetry and pyproject.toml
   - Added verbose_name migration
-  - Migrated from jsonfield to Django JSONField
+  - Migrated from `jsonfield` to Django `JSONField`
+  - Converted the `level` field from a `CharField` to an `IntegerField`
 
 ## 1.8.0
 

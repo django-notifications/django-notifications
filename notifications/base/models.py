@@ -13,8 +13,6 @@ from django.db.models.query import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
-
-from model_utils import Choices
 from notifications import settings as notifications_settings
 from notifications.signals import notify
 from notifications.utils import id2slug
@@ -144,6 +142,13 @@ class NotificationQuerySet(models.query.QuerySet):
         return qset.update(emailed=True)
 
 
+class NotificationLevel(models.IntegerChoices):
+    SUCCESS = 1
+    INFO = 2
+    WARNING = 3
+    ERROR = 4
+
+
 class AbstractNotification(models.Model):
     """
     Action model describing the actor acting out a verb (on an optional
@@ -173,8 +178,7 @@ class AbstractNotification(models.Model):
         <a href="http://oebfare.com/">brosner</a> commented on <a href="http://github.com/pinax/pinax">pinax/pinax</a> 2 hours ago # noqa
 
     """
-    LEVELS = Choices('success', 'info', 'warning', 'error')
-    level = models.CharField(_('level'), choices=LEVELS, default=LEVELS.info, max_length=20)
+    level = models.IntegerField(_('level'), choices=NotificationLevel.choices, default=NotificationLevel.INFO)
 
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -322,7 +326,7 @@ def notify_handler(verb, **kwargs):
     description = kwargs.pop('description', None)
     timestamp = kwargs.pop('timestamp', timezone.now())
     Notification = load_model('notifications', 'Notification')
-    level = kwargs.pop('level', Notification.LEVELS.info)
+    level = kwargs.pop('level', NotificationLevel.INFO)
     actor_for_concrete_model = kwargs.pop('actor_for_concrete_model', True)
 
     # Check if User or Group
