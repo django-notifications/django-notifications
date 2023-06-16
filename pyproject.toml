@@ -101,6 +101,9 @@ pytest-cov = "^4"
 pytest-django = "^4"
 pytz = "^2023.3"
 tox = "^4"
+psycopg2-binary = "^2.9.6"
+django-test-migrations = "^1.3.0"
+factory-boy = "^3.2.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -132,7 +135,7 @@ profile = "black"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-ra -q"
+addopts = "--reuse-db"
 norecursedirs = [
     ".git",
     ".github",
@@ -153,3 +156,4 @@ testpaths = [
     "integration",
 ]
 DJANGO_SETTINGS_MODULE = "notifications.tests.settings"
+django_debug_mode = "keep"
