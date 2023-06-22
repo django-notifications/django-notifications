@@ -16,15 +16,11 @@ DATABASES = {
     }
 }
 
-# Django < 2.0
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware'
 )
-
-# Django >= 2.0
-MIDDLEWARE = MIDDLEWARE_CLASSES
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -78,4 +74,4 @@ if os.environ.get('SAMPLE_APP', False):
     NOTIFICATIONS_NOTIFICATION_MODEL = 'sample_notifications.Notification'
     TEMPLATES[0]['DIRS'] += [os.path.join(BASE_DIR, '../templates')]
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]

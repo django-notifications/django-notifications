@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
-from distutils.version import \
-    StrictVersion  # pylint: disable=no-name-in-module,import-error
-
-from django import get_version
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
@@ -17,18 +13,9 @@ from notifications import settings as notifications_settings
 from notifications.signals import notify
 from notifications.utils import id2slug
 from swapper import load_model
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.urls import reverse, NoReverseMatch
 
-if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
-    from django.contrib.contenttypes.fields import GenericForeignKey  # noqa
-else:
-    from django.contrib.contenttypes.generic import GenericForeignKey  # noqa
-
-try:
-    # Django >= 1.7
-    from django.urls import reverse, NoReverseMatch
-except ImportError:
-    # Django <= 1.6
-    from django.core.urlresolvers import reverse, NoReverseMatch  # pylint: disable=no-name-in-module,import-error
 
 EXTRA_DATA = notifications_settings.get_config()['USE_JSONFIELD']
 
