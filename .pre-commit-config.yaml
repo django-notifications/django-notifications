@@ -20,6 +20,10 @@ repos:
     rev: v2.17.4
     hooks:
     -   id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
 
 -   repo: https://github.com/PyCQA/bandit
     rev: 1.7.5

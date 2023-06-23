@@ -110,17 +110,32 @@ pytest-xdist = "^3.3.1"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.pylint.MASTER]
+[tool.pylint.MAIN]
 load-plugins = [
-    "pylint_django"
+    "pylint_django",
+    "pylint.extensions.mccabe",
 ]
+ignore = "migrations/"
+jobs = 0
+django-settings-module = "notifications.settings"
+
+[tool.pylint.DESIGN]
+max-locals = 20
+max-args = 10
+max-parents = 10
 
 [tool.pylint.'MESSAGES CONTROL']
 disable = [
+    "missing-function-docstring",
+    "missing-class-docstring",
+    "missing-module-docstring",
+    # "invalid-name",
+    "fixme",
 ]
 
 [tool.pylint.FORMAT]
 max-line-length = 120
+
 
 [tool.black]
 line-length = 120
@@ -129,10 +144,12 @@ line-length = 120
 profile = "black"
 
 [tool.bandit]
-    skips = ["B106"]
+exclude_dirs = [
+    "notifications/tests",
+]
 
 [tool.bandit.assert_used]
-    skips = ["*test*.py"]
+skips = ["*test*.py"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"

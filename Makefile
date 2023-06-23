@@ -16,3 +16,9 @@ migrate:
 
 shell:
 	poetry run python manage.py shell
+
+pylint:
+	poetry run pylint --django-settings-module="notifications.settings" notifications/
+
+bandit:
+	poetry run bandit -c pyproject.toml -r notifications/
