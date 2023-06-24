@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-''' Django notification manage file '''
+""" Django notification manage file """
 import os
 import sys
 

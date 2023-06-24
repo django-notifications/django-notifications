@@ -1,6 +1,5 @@
-'''' Django notifications utils file '''
+"""' Django notifications utils file """
 # -*- coding: utf-8 -*-
-import sys
 
 
 def slug2id(slug):

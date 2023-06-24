@@ -5,14 +5,8 @@ import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
 
-try:
-    from jsonfield.fields import JSONField
-except ModuleNotFoundError:
-    JSONField = models.JSONField
-
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("contenttypes", "0002_remove_content_type_name"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -68,16 +62,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="notification",
             name="data",
-            field=JSONField(
-                blank=True, null=True, verbose_name="data"
-            ),
+            field=models.JSONField(blank=True, null=True, verbose_name="data"),
         ),
         migrations.AlterField(
             model_name="notification",
             name="deleted",
-            field=models.BooleanField(
-                db_index=True, default=False, verbose_name="deleted"
-            ),
+            field=models.BooleanField(db_index=True, default=False, verbose_name="deleted"),
         ),
         migrations.AlterField(
             model_name="notification",
@@ -87,9 +77,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="notification",
             name="emailed",
-            field=models.BooleanField(
-                db_index=True, default=False, verbose_name="emailed"
-            ),
+            field=models.BooleanField(db_index=True, default=False, verbose_name="emailed"),
         ),
         migrations.AlterField(
             model_name="notification",
@@ -109,9 +97,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="notification",
             name="public",
-            field=models.BooleanField(
-                db_index=True, default=True, verbose_name="public"
-            ),
+            field=models.BooleanField(db_index=True, default=True, verbose_name="public"),
         ),
         migrations.AlterField(
             model_name="notification",
@@ -138,9 +124,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="notification",
             name="target_object_id",
-            field=models.CharField(
-                blank=True, max_length=255, null=True, verbose_name="target object id"
-            ),
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name="target object id"),
         ),
         migrations.AlterField(
             model_name="notification",
@@ -154,9 +138,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="notification",
             name="unread",
-            field=models.BooleanField(
-                db_index=True, default=True, verbose_name="unread"
-            ),
+            field=models.BooleanField(db_index=True, default=True, verbose_name="unread"),
         ),
         migrations.AlterField(
             model_name="notification",

@@ -1,4 +1,4 @@
-''' Django notifications signal file '''
+""" Django notifications signal file """
 # -*- coding: utf-8 -*-
 from django.dispatch import Signal
 

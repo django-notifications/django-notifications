@@ -8,9 +8,9 @@ def test_main_migration0002(migrator):
     """Ensures that the second migration works."""
     old_state = migrator.apply_initial_migration(("notifications", "0011_notification_new_level"))
 
-    OldUser = old_state.apps.get_model("auth", "User")
-    OldNotification = old_state.apps.get_model("notifications", "Notification")
-    OldContentType = old_state.apps.get_model("contenttypes", "ContentType")
+    OldUser = old_state.apps.get_model("auth", "User")  # pylint: disable=invalid-name
+    OldNotification = old_state.apps.get_model("notifications", "Notification")  # pylint: disable=invalid-name
+    OldContentType = old_state.apps.get_model("contenttypes", "ContentType")  # pylint: disable=invalid-name
 
     mark_follower = factory.create(OldUser, FACTORY_CLASS=user_factory.Recipient)
     guido = factory.create(OldUser, FACTORY_CLASS=user_factory.Target)
@@ -35,7 +35,7 @@ def test_main_migration0002(migrator):
     assert OldNotification.objects.filter(new_level=NotificationLevel.INFO).count() == 4
 
     new_state = migrator.apply_tested_migration(("notifications", "0012_auto_20230601_1905"))
-    NewNotification = new_state.apps.get_model("notifications", "Notification")
+    NewNotification = new_state.apps.get_model("notifications", "Notification")  # pylint: disable=invalid-name
 
     assert NewNotification.objects.count() == 4
     assert NewNotification.objects.filter(new_level=NotificationLevel.SUCCESS).count() == 1
@@ -44,7 +44,7 @@ def test_main_migration0002(migrator):
     assert NewNotification.objects.filter(new_level=NotificationLevel.ERROR).count() == 1
 
     new_state_2 = migrator.apply_tested_migration(("notifications", "0014_rename_new_level_notification_level"))
-    NewNotification2 = new_state_2.apps.get_model("notifications", "Notification")
+    NewNotification2 = new_state_2.apps.get_model("notifications", "Notification")  # pylint: disable=invalid-name
 
     assert NewNotification2.objects.count() == 4
     assert NewNotification2.objects.filter(level=NotificationLevel.SUCCESS).count() == 1

@@ -1,5 +1,5 @@
-from django.conf import settings
 import factory
+from django.conf import settings
 
 
 class Recipient(factory.django.DjangoModelFactory):

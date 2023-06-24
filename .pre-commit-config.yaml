@@ -21,9 +21,11 @@ repos:
     hooks:
     -   id: pylint
         name: pylint
-        entry: pylint
+        entry: poetry run pylint
         language: system
         types: [python]
+        args: ["--rcfile", "pyproject.toml"]
+        exclude: "migrations"
 
 -   repo: https://github.com/PyCQA/bandit
     rev: 1.7.5

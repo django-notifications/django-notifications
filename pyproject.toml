@@ -115,7 +115,9 @@ load-plugins = [
     "pylint_django",
     "pylint.extensions.mccabe",
 ]
-ignore = "migrations/"
+ignore = [
+    "migrations",
+]
 jobs = 0
 django-settings-module = "notifications.settings"
 
@@ -129,7 +131,6 @@ disable = [
     "missing-function-docstring",
     "missing-class-docstring",
     "missing-module-docstring",
-    # "invalid-name",
     "fixme",
 ]
 

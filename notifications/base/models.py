@@ -2,26 +2,26 @@
 # pylint: disable=too-many-lines
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.query import QuerySet
-from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.urls import NoReverseMatch, reverse
+from django.utils import timesince, timezone
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
+from swapper import load_model
+
 from notifications import settings as notifications_settings
 from notifications.signals import notify
 from notifications.utils import id2slug
-from swapper import load_model
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.urls import reverse, NoReverseMatch
 
-
-EXTRA_DATA = notifications_settings.get_config()['USE_JSONFIELD']
+EXTRA_DATA = notifications_settings.get_config()["USE_JSONFIELD"]
 
 
 def is_soft_delete():
-    return notifications_settings.get_config()['SOFT_DELETE']
+    return notifications_settings.get_config()["SOFT_DELETE"]
 
 
 def assert_soft_delete():
@@ -29,12 +29,13 @@ def assert_soft_delete():
         # msg = """To use 'deleted' field, please set 'SOFT_DELETE'=True in settings.
         # Otherwise NotificationQuerySet.unread and NotificationQuerySet.read do NOT filter by 'deleted' field.
         # """
-        msg = 'REVERTME'
+        msg = "REVERTME"
         raise ImproperlyConfigured(msg)
 
 
 class NotificationQuerySet(models.query.QuerySet):
-    ''' Notification QuerySet '''
+    """Notification QuerySet"""
+
     def unsent(self):
         return self.filter(emailed=False)
 
@@ -162,98 +163,96 @@ class AbstractNotification(models.Model):
 
     HTML Representation::
 
-        <a href="http://oebfare.com/">brosner</a> commented on <a href="http://github.com/pinax/pinax">pinax/pinax</a> 2 hours ago # noqa
+    <a href="http://test.com/">brosner</a> commented on <a href="http://gh.com/pinax/pinax">pinax/pinax</a> 2 hours ago
 
     """
-    level = models.IntegerField(_('level'), choices=NotificationLevel.choices, default=NotificationLevel.INFO)
+
+    level = models.IntegerField(_("level"), choices=NotificationLevel.choices, default=NotificationLevel.INFO)
 
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='notifications',
-        verbose_name=_('recipient'),
+        related_name="notifications",
+        verbose_name=_("recipient"),
         blank=False,
     )
-    unread = models.BooleanField(_('unread'), default=True, blank=False, db_index=True)
+    unread = models.BooleanField(_("unread"), default=True, blank=False, db_index=True)
 
     actor_content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        related_name='notify_actor',
-        verbose_name=_('actor content type')
+        ContentType, on_delete=models.CASCADE, related_name="notify_actor", verbose_name=_("actor content type")
     )
-    actor_object_id = models.CharField(_('actor object id'), max_length=255)
-    actor = GenericForeignKey('actor_content_type', 'actor_object_id')
-    actor.short_description = _('actor')
+    actor_object_id = models.CharField(_("actor object id"), max_length=255)
+    actor = GenericForeignKey("actor_content_type", "actor_object_id")
+    actor.short_description = _("actor")
 
-    verb = models.CharField(_('verb'), max_length=255)
-    description = models.TextField(_('description'), blank=True, null=True)
+    verb = models.CharField(_("verb"), max_length=255)
+    description = models.TextField(_("description"), blank=True, null=True)
 
     target_content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        related_name='notify_target',
-        verbose_name=_('target content type'),
+        related_name="notify_target",
+        verbose_name=_("target content type"),
         blank=True,
-        null=True
+        null=True,
     )
-    target_object_id = models.CharField(_('target object id'), max_length=255, blank=True, null=True)
-    target = GenericForeignKey('target_content_type', 'target_object_id')
-    target.short_description = _('target')
+    target_object_id = models.CharField(_("target object id"), max_length=255, blank=True, null=True)
+    target = GenericForeignKey("target_content_type", "target_object_id")
+    target.short_description = _("target")
 
     action_object_content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        related_name='notify_action_object',
-        verbose_name=_('action object content type'),
+        related_name="notify_action_object",
+        verbose_name=_("action object content type"),
         blank=True,
-        null=True
+        null=True,
     )
-    action_object_object_id = models.CharField(_('action object object id'), max_length=255, blank=True, null=True)
-    action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
-    action_object.short_description = _('action object')
+    action_object_object_id = models.CharField(_("action object object id"), max_length=255, blank=True, null=True)
+    action_object = GenericForeignKey("action_object_content_type", "action_object_object_id")
+    action_object.short_description = _("action object")
 
-    timestamp = models.DateTimeField(_('timestamp'), default=timezone.now, db_index=True)
+    timestamp = models.DateTimeField(_("timestamp"), default=timezone.now, db_index=True)
 
-    public = models.BooleanField(_('public'), default=True, db_index=True)
-    deleted = models.BooleanField(_('deleted'), default=False, db_index=True)
-    emailed = models.BooleanField(_('emailed'), default=False, db_index=True)
+    public = models.BooleanField(_("public"), default=True, db_index=True)
+    deleted = models.BooleanField(_("deleted"), default=False, db_index=True)
+    emailed = models.BooleanField(_("emailed"), default=False, db_index=True)
 
-    data = models.JSONField(_('data'), blank=True, null=True)
+    data = models.JSONField(_("data"), blank=True, null=True)
 
     objects = NotificationQuerySet.as_manager()
 
     class Meta:
         abstract = True
-        ordering = ('-timestamp',)
+        ordering = ("-timestamp",)
         # speed up notifications count query
-        index_together = ('recipient', 'unread')
-        verbose_name = _('Notification')
-        verbose_name_plural = _('Notifications')
+        index_together = ("recipient", "unread")
+        verbose_name = _("Notification")
+        verbose_name_plural = _("Notifications")
 
     def __str__(self):
         ctx = {
-            'actor': self.actor,
-            'verb': self.verb,
-            'action_object': self.action_object,
-            'target': self.target,
-            'timesince': self.timesince()
+            "actor": self.actor,
+            "verb": self.verb,
+            "action_object": self.action_object,
+            "target": self.target,
+            "timesince": self.timesince(),
         }
         if self.target:
             if self.action_object:
-                return _('%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago') % ctx
-            return _('%(actor)s %(verb)s %(target)s %(timesince)s ago') % ctx
+                return _("%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago") % ctx
+            return _("%(actor)s %(verb)s %(target)s %(timesince)s ago") % ctx
         if self.action_object:
-            return _('%(actor)s %(verb)s %(action_object)s %(timesince)s ago') % ctx
-        return _('%(actor)s %(verb)s %(timesince)s ago') % ctx
+            return _("%(actor)s %(verb)s %(action_object)s %(timesince)s ago") % ctx
+        return _("%(actor)s %(verb)s %(timesince)s ago") % ctx
 
     def timesince(self, now=None):
         """
         Shortcut for the ``django.utils.timesince.timesince`` function of the
         current timestamp.
         """
-        from django.utils.timesince import timesince as timesince_
-        return timesince_(self.timestamp, now)
+
+        return timesince.timesince(self.timestamp, now)
 
     @property
     def slug(self):
@@ -271,27 +270,30 @@ class AbstractNotification(models.Model):
 
     def actor_object_url(self):
         try:
-            url = reverse("admin:{0}_{1}_change".format(self.actor_content_type.app_label,
-                                                        self.actor_content_type.model),
-                          args=(self.actor_object_id,))
+            url = reverse(
+                f"admin:{self.actor_content_type.app_label}_{self.actor_content_type.model}_change",
+                args=(self.actor_object_id,),
+            )
             return format_html("<a href='{url}'>{id}</a>", url=url, id=self.actor_object_id)
         except NoReverseMatch:
             return self.actor_object_id
 
     def action_object_url(self):
         try:
-            url = reverse("admin:{0}_{1}_change".format(self.action_object_content_type.app_label,
-                                                        self.action_content_type.model),
-                          args=(self.action_object_id,))
+            url = reverse(
+                f"admin:{self.action_object_content_type.app_label}_{self.action_object_content_type.model}_change",
+                args=(self.action_object_id,),
+            )
             return format_html("<a href='{url}'>{id}</a>", url=url, id=self.action_object_object_id)
         except NoReverseMatch:
             return self.action_object_object_id
 
     def target_object_url(self):
         try:
-            url = reverse("admin:{0}_{1}_change".format(self.target_content_type.app_label,
-                                                        self.target_content_type.model),
-                          args=(self.target_object_id,))
+            url = reverse(
+                f"admin:{self.target_content_type.app_label}_{self.target_content_type.model}_change",
+                args=(self.target_object_id,),
+            )
             return format_html("<a href='{url}'>{id}</a>", url=url, id=self.target_object_id)
         except NoReverseMatch:
             return self.target_object_id
@@ -302,19 +304,16 @@ def notify_handler(verb, **kwargs):
     Handler function to create Notification instance upon action signal call.
     """
     # Pull the options out of kwargs
-    kwargs.pop('signal', None)
-    recipient = kwargs.pop('recipient')
-    actor = kwargs.pop('sender')
-    optional_objs = [
-        (kwargs.pop(opt, None), opt)
-        for opt in ('target', 'action_object')
-    ]
-    public = bool(kwargs.pop('public', True))
-    description = kwargs.pop('description', None)
-    timestamp = kwargs.pop('timestamp', timezone.now())
-    Notification = load_model('notifications', 'Notification')
-    level = kwargs.pop('level', NotificationLevel.INFO)
-    actor_for_concrete_model = kwargs.pop('actor_for_concrete_model', True)
+    kwargs.pop("signal", None)
+    recipient = kwargs.pop("recipient")
+    actor = kwargs.pop("sender")
+    optional_objs = [(kwargs.pop(opt, None), opt) for opt in ("target", "action_object")]
+    public = bool(kwargs.pop("public", True))
+    description = kwargs.pop("description", None)
+    timestamp = kwargs.pop("timestamp", timezone.now())
+    Notification = load_model("notifications", "Notification")  # pylint: disable=invalid-name
+    level = kwargs.pop("level", NotificationLevel.INFO)
+    actor_for_concrete_model = kwargs.pop("actor_for_concrete_model", True)
 
     # Check if User or Group
     if isinstance(recipient, Group):
@@ -341,10 +340,13 @@ def notify_handler(verb, **kwargs):
         # Set optional objects
         for obj, opt in optional_objs:
             if obj is not None:
-                for_concrete_model = kwargs.pop(f'{opt}_for_concrete_model', True)
-                setattr(newnotify, '%s_object_id' % opt, obj.pk)
-                setattr(newnotify, '%s_content_type' % opt,
-                        ContentType.objects.get_for_model(obj, for_concrete_model=for_concrete_model))
+                for_concrete_model = kwargs.pop(f"{opt}_for_concrete_model", True)
+                setattr(newnotify, f"{opt}_object_id", obj.pk)
+                setattr(
+                    newnotify,
+                    f"{opt}_content_type",
+                    ContentType.objects.get_for_model(obj, for_concrete_model=for_concrete_model),
+                )
 
         if kwargs and EXTRA_DATA:
             # set kwargs as model column if available
@@ -360,4 +362,4 @@ def notify_handler(verb, **kwargs):
 
 
 # connect the signal
-notify.connect(notify_handler, dispatch_uid='notifications.models.notification')
+notify.connect(notify_handler, dispatch_uid="notifications.models.notification")
