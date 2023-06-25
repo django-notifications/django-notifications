@@ -8,8 +8,6 @@ Replace this with more appropriate tests for your application.
 import json
 from datetime import datetime, timezone
 
-import pytz
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.exceptions import ImproperlyConfigured
@@ -49,9 +47,7 @@ class NotificationTest(TestCase):
         to_user = User.objects.create(username="to", password="pwd", email="example@example.com")
         notify.send(from_user, recipient=to_user, verb="commented", action_object=from_user)
         notification = Notification.objects.get(recipient=to_user)
-        delta = datetime.now().replace(tzinfo=timezone.utc) - localtime(
-            notification.timestamp, pytz.timezone(settings.TIME_ZONE)
-        )
+        delta = datetime.now(tz=timezone.utc) - localtime(notification.timestamp)
         self.assertTrue(delta.seconds < 60)
         # The delta between the two events will still be less than a second despite the different timezones
         # The call to now and the immediate call afterwards will be within a short period of time, not 8 hours as the

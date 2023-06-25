@@ -299,6 +299,7 @@ class AbstractNotification(models.Model):
             return self.target_object_id
 
 
+# TODO: move to notifications/signals.py
 def notify_handler(verb, **kwargs):
     """
     Handler function to create Notification instance upon action signal call.
@@ -361,5 +362,5 @@ def notify_handler(verb, **kwargs):
     return new_notifications
 
 
-# connect the signal
+# TODO: Move to notifications/apps.py::ready()
 notify.connect(notify_handler, dispatch_uid="notifications.models.notification")
