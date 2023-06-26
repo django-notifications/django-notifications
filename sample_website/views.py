@@ -24,7 +24,7 @@ def live_tester(request):
 
 
 def make_notification(request):
-    the_notification = random.choice(
+    the_notification = random.choice(  # nosec
         [
             "reticulating splines",
             "cleaning the car",

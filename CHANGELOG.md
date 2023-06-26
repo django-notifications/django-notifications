@@ -5,6 +5,7 @@
   - Added verbose_name migration
   - Migrated from `jsonfield` to Django `JSONField`
   - Converted the `level` field from a `CharField` to an `IntegerField`
+  - Extracted and improved the sample code
 
 ## 1.8.0
 

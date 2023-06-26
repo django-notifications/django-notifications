@@ -1,9 +1,10 @@
 """ Django notification settings for tests """
 # -*- coding: utf-8 -*-
 import os
+import socket
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-SECRET_KEY = "secret_key"
+SECRET_KEY = "secret_key"  # nosec
 
 DEBUG = True
 TESTING = True
@@ -16,6 +17,7 @@ DATABASES = {
 }
 
 MIDDLEWARE = (
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -28,11 +30,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sessions",
-    "notifications.tests",
+    "debug_toolbar",
+    # As "external" lib
     "notifications",
+    # The sample app
+    "sample_app",
 ]
 
-ROOT_URLCONF = "notifications.tests.urls"
+ROOT_URLCONF = "sample_website.urls"
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
@@ -42,12 +47,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static-files")
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
         "OPTIONS": {
-            "loaders": [
-                "django.template.loaders.filesystem.Loader",
-                "django.template.loaders.app_directories.Loader",
-            ],
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
@@ -67,10 +69,7 @@ DJANGO_NOTIFICATIONS_CONFIG = {
 }
 USE_TZ = True
 
-if os.environ.get("SAMPLE_APP", False):
-    INSTALLED_APPS.remove("notifications")
-    INSTALLED_APPS.append("notifications.tests.sample_notifications")
-    NOTIFICATIONS_NOTIFICATION_MODEL = "sample_notifications.Notification"
-    TEMPLATES[0]["DIRS"] += [os.path.join(BASE_DIR, "../templates")]
-
 ALLOWED_HOSTS = ["*"]
+
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
