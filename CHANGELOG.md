@@ -6,6 +6,7 @@
   - Migrated from `jsonfield` to Django `JSONField`
   - Converted the `level` field from a `CharField` to an `IntegerField`
   - Extracted and improved the sample code
+  - Fixed variable types on JS code
 
 ## 1.8.0
 

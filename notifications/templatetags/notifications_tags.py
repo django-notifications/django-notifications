@@ -59,7 +59,7 @@ def register_notify_callbacks(
         notify_unread_url='{reverse("notifications:unread")}';
         notify_mark_all_unread_url='{reverse("notifications:mark_all_as_read")}';
         notify_refresh_period={refresh_period};
-        notify_mark_as_read={mark_as_read};
+        notify_mark_as_read={str(mark_as_read).lower()};
     """
 
     # add a nonce value to the script tag if one is provided
@@ -67,7 +67,7 @@ def register_notify_callbacks(
 
     script = f'<script type="text/javascript"{nonce_str}>' + definitions
     for callback in callbacks.split(","):
-        script += f'register_notifier("{callback}");'
+        script += f"register_notifier({callback});"
     script += "</script>"
     return format_html(script)
 
