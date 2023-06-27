@@ -13,7 +13,6 @@ from swapper import load_model
 
 from notifications import settings as notification_settings
 from notifications.helpers import get_notification_list
-from notifications.utils import slug2id
 
 Notification = load_model("notifications", "Notification")
 
@@ -59,7 +58,7 @@ def mark_all_as_read(request):
 
 @login_required
 def mark_as_read(request, slug=None):
-    notification_id = slug2id(slug)
+    notification_id = slug
 
     notification = get_object_or_404(Notification, recipient=request.user, id=notification_id)
     notification.mark_as_read()
@@ -74,7 +73,7 @@ def mark_as_read(request, slug=None):
 
 @login_required
 def mark_as_unread(request, slug=None):
-    notification_id = slug2id(slug)
+    notification_id = slug
 
     notification = get_object_or_404(Notification, recipient=request.user, id=notification_id)
     notification.mark_as_unread()
@@ -89,7 +88,7 @@ def mark_as_unread(request, slug=None):
 
 @login_required
 def delete(request, slug=None):
-    notification_id = slug2id(slug)
+    notification_id = slug
 
     notification = get_object_or_404(Notification, recipient=request.user, id=notification_id)
 

@@ -23,7 +23,6 @@ from swapper import load_model
 
 from notifications.base.models import notify_handler
 from notifications.signals import notify
-from notifications.utils import id2slug
 
 Notification = load_model("notifications", "Notification")
 User = get_user_model()
@@ -222,7 +221,7 @@ class NotificationTestPages(TestCase):
 
         for index, notification in enumerate(self.to_user.notifications.all()):
             if index % 3 == 0:
-                response = self.client.get(reverse("notifications:mark_as_read", args=[id2slug(notification.id)]))
+                response = self.client.get(reverse("notifications:mark_as_read", args=[notification.id]))
                 self.assertEqual(response.status_code, 302)
 
         response = self.client.get(reverse("notifications:unread"))
@@ -248,7 +247,7 @@ class NotificationTestPages(TestCase):
         )
         self.assertRedirects(response, reverse("notifications:unread") + query_parameters)
 
-        slug = id2slug(self.to_user.notifications.first().id)
+        slug = self.to_user.notifications.first().id
         response = self.client.get(
             reverse("notifications:mark_as_read", args=[slug]),
             data={
@@ -257,7 +256,7 @@ class NotificationTestPages(TestCase):
         )
         self.assertRedirects(response, reverse("notifications:unread") + query_parameters)
 
-        slug = id2slug(self.to_user.notifications.first().id)
+        slug = self.to_user.notifications.first().id
         response = self.client.get(
             reverse("notifications:mark_as_unread", args=[slug]),
             {
@@ -283,7 +282,7 @@ class NotificationTestPages(TestCase):
     def test_delete_messages_pages(self):
         self.login("to", "pwd")
 
-        slug = id2slug(self.to_user.notifications.first().id)
+        slug = self.to_user.notifications.first().id
         response = self.client.get(reverse("notifications:delete", args=[slug]))
         self.assertRedirects(response, reverse("notifications:all"))
 
@@ -301,7 +300,7 @@ class NotificationTestPages(TestCase):
     def test_soft_delete_messages_manager(self):
         self.login("to", "pwd")
 
-        slug = id2slug(self.to_user.notifications.first().id)
+        slug = self.to_user.notifications.first().id
         response = self.client.get(reverse("notifications:delete", args=[slug]))
         self.assertRedirects(response, reverse("notifications:all"))
 
@@ -396,7 +395,7 @@ class NotificationTestPages(TestCase):
         self.assertEqual(data["unread_count"], 1)
         self.assertEqual(len(data["unread_list"]), 1)
         self.assertEqual(data["unread_list"][0]["verb"], "commented")
-        self.assertEqual(data["unread_list"][0]["slug"], id2slug(data["unread_list"][0]["id"]))
+        self.assertEqual(data["unread_list"][0]["slug"], data["unread_list"][0]["id"])
 
     def test_all_list_api(self):
         self.login("to", "pwd")
@@ -439,7 +438,7 @@ class NotificationTestPages(TestCase):
         self.assertEqual(data["all_count"], self.message_count + 1)
         self.assertEqual(len(data["all_list"]), self.message_count)
         self.assertEqual(data["all_list"][0]["verb"], "commented")
-        self.assertEqual(data["all_list"][0]["slug"], id2slug(data["all_list"][0]["id"]))
+        self.assertEqual(data["all_list"][0]["slug"], data["all_list"][0]["id"])
 
     def test_unread_list_api_mark_as_read(self):  # pylint: disable=invalid-name
         self.login("to", "pwd")

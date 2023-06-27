@@ -15,7 +15,6 @@ from swapper import load_model
 
 from notifications import settings as notifications_settings
 from notifications.signals import notify
-from notifications.utils import id2slug
 
 EXTRA_DATA = notifications_settings.get_config()["USE_JSONFIELD"]
 
@@ -256,7 +255,7 @@ class AbstractNotification(models.Model):
 
     @property
     def slug(self):
-        return id2slug(self.id)
+        return self.id
 
     def mark_as_read(self):
         if self.unread:

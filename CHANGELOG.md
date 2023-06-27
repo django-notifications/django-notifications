@@ -8,6 +8,7 @@
   - Extracted and improved the sample code
   - Fixed variable types on JS code
   - Added `/all/` for the path to all notifications
+  - Remove slug2id and id2slug
 
 ## 1.8.0
 

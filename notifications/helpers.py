@@ -1,7 +1,6 @@
 from django.forms import model_to_dict
 
 from notifications.settings import get_config
-from notifications.utils import id2slug
 
 
 def get_num_to_fetch(request):
@@ -22,7 +21,7 @@ def get_notification_list(request, method_name="all"):
     notification_list = []
     for notification in getattr(request.user.notifications, method_name)()[0:num_to_fetch]:
         struct = model_to_dict(notification)
-        struct["slug"] = id2slug(notification.id)
+        struct["slug"] = notification.id
         if notification.actor:
             struct["actor"] = str(notification.actor)
         if notification.target:
