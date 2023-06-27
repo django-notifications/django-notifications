@@ -7,6 +7,7 @@
   - Converted the `level` field from a `CharField` to an `IntegerField`
   - Extracted and improved the sample code
   - Fixed variable types on JS code
+  - Added `/all/` for the path to all notifications
 
 ## 1.8.0
 
