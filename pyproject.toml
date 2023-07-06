@@ -118,7 +118,7 @@ ignore = [
     "migrations",
 ]
 jobs = 0
-django-settings-module = "notifications.settings"
+django-settings-module = "notifications.tests.settings_for_tests"
 
 [tool.pylint.DESIGN]
 max-locals = 20
@@ -173,7 +173,7 @@ testpaths = [
     "tests",
     "integration",
 ]
-DJANGO_SETTINGS_MODULE = "notifications.tests.settings"
+DJANGO_SETTINGS_MODULE = "notifications.tests.settings_for_tests"
 django_debug_mode = "keep"
 
 [tool.coverage.run]
