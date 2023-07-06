@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     "notifications",
 ]
 
-ROOT_URLCONF = "notifications.urls"
+ROOT_URLCONF = "notifications.tests.urls_for_tests"
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
