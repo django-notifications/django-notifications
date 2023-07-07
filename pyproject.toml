@@ -69,9 +69,8 @@ classifiers = [
 ]
 packages = [
     {include = "notifications/*.py"},
-    {include = "notifications/base/"},
     {include = "notifications/migrations/"},
-    {include = "notifications/templatetags/"},
+    {include = "notifications/models/"},
     {include = "notifications/templatetags/"},
 ]
 include = [
