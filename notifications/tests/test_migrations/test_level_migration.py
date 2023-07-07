@@ -1,7 +1,7 @@
 import factory
 
-from ...base.models import NotificationLevel
-from ..factories import users as user_factory
+from notifications.models.base import NotificationLevel
+from notifications.tests.factories import users as user_factory
 
 
 def test_main_migration0002(migrator):

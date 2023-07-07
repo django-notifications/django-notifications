@@ -2,7 +2,7 @@
 
 from django.db import migrations
 
-from ..base.models import NotificationLevel
+from notifications.models import NotificationLevel
 
 
 def copy_level(apps, *args):

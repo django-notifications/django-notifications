@@ -11,7 +11,7 @@ CONFIG_DEFAULTS = {
 }
 
 
-def get_config():
+def get_config() -> dict[str, int | bool]:
     user_config = getattr(settings, "DJANGO_NOTIFICATIONS_CONFIG", {})
 
     config = CONFIG_DEFAULTS.copy()

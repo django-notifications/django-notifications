@@ -118,7 +118,7 @@ ignore = [
     "migrations",
 ]
 jobs = 0
-django-settings-module = "notifications.tests.settings_for_tests"
+django-settings-module = "notifications.settings"
 
 [tool.pylint.DESIGN]
 max-locals = 20

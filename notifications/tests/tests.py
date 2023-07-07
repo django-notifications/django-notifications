@@ -21,8 +21,7 @@ from django.urls import reverse
 from django.utils.timezone import localtime
 from swapper import load_model
 
-from notifications.base.models import notify_handler
-from notifications.signals import notify
+from notifications.signals import notify, notify_handler
 
 Notification = load_model("notifications", "Notification")
 User = get_user_model()

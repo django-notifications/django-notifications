@@ -8,3 +8,12 @@ class Config(AppConfig):
     name = "notifications"
     verbose_name = _("Notifications")
     default_auto_field = "django.db.models.AutoField"
+
+    def ready(self) -> None:
+        from notifications.signals import (  # pylint: disable=import-outside-toplevel
+            notify,
+            notify_handler,
+        )
+
+        notify.connect(notify_handler, dispatch_uid="notifications.models.notification")
+        return super().ready()
