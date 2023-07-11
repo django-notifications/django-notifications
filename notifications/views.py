@@ -11,8 +11,8 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import ListView
 from swapper import load_model
 
-from notifications import settings as notification_settings
 from notifications.helpers import get_notification_list
+from notifications.settings import notification_settings
 
 Notification = load_model("notifications", "Notification")
 
@@ -20,7 +20,7 @@ Notification = load_model("notifications", "Notification")
 class NotificationViewList(ListView):
     template_name = "notifications/list.html"
     context_object_name = "notifications"
-    paginate_by = notification_settings.get_config()["PAGINATE_BY"]
+    paginate_by = notification_settings.PAGINATE_BY
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -33,7 +33,7 @@ class AllNotificationsList(NotificationViewList):
     """
 
     def get_queryset(self):
-        if notification_settings.get_config()["SOFT_DELETE"]:
+        if notification_settings.SOFT_DELETE:
             qset = self.request.user.notifications.active()
         else:
             qset = self.request.user.notifications.all()
@@ -92,7 +92,7 @@ def delete(request, slug=None):
 
     notification = get_object_or_404(Notification, recipient=request.user, id=notification_id)
 
-    if notification_settings.get_config()["SOFT_DELETE"]:
+    if notification_settings.SOFT_DELETE:
         notification.deleted = True
         notification.save()
     else:

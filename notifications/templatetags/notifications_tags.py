@@ -5,14 +5,14 @@ from django.template import Library
 from django.urls import reverse
 from django.utils.html import format_html
 
-from notifications import settings
+from notifications.settings import notification_settings
 
 register = Library()
 
 
 def get_cached_notification_unread_count(user):
     return cache.get_or_set(
-        "cache_notification_unread_count", user.notifications.unread().count, settings.get_config()["CACHE_TIMEOUT"]
+        "cache_notification_unread_count", user.notifications.unread().count, notification_settings.CACHE_TIMEOUT
     )
 
 

@@ -1,10 +1,10 @@
 from django.forms import model_to_dict
 
-from notifications.settings import get_config
+from notifications.settings import notification_settings
 
 
 def get_num_to_fetch(request):
-    default_num_to_fetch = get_config()["NUM_TO_FETCH"]
+    default_num_to_fetch = notification_settings.NUM_TO_FETCH
     try:
         # If they don't specify, make it 5.
         num_to_fetch = request.GET.get("max", default_num_to_fetch)

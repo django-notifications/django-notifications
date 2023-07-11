@@ -4,12 +4,12 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from notifications import settings as notifications_settings
+from notifications.settings import notification_settings
 from notifications.types import AbstractUser
 
 
 def is_soft_delete() -> bool:
-    return bool(notifications_settings.get_config()["SOFT_DELETE"])
+    return notification_settings.SOFT_DELETE
 
 
 def assert_soft_delete() -> None:

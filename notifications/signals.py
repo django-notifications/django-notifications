@@ -8,10 +8,10 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from swapper import load_model
 
-from notifications import settings as notifications_settings
 from notifications.models.base import NotificationLevel
+from notifications.settings import notification_settings
 
-EXTRA_DATA = notifications_settings.get_config()["USE_JSONFIELD"]
+EXTRA_DATA = notification_settings.USE_JSONFIELD
 
 
 def notify_handler(verb, **kwargs):
