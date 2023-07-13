@@ -1,4 +1,4 @@
-from typing import Optional, Type
+from typing import Type
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
@@ -8,12 +8,8 @@ from notifications.settings import notification_settings
 from notifications.types import AbstractUser
 
 
-def is_soft_delete() -> bool:
-    return notification_settings.SOFT_DELETE
-
-
 def assert_soft_delete() -> None:
-    if not is_soft_delete():
+    if not notification_settings.SOFT_DELETE:
         # msg = """To use 'deleted' field, please set 'SOFT_DELETE'=True in settings.
         # Otherwise NotificationQuerySet.unread and NotificationQuerySet.read do NOT filter by 'deleted' field.
         # """
@@ -24,28 +20,30 @@ def assert_soft_delete() -> None:
 class NotificationQuerySet(models.QuerySet):
     """Notification QuerySet"""
 
-    def unsent(self) -> models.QuerySet["AbstractNotification"]:
+    def unsent(self) -> "NotificationQuerySet":
+        """Return only unsent items in the current queryset"""
         return self.filter(emailed=False)
 
-    def sent(self) -> models.QuerySet["AbstractNotification"]:
+    def sent(self) -> "NotificationQuerySet":
+        """Return only sent items in the current queryset"""
         return self.filter(emailed=True)
 
-    def unread(self, include_deleted: Optional[bool] = False) -> models.QuerySet["AbstractNotification"]:
+    def unread(self, include_deleted: bool = False) -> "NotificationQuerySet":
         """Return only unread items in the current queryset"""
-        if is_soft_delete() and not include_deleted:
+        if notification_settings.SOFT_DELETE and not include_deleted:
             return self.filter(unread=True, deleted=False)
 
-        # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
-        # In this case, to improve query performance, don't filter by 'deleted' field
+        # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field
+        # in this case, to improve query performance, don't filter by 'deleted' field
         return self.filter(unread=True)
 
-    def read(self, include_deleted: Optional[bool] = False) -> models.QuerySet["AbstractNotification"]:
+    def read(self, include_deleted: bool = False) -> "NotificationQuerySet":
         """Return only read items in the current queryset"""
-        if is_soft_delete() and not include_deleted:
+        if notification_settings.SOFT_DELETE and not include_deleted:
             return self.filter(unread=False, deleted=False)
 
-        # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field.
-        # In this case, to improve query performance, don't filter by 'deleted' field
+        # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field
+        # in this case, to improve query performance, don't filter by 'deleted' field
         return self.filter(unread=False)
 
     def mark_all_as_read(self, recipient: None | Type[AbstractUser] = None) -> int:
@@ -73,12 +71,12 @@ class NotificationQuerySet(models.QuerySet):
 
         return qset.update(unread=True)
 
-    def deleted(self) -> models.QuerySet["AbstractNotification"]:
+    def deleted(self) -> "NotificationQuerySet":
         """Return only deleted items in the current queryset"""
         assert_soft_delete()
         return self.filter(deleted=True)
 
-    def active(self) -> models.QuerySet["AbstractNotification"]:
+    def active(self) -> "NotificationQuerySet":
         """Return only active(un-deleted) items in the current queryset"""
         assert_soft_delete()
         return self.filter(deleted=False)
