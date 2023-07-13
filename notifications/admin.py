@@ -1,8 +1,11 @@
 """ Django notifications admin file """
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from django.http import HttpRequest
 from django.utils.translation import gettext_lazy
 from swapper import load_model
+
+from notifications.querysets import NotificationQuerySet
 
 Notification = load_model("notifications", "Notification")
 
@@ -20,14 +23,14 @@ class NotificationAdmin(admin.ModelAdmin):
     )
     actions = ("mark_unread", "mark_read")
 
-    def get_queryset(self, request):
+    def get_queryset(self, request: HttpRequest):
         qs = super().get_queryset(request)
         return qs.prefetch_related("actor")
 
     @admin.action(description=gettext_lazy("Mark selected notifications as unread"))
-    def mark_unread(self, request, queryset):
+    def mark_unread(self, request: HttpRequest, queryset: NotificationQuerySet):
         queryset.update(unread=True)
 
     @admin.action(description=gettext_lazy("Mark selected notifications as read"))
-    def mark_read(self, request, queryset):
+    def mark_read(self, request: HttpRequest, queryset: NotificationQuerySet):
         queryset.update(unread=False)
