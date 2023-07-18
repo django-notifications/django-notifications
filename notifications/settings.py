@@ -35,7 +35,7 @@ class NotificationSettings:
 
     Note:
     This is an internal class that is only compatible with settings namespaced
-    under the NOTIFICATION_SETTINGS name. It is not intended to be used by 3rd-party
+    under the DJANGO_NOTIFICATIONS_CONFIG name. It is not intended to be used by 3rd-party
     apps, and test helpers like `override_settings` may not work as expected.
     """
 
@@ -47,7 +47,7 @@ class NotificationSettings:
     @property
     def user_settings(self) -> NotificationDefaultsType:
         if not self._user_settings:
-            self._user_settings = NotificationDefaultsType(getattr(settings, "NOTIFICATION_SETTINGS", {}))
+            self._user_settings = NotificationDefaultsType(**getattr(settings, "DJANGO_NOTIFICATIONS_CONFIG") or {})
         return self._user_settings
 
     def __getattr__(self, attr: str) -> NotificationDefaultsType:
@@ -78,7 +78,7 @@ notification_settings = NotificationSettings(NOTIFICATION_DEFAULTS)
 
 def reload_notification_settings(*args: Any, **kwargs: Any):
     setting = kwargs["setting"]
-    if setting == "NOTIFICATION_SETTINGS":
+    if setting == "DJANGO_NOTIFICATIONS_CONFIG":
         notification_settings.reload()
 
 

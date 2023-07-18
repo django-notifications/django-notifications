@@ -67,7 +67,7 @@ def test_query_read_unread_methods(read, method):
         (True, Notification.objects.unread),
     ),
 )
-@override_settings(NOTIFICATION_SETTINGS={"SOFT_DELETE": True})
+@override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True})
 @pytest.mark.django_db
 def test_query_read_unread_with_deleted_notifications(read, method):
     NotificationFactory.create_batch(3, unread=read)
