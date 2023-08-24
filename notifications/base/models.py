@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
-from distutils.version import \
-    StrictVersion  # pylint: disable=no-name-in-module,import-error
+from packaging.version import \
+    Version  # pylint: disable=no-name-in-module,import-error
 
 from django import get_version
 from django.conf import settings
@@ -21,7 +21,7 @@ from notifications.signals import notify
 from notifications.utils import id2slug
 from swapper import load_model
 
-if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
+if Version(get_version()) >= Version('1.8.0'):
     from django.contrib.contenttypes.fields import GenericForeignKey  # noqa
 else:
     from django.contrib.contenttypes.generic import GenericForeignKey  # noqa
