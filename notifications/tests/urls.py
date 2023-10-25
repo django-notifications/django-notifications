@@ -1,15 +1,19 @@
 ''' Django notification urls for tests '''
 # -*- coding: utf-8 -*-
-from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
-
 from django import get_version
 from django.contrib import admin
-from notifications.tests.views import (live_tester,  # pylint: disable=no-name-in-module,import-error
-                                       make_notification)
+from packaging.version import (
+    parse as parse_version,  # pylint: disable=no-name-in-module,import-error
+)
 
-if StrictVersion(get_version()) >= StrictVersion('2.1'):
-    from django.urls import include, path  # noqa
+from notifications.tests.views import (
+    live_tester,  # pylint: disable=no-name-in-module,import-error
+)
+from notifications.tests.views import make_notification
+
+if parse_version(get_version()) >= parse_version('2.1'):
     from django.contrib.auth.views import LoginView
+    from django.urls import include, path  # noqa
     urlpatterns = [
         path('test_make/', make_notification),
         path('test/', live_tester),
@@ -17,9 +21,9 @@ if StrictVersion(get_version()) >= StrictVersion('2.1'):
         path('admin/', admin.site.urls),
         path('', include('notifications.urls', namespace='notifications')),
     ]
-elif StrictVersion(get_version()) >= StrictVersion('2.0') and StrictVersion(get_version()) < StrictVersion('2.1'):
-    from django.urls import include, path  # noqa
+elif parse_version(get_version()) >= parse_version('2.0') and parse_version(get_version()) < parse_version('2.1'):
     from django.contrib.auth.views import login
+    from django.urls import include, path  # noqa
     urlpatterns = [
         path('test_make/', make_notification),
         path('test/', live_tester),

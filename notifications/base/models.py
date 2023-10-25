@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
-from distutils.version import \
-    StrictVersion  # pylint: disable=no-name-in-module,import-error
-
 from django import get_version
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -11,27 +8,33 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.query import QuerySet
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
-
+from django.utils.translation import gettext_lazy as _
 from jsonfield.fields import JSONField
 from model_utils import Choices
+from packaging.version import (
+    parse as parse_version,  # pylint: disable=no-name-in-module,import-error
+)
+from swapper import load_model
+
 from notifications import settings as notifications_settings
 from notifications.signals import notify
 from notifications.utils import id2slug
-from swapper import load_model
 
-if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
+if parse_version(get_version()) >= parse_version('1.8.0'):
     from django.contrib.contenttypes.fields import GenericForeignKey  # noqa
 else:
     from django.contrib.contenttypes.generic import GenericForeignKey  # noqa
 
 try:
     # Django >= 1.7
-    from django.urls import reverse, NoReverseMatch
+    from django.urls import NoReverseMatch, reverse
 except ImportError:
     # Django <= 1.6
-    from django.core.urlresolvers import reverse, NoReverseMatch  # pylint: disable=no-name-in-module,import-error
+    from django.core.urlresolvers import (  # pylint: disable=no-name-in-module,import-error
+        NoReverseMatch,
+        reverse,
+    )
 
 EXTRA_DATA = notifications_settings.get_config()['USE_JSONFIELD']
 
