@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 ''' Django Notifications example views '''
-from distutils.version import \
-    StrictVersion  # pylint: disable=no-name-in-module,import-error
-
 from django import get_version
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -12,6 +9,9 @@ from django.utils.encoding import iri_to_uri
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
 from django.views.generic import ListView
+from packaging.version import (
+    parse as parse_version,  # pylint: disable=no-name-in-module,import-error
+)
 from swapper import load_model
 
 from notifications import settings as notification_settings
@@ -20,7 +20,7 @@ from notifications.utils import slug2id
 
 Notification = load_model('notifications', 'Notification')
 
-if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
+if parse_version(get_version()) >= parse_version('1.7.0'):
     from django.http import JsonResponse  # noqa
 else:
     # Django 1.6 doesn't have a proper JsonResponse
