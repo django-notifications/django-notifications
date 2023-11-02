@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: poetry install
       - name: Run Pylint
-        run: poetry run pylint --django-settings-module="notifications.settings" notifications/
+        run: poetry run pylint --rcfile=pyproject.toml notifications/ sample_website/
       - name: Run Bandit
         run: poetry run bandit -c pyproject.toml -r notifications/
 
