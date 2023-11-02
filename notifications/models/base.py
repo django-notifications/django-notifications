@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=too-many-lines
 import datetime
 
 from django.conf import settings

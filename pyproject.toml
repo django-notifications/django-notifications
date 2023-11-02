@@ -118,6 +118,9 @@ ignore = [
 ]
 jobs = 0
 django-settings-module = "notifications.settings"
+fail-on=[
+    "useless-suppression",
+]
 
 [tool.pylint.DESIGN]
 max-locals = 20
@@ -125,6 +128,9 @@ max-args = 10
 max-parents = 10
 
 [tool.pylint.'MESSAGES CONTROL']
+enable = [
+    "useless-suppression",
+]
 disable = [
     "missing-function-docstring",
     "missing-class-docstring",

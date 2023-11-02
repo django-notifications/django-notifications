@@ -76,7 +76,7 @@ class NotificationSettings:
 notification_settings = NotificationSettings(NOTIFICATION_DEFAULTS)
 
 
-def reload_notification_settings(*args: Any, **kwargs: Any):
+def reload_notification_settings(*args: Any, **kwargs: Any):  # pylint: disable=unused-argument
     setting = kwargs["setting"]
     if setting == "DJANGO_NOTIFICATIONS_CONFIG":
         notification_settings.reload()

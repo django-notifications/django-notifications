@@ -34,7 +34,7 @@ def has_notification(user):
 # Requires vanilla-js framework - http://vanilla-js.com/
 @register.simple_tag
 def register_notify_callbacks(
-    badge_class="live_notify_badge",  # pylint: disable=too-many-arguments,missing-docstring
+    badge_class="live_notify_badge",
     menu_class="live_notify_list",
     refresh_period=15,
     callbacks="",
