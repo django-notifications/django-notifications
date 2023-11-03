@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.urls import include, path
 
-from .views import live_tester, make_notification
+from sample_website.views import live_tester, make_notification
 
 urlpatterns = [
     path("__debug__/", include("debug_toolbar.urls")),

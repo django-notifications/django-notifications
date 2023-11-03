@@ -20,8 +20,7 @@ repos:
     rev: v2.17.4
     hooks:
     -   id: pylint
-        name: pylint
-        entry: poetry run pylint
+        entry: poetry run -- pylint
         language: system
         args: ["--rcfile=pyproject.toml"]
 
@@ -30,3 +29,8 @@ repos:
     hooks:
     -   id: bandit
         args: ["-c", "pyproject.toml"]
+
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.9.0
+    hooks:
+      - id: mypy

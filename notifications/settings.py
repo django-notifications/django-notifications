@@ -1,6 +1,6 @@
 """ Django notifications settings file """
 # -*- coding: utf-8 -*-
-from typing import Any, TypedDict
+from typing import Any, TypedDict, Union
 
 from django.conf import settings
 
@@ -39,15 +39,17 @@ class NotificationSettings:
     apps, and test helpers like `override_settings` may not work as expected.
     """
 
-    def __init__(self, defaults: None | NotificationDefaultsType = None):
-        self._user_settings = None
-        self.defaults = defaults or NotificationDefaultsType(**NOTIFICATION_DEFAULTS)
+    def __init__(self, defaults: Union[None, NotificationDefaultsType] = None):
+        self._user_settings: Union[NotificationDefaultsType, None] = None
+        self.defaults = defaults or NotificationDefaultsType(**NOTIFICATION_DEFAULTS)  # type: ignore[typeddict-item]
         self._cached_attrs: set[str] = set()
 
     @property
     def user_settings(self) -> NotificationDefaultsType:
         if not self._user_settings:
-            self._user_settings = NotificationDefaultsType(**getattr(settings, "DJANGO_NOTIFICATIONS_CONFIG") or {})
+            self._user_settings = NotificationDefaultsType(
+                **getattr(settings, "DJANGO_NOTIFICATIONS_CONFIG") or {}
+            )  # type: ignore[typeddict-item]
         return self._user_settings
 
     def __getattr__(self, attr: str) -> NotificationDefaultsType:
@@ -56,10 +58,10 @@ class NotificationSettings:
 
         try:
             # Check if present in user settings
-            val = self.user_settings[attr]
+            val = self.user_settings[attr]  # type: ignore[literal-required]
         except KeyError:
             # Fall back to defaults
-            val = self.defaults[attr]
+            val = self.defaults[attr]  # type: ignore[literal-required]
 
         # Cache the result
         self._cached_attrs.add(attr)
@@ -73,7 +75,9 @@ class NotificationSettings:
         self._user_settings = None
 
 
-notification_settings = NotificationSettings(NOTIFICATION_DEFAULTS)
+notification_settings = NotificationSettings(
+    NotificationDefaultsType(**NOTIFICATION_DEFAULTS)  # type: ignore[typeddict-item]
+)
 
 
 def reload_notification_settings(*args: Any, **kwargs: Any):  # pylint: disable=unused-argument

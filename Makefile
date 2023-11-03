@@ -1,14 +1,18 @@
 up:
 	docker-compose up --remove-orphans
+
 tests:
-	poetry run python -m tox run-parallel
+	tox run-parallel -p auto
+
+test-latest:
+	tox run -e py3.11-django42
 
 server:
 	poetry run python manage.py runserver 0.0.0.0:8000
 
 run: server
 
-makemigrations:
+migrations:
 	poetry run python manage.py makemigrations
 
 migrate:
@@ -17,8 +21,20 @@ migrate:
 shell:
 	poetry run python manage.py shell
 
+isort:
+	poetry run pre-commit run --all-files isort
+
+black:
+	poetry run pre-commit run --all-files black
+
 pylint:
-	poetry run pylint --django-settings-module="notifications.settings" notifications/
+	poetry run pre-commit run --all-files pylint
 
 bandit:
-	poetry run bandit -c pyproject.toml -r notifications/
+	poetry run pre-commit run --all-files bandit
+
+mypy:
+	poetry run pre-commit run --all-files mypy
+
+lint:
+	poetry run pre-commit run --all-files

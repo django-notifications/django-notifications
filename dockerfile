@@ -20,4 +20,4 @@ RUN pyenv local system 3.8 3.9 3.10
 RUN apt-get --purge autoremove -y gnupg; \
     rm -rf /var/cache/apt/lists;
 
-ENTRYPOINT poetry install && poetry run pre-commit install && /bin/bash
+ENTRYPOINT poetry install && poetry run -- pre-commit install && /bin/bash

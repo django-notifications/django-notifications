@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2.0.0
+  - Migrated to Github CI
   - Added docker environment and migrated to Poetry and pyproject.toml
   - Added verbose_name migration
   - Migrated from `jsonfield` to Django `JSONField`

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+from typing import Union
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -130,7 +131,7 @@ class AbstractNotification(models.Model):
             return _("%(actor)s %(verb)s %(action_object)s %(timesince)s ago") % ctx
         return _("%(actor)s %(verb)s %(timesince)s ago") % ctx
 
-    def timesince(self, now: None | datetime.datetime = None) -> str:
+    def timesince(self, now: Union[None, datetime.datetime] = None) -> str:
         """
         Shortcut for the ``django.utils.timesince.timesince`` function of the
         current timestamp.

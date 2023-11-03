@@ -1,0 +1,105 @@
+# Based on
+# https://pypi.org/project/tox-gh-actions/
+
+---
+name: Test the application.
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  code-check:
+    name: Code checking
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install poetry
+        run: pipx install poetry
+      - name: Set python version for poetry
+        run: poetry env use python3.11
+      - name: Install dependencies
+        run: poetry install -E lint
+      - name: Run Isort
+        run: poetry run -v -- isort -c notifications/ sample_website/
+      - name: Run Black
+        run: poetry run -v -- black --check notifications/ sample_website/
+      - name: Run Pylint
+        run: poetry run -vvv -- pylint --rcfile=pyproject.toml --recursive=y -v notifications/ sample_website/
+      - name: Run Bandit
+        run: poetry run -v -- bandit -c pyproject.toml -r notifications/ sample_website/
+      - name: Run Mypy
+        run: poetry run -v -- mypy
+
+  test:
+    name: Testing
+    runs-on: ubuntu-latest
+    needs: code-check
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        django-version: ["3.2.0", "4.0.0", "4.1.0", "4.2.0"]
+        exclude:
+          - python-version: "3.11"
+            django-version: ["3.2", "4.0.0"]
+          - python-version: "3.12"
+            django-version: ["3.2", "4.0.0", "4.1.0"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install poetry
+        run: pipx install poetry
+      - name: Set python version for poetry
+        run: poetry env use python${{ matrix.python-version }}
+      - name: Install Django
+        run: poetry add --lock django@~${{ matrix.django-version }}
+      - name: Install dependencies
+        run: poetry install -E test
+      - name: Run tests
+        run: poetry run -- pytest
+        env:
+          COVERAGE_FILE: ".coverage.${{ matrix.python-version }}.${{ matrix.django-version }}"
+      - name: Store coverage file
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}-${{ matrix.django-version }}
+          path: .coverage.${{ matrix.python-version }}.${{ matrix.django-version }}
+
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        id: download
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+
+      - name: Coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_COVERAGE_FILES: true
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v4
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action
+          path: python-coverage-comment-action.txt

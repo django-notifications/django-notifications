@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
@@ -46,7 +46,7 @@ class NotificationQuerySet(models.QuerySet):
         # in this case, to improve query performance, don't filter by 'deleted' field
         return self.filter(unread=False)
 
-    def mark_all_as_read(self, recipient: None | Type[AbstractUser] = None) -> int:
+    def mark_all_as_read(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
         """Mark as read any unread messages in the current queryset.
 
         Optionally, filter these by recipient first.
@@ -59,7 +59,7 @@ class NotificationQuerySet(models.QuerySet):
 
         return qset.update(unread=False)
 
-    def mark_all_as_unread(self, recipient: None | Type[AbstractUser] = None) -> int:
+    def mark_all_as_unread(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
         """Mark as unread any read messages in the current queryset.
 
         Optionally, filter these by recipient first.
@@ -81,7 +81,7 @@ class NotificationQuerySet(models.QuerySet):
         assert_soft_delete()
         return self.filter(deleted=False)
 
-    def mark_all_as_deleted(self, recipient: None | Type[AbstractUser] = None) -> int:
+    def mark_all_as_deleted(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
         """Mark current queryset as deleted.
         Optionally, filter by recipient first.
         """
@@ -92,7 +92,7 @@ class NotificationQuerySet(models.QuerySet):
 
         return qset.update(deleted=True)
 
-    def mark_all_as_active(self, recipient: None | Type[AbstractUser] = None) -> int:
+    def mark_all_as_active(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
         """Mark current queryset as active(un-deleted).
         Optionally, filter by recipient first.
         """
@@ -103,13 +103,13 @@ class NotificationQuerySet(models.QuerySet):
 
         return qset.update(deleted=False)
 
-    def mark_as_unsent(self, recipient: None | Type[AbstractUser] = None) -> int:
+    def mark_as_unsent(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
         qset = self.sent()
         if recipient:
             qset = qset.filter(recipient=recipient)
         return qset.update(emailed=False)
 
-    def mark_as_sent(self, recipient: None | Type[AbstractUser] = None) -> int:
+    def mark_as_sent(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
         qset = self.unsent()
         if recipient:
             qset = qset.filter(recipient=recipient)
