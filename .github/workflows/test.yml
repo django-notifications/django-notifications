@@ -25,7 +25,7 @@ jobs:
       - name: Run Pylint
         run: poetry run pylint --rcfile=pyproject.toml notifications/ sample_website/
       - name: Run Bandit
-        run: poetry run bandit -c pyproject.toml -r notifications/
+        run: poetry run bandit -c pyproject.toml -r notifications/ sample_website/
 
 
   test:

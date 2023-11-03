@@ -113,8 +113,8 @@ load-plugins = [
     "pylint_django",
     "pylint.extensions.mccabe",
 ]
-ignore = [
-    "migrations",
+ignore-paths = [
+    "notifications/migrations/",
 ]
 jobs = 0
 django-settings-module = "notifications.settings"
