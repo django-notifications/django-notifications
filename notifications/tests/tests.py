@@ -1,8 +1,8 @@
-"""
+'''
 This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
+when you run 'manage.py test'.
 Replace this with more appropriate tests for your application.
-"""
+'''
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines,missing-docstring
 import json
@@ -22,7 +22,7 @@ from notifications.signals import notify
 from notifications.utils import id2slug
 from swapper import load_model
 
-Notification = load_model("notifications", "Notification")
+Notification = load_model('notifications', 'Notification')
 
 try:
     # Django >= 1.7
@@ -50,20 +50,14 @@ MALICIOUS_NEXT_URLS = [
 
 
 class NotificationTest(TestCase):
-    """Django notifications automated tests"""
+    '''Django notifications automated tests'''
 
     @override_settings(USE_TZ=True)
-    @override_settings(TIME_ZONE="Asia/Shanghai")
+    @override_settings(TIME_ZONE='Asia/Shanghai')
     def test_use_timezone(self):
-        from_user = User.objects.create(
-            username="from", password="pwd", email="example@example.com"
-        )
-        to_user = User.objects.create(
-            username="to", password="pwd", email="example@example.com"
-        )
-        notify.send(
-            from_user, recipient=to_user, verb="commented", action_object=from_user
-        )
+        from_user = User.objects.create(username="from", password="pwd", email="example@example.com")
+        to_user = User.objects.create(username="to", password="pwd", email="example@example.com")
+        notify.send(from_user, recipient=to_user, verb='commented', action_object=from_user)
         notification = Notification.objects.get(recipient=to_user)
         delta = timezone.now().replace(tzinfo=utc) - localtime(
             notification.timestamp, pytz.timezone(settings.TIME_ZONE)
@@ -74,63 +68,39 @@ class NotificationTest(TestCase):
         # test above was originally.
 
     @override_settings(USE_TZ=False)
-    @override_settings(TIME_ZONE="Asia/Shanghai")
+    @override_settings(TIME_ZONE='Asia/Shanghai')
     def test_disable_timezone(self):
-        from_user = User.objects.create(
-            username="from2", password="pwd", email="example@example.com"
-        )
-        to_user = User.objects.create(
-            username="to2", password="pwd", email="example@example.com"
-        )
-        notify.send(
-            from_user, recipient=to_user, verb="commented", action_object=from_user
-        )
+        from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
+        to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
+        notify.send(from_user, recipient=to_user, verb='commented', action_object=from_user)
         notification = Notification.objects.get(recipient=to_user)
         delta = timezone.now() - notification.timestamp
         self.assertTrue(delta.seconds < 60)
 
     def test_humanize_naturalday_timestamp(self):
-        from_user = User.objects.create(
-            username="from2", password="pwd", email="example@example.com"
-        )
-        to_user = User.objects.create(
-            username="to2", password="pwd", email="example@example.com"
-        )
-        notify.send(
-            from_user, recipient=to_user, verb="commented", action_object=from_user
-        )
+        from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
+        to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
+        notify.send(from_user, recipient=to_user, verb='commented', action_object=from_user)
         notification = Notification.objects.get(recipient=to_user)
-        self.assertEqual(notification.naturalday(), "today")
+        self.assertEqual(notification.naturalday(), 'today')
 
     def test_humanize_naturaltime_timestamp(self):
-        from_user = User.objects.create(
-            username="from2", password="pwd", email="example@example.com"
-        )
-        to_user = User.objects.create(
-            username="to2", password="pwd", email="example@example.com"
-        )
-        notify.send(
-            from_user, recipient=to_user, verb="commented", action_object=from_user
-        )
+        from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
+        to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
+        notify.send(from_user, recipient=to_user, verb='commented', action_object=from_user)
         notification = Notification.objects.get(recipient=to_user)
-        self.assertEqual(notification.naturaltime(), "now")
+        self.assertEqual(notification.naturaltime(), 'now')
 
 
 class NotificationManagersTest(TestCase):
-    """Django notifications Manager automated tests"""
+    '''Django notifications Manager automated tests'''
 
     def setUp(self):
         self.message_count = 10
-        self.other_user = User.objects.create(
-            username="other1", password="pwd", email="example@example.com"
-        )
+        self.other_user = User.objects.create(username="other1", password="pwd", email="example@example.com")
 
-        self.from_user = User.objects.create(
-            username="from2", password="pwd", email="example@example.com"
-        )
-        self.to_user = User.objects.create(
-            username="to2", password="pwd", email="example@example.com"
-        )
+        self.from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
+        self.to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
         self.to_group = Group.objects.create(name="to2_g")
         self.to_user_list = User.objects.all()
         self.to_group.user_set.add(self.to_user)
@@ -140,14 +110,14 @@ class NotificationManagersTest(TestCase):
             notify.send(
                 self.from_user,
                 recipient=self.to_user,
-                verb="commented",
+                verb='commented',
                 action_object=self.from_user,
             )
         # Send notification to group
         notify.send(
             self.from_user,
             recipient=self.to_group,
-            verb="commented",
+            verb='commented',
             action_object=self.from_user,
         )
         self.message_count += self.to_group.user_set.count()
@@ -155,7 +125,7 @@ class NotificationManagersTest(TestCase):
         notify.send(
             self.from_user,
             recipient=self.to_user_list,
-            verb="commented",
+            verb='commented',
             action_object=self.from_user,
         )
         self.message_count += len(self.to_user_list)
@@ -164,7 +134,7 @@ class NotificationManagersTest(TestCase):
         results = notify.send(
             self.from_user,
             recipient=self.to_user,
-            verb="commented",
+            verb='commented',
             action_object=self.from_user,
         )
         for result in results:
@@ -177,7 +147,7 @@ class NotificationManagersTest(TestCase):
         results = notify.send(
             self.from_user,
             recipient=self.to_group,
-            verb="commented",
+            verb='commented',
             action_object=self.from_user,
         )
         for result in results:
@@ -208,24 +178,16 @@ class NotificationManagersTest(TestCase):
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
         self.assertEqual(self.to_user.notifications.unread().count(), 0)
 
-    @override_settings(
-        DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True}
-    )  # pylint: disable=invalid-name
+    @override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True})  # pylint: disable=invalid-name
     def test_mark_all_as_read_manager_with_soft_delete(self):
         # even soft-deleted notifications should be marked as read
         # refer: https://github.com/django-notifications/django-notifications/issues/126
-        to_delete = Notification.objects.filter(recipient=self.to_user).order_by("id")[
-            0
-        ]
+        to_delete = Notification.objects.filter(recipient=self.to_user).order_by("id")[0]
         to_delete.deleted = True
         to_delete.save()
-        self.assertTrue(
-            Notification.objects.filter(recipient=self.to_user).order_by("id")[0].unread
-        )
+        self.assertTrue(Notification.objects.filter(recipient=self.to_user).order_by("id")[0].unread)
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
-        self.assertFalse(
-            Notification.objects.filter(recipient=self.to_user).order_by("id")[0].unread
-        )
+        self.assertFalse(Notification.objects.filter(recipient=self.to_user).order_by("id")[0].unread)
 
     def test_mark_all_as_unread_manager(self):
         self.assertEqual(Notification.objects.unread().count(), self.message_count)
@@ -239,12 +201,10 @@ class NotificationManagersTest(TestCase):
     ):  # pylint: disable=invalid-name
         self.assertRaises(ImproperlyConfigured, Notification.objects.active)
         self.assertRaises(ImproperlyConfigured, Notification.objects.active)
-        self.assertRaises(
-            ImproperlyConfigured, Notification.objects.mark_all_as_deleted
-        )
+        self.assertRaises(ImproperlyConfigured, Notification.objects.mark_all_as_deleted)
         self.assertRaises(ImproperlyConfigured, Notification.objects.mark_all_as_active)
 
-    @override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True})
+    @override_settings(DJANGO_NOTIFICATIONS_CONFIG={'SOFT_DELETE': True})
     def test_mark_all_deleted_manager(self):
         notification = Notification.objects.filter(recipient=self.to_user).first()
         notification.mark_as_read()
@@ -271,12 +231,8 @@ class NotificationTestPages(TestCase):
 
     def setUp(self):
         self.message_count = 10
-        self.from_user = User.objects.create_user(
-            username="from", password="pwd", email="example@example.com"
-        )
-        self.to_user = User.objects.create_user(
-            username="to", password="pwd", email="example@example.com"
-        )
+        self.from_user = User.objects.create_user(username="from", password="pwd", email="example@example.com")
+        self.to_user = User.objects.create_user(username="to", password="pwd", email="example@example.com")
         self.to_user.is_staff = True
         self.to_user.save()
         for _ in range(self.message_count):
@@ -292,9 +248,7 @@ class NotificationTestPages(TestCase):
 
     def login(self, username, password):
         self.logout()
-        response = self.client.post(
-            reverse("login"), {"username": username, "password": password}
-        )
+        response = self.client.post(reverse("login"), {"username": username, "password": password})
         self.assertEqual(response.status_code, 302)
         return response
 
@@ -320,11 +274,7 @@ class NotificationTestPages(TestCase):
 
         for index, notification in enumerate(self.to_user.notifications.all()):
             if index % 3 == 0:
-                response = self.client.get(
-                    reverse(
-                        "notifications:mark_as_read", args=[id2slug(notification.id)]
-                    )
-                )
+                response = self.client.get(reverse("notifications:mark_as_read", args=[id2slug(notification.id)]))
                 self.assertEqual(response.status_code, 302)
 
         response = self.client.get(reverse("notifications:unread"))
@@ -354,9 +304,7 @@ class NotificationTestPages(TestCase):
                 "next": reverse("notifications:unread") + query_parameters,
             },
         )
-        self.assertRedirects(
-            response, reverse("notifications:unread") + query_parameters
-        )
+        self.assertRedirects(response, reverse("notifications:unread") + query_parameters)
 
         slug = id2slug(self.to_user.notifications.first().id)
         response = self.client.get(
@@ -365,9 +313,7 @@ class NotificationTestPages(TestCase):
                 "next": reverse("notifications:unread") + query_parameters,
             },
         )
-        self.assertRedirects(
-            response, reverse("notifications:unread") + query_parameters
-        )
+        self.assertRedirects(response, reverse("notifications:unread") + query_parameters)
 
         slug = id2slug(self.to_user.notifications.first().id)
         response = self.client.get(
@@ -376,9 +322,7 @@ class NotificationTestPages(TestCase):
                 "next": reverse("notifications:unread") + query_parameters,
             },
         )
-        self.assertRedirects(
-            response, reverse("notifications:unread") + query_parameters
-        )
+        self.assertRedirects(response, reverse("notifications:unread") + query_parameters)
 
     @override_settings(ALLOWED_HOSTS=["www.notifications.com"])
     def test_malicious_next_pages(self):
@@ -417,9 +361,7 @@ class NotificationTestPages(TestCase):
         )
         self.assertEqual(len(response.context["notifications"]), self.message_count - 1)
 
-    @override_settings(
-        DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True}
-    )  # pylint: disable=invalid-name
+    @override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True})  # pylint: disable=invalid-name
     def test_soft_delete_messages_manager(self):
         self.login("to", "pwd")
 
@@ -446,17 +388,13 @@ class NotificationTestPages(TestCase):
     def test_unread_count_api(self):
         self.login("to", "pwd")
 
-        response = self.client.get(
-            reverse("notifications:live_unread_notification_count")
-        )
+        response = self.client.get(reverse("notifications:live_unread_notification_count"))
         data = json.loads(response.content.decode("utf-8"))
         self.assertEqual(list(data.keys()), ["unread_count"])
         self.assertEqual(data["unread_count"], self.message_count)
 
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
-        response = self.client.get(
-            reverse("notifications:live_unread_notification_count")
-        )
+        response = self.client.get(reverse("notifications:live_unread_notification_count"))
         data = json.loads(response.content.decode("utf-8"))
         self.assertEqual(list(data.keys()), ["unread_count"])
         self.assertEqual(data["unread_count"], 0)
@@ -467,9 +405,7 @@ class NotificationTestPages(TestCase):
             verb="commented",
             action_object=self.from_user,
         )
-        response = self.client.get(
-            reverse("notifications:live_unread_notification_count")
-        )
+        response = self.client.get(reverse("notifications:live_unread_notification_count"))
         data = json.loads(response.content.decode("utf-8"))
         self.assertEqual(list(data.keys()), ["unread_count"])
         self.assertEqual(data["unread_count"], 1)
@@ -502,17 +438,13 @@ class NotificationTestPages(TestCase):
     def test_unread_list_api(self):
         self.login("to", "pwd")
 
-        response = self.client.get(
-            reverse("notifications:live_unread_notification_list")
-        )
+        response = self.client.get(reverse("notifications:live_unread_notification_list"))
         data = json.loads(response.content.decode("utf-8"))
         self.assertEqual(sorted(list(data.keys())), ["unread_count", "unread_list"])
         self.assertEqual(data["unread_count"], self.message_count)
         self.assertEqual(len(data["unread_list"]), self.message_count)
 
-        response = self.client.get(
-            reverse("notifications:live_unread_notification_list"), data={"max": 5}
-        )
+        response = self.client.get(reverse("notifications:live_unread_notification_list"), data={"max": 5})
         data = json.loads(response.content.decode("utf-8"))
         self.assertEqual(sorted(list(data.keys())), ["unread_count", "unread_list"])
         self.assertEqual(data["unread_count"], self.message_count)
@@ -531,9 +463,7 @@ class NotificationTestPages(TestCase):
         self.assertEqual(len(data["unread_list"]), self.message_count)
 
         Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
-        response = self.client.get(
-            reverse("notifications:live_unread_notification_list")
-        )
+        response = self.client.get(reverse("notifications:live_unread_notification_list"))
         data = json.loads(response.content.decode("utf-8"))
         self.assertEqual(sorted(list(data.keys())), ["unread_count", "unread_list"])
         self.assertEqual(data["unread_count"], 0)
@@ -545,17 +475,13 @@ class NotificationTestPages(TestCase):
             verb="commented",
             action_object=self.from_user,
         )
-        response = self.client.get(
-            reverse("notifications:live_unread_notification_list")
-        )
+        response = self.client.get(reverse("notifications:live_unread_notification_list"))
         data = json.loads(response.content.decode("utf-8"))
         self.assertEqual(sorted(list(data.keys())), ["unread_count", "unread_list"])
         self.assertEqual(data["unread_count"], 1)
         self.assertEqual(len(data["unread_list"]), 1)
         self.assertEqual(data["unread_list"][0]["verb"], "commented")
-        self.assertEqual(
-            data["unread_list"][0]["slug"], id2slug(data["unread_list"][0]["id"])
-        )
+        self.assertEqual(data["unread_list"][0]["slug"], id2slug(data["unread_list"][0]["id"]))
 
     def test_all_list_api(self):
         self.login("to", "pwd")
@@ -566,9 +492,7 @@ class NotificationTestPages(TestCase):
         self.assertEqual(data["all_count"], self.message_count)
         self.assertEqual(len(data["all_list"]), self.message_count)
 
-        response = self.client.get(
-            reverse("notifications:live_all_notification_list"), data={"max": 5}
-        )
+        response = self.client.get(reverse("notifications:live_all_notification_list"), data={"max": 5})
         data = json.loads(response.content.decode("utf-8"))
         self.assertEqual(sorted(list(data.keys())), ["all_count", "all_list"])
         self.assertEqual(data["all_count"], self.message_count)
@@ -605,9 +529,7 @@ class NotificationTestPages(TestCase):
         self.assertEqual(data["all_count"], self.message_count + 1)
         self.assertEqual(len(data["all_list"]), self.message_count)
         self.assertEqual(data["all_list"][0]["verb"], "commented")
-        self.assertEqual(
-            data["all_list"][0]["slug"], id2slug(data["all_list"][0]["id"])
-        )
+        self.assertEqual(data["all_list"][0]["slug"], id2slug(data["all_list"][0]["id"]))
 
     def test_unread_list_api_mark_as_read(self):  # pylint: disable=invalid-name
         self.login("to", "pwd")
@@ -645,16 +567,12 @@ class NotificationTestPages(TestCase):
         # TODO: Add more tests to check what is being output.
 
     def test_anon_user_gets_nothing(self):
-        response = self.client.post(
-            reverse("notifications:live_unread_notification_count")
-        )
+        response = self.client.post(reverse("notifications:live_unread_notification_count"))
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode("utf-8"))
         self.assertEqual(data["unread_count"], 0)
 
-        response = self.client.post(
-            reverse("notifications:live_unread_notification_list")
-        )
+        response = self.client.post(reverse("notifications:live_unread_notification_list"))
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode("utf-8"))
         self.assertEqual(data["unread_count"], 0)
@@ -666,12 +584,8 @@ class NotificationTestExtraData(TestCase):
 
     def setUp(self):
         self.message_count = 1
-        self.from_user = User.objects.create_user(
-            username="from", password="pwd", email="example@example.com"
-        )
-        self.to_user = User.objects.create_user(
-            username="to", password="pwd", email="example@example.com"
-        )
+        self.from_user = User.objects.create_user(username="from", password="pwd", email="example@example.com")
+        self.to_user = User.objects.create_user(username="to", password="pwd", email="example@example.com")
         self.to_user.is_staff = True
         self.to_user.save()
         for _ in range(self.message_count):
@@ -689,25 +603,19 @@ class NotificationTestExtraData(TestCase):
 
     def login(self, username, password):
         self.logout()
-        response = self.client.post(
-            reverse("login"), {"username": username, "password": password}
-        )
+        response = self.client.post(reverse("login"), {"username": username, "password": password})
         self.assertEqual(response.status_code, 302)
         return response
 
     def test_extra_data(self):
         self.login("to", "pwd")
-        response = self.client.post(
-            reverse("notifications:live_unread_notification_list")
-        )
+        response = self.client.post(reverse("notifications:live_unread_notification_list"))
         data = json.loads(response.content.decode("utf-8"))
         self.assertEqual(
             data["unread_list"][0]["data"]["url"],
             "/learn/ask-a-pro/q/test-question-9/299/",
         )
-        self.assertEqual(
-            data["unread_list"][0]["data"]["other_content"], "Hello my 'world'"
-        )
+        self.assertEqual(data["unread_list"][0]["data"]["other_content"], "Hello my 'world'")
 
 
 class TagTest(TestCase):
@@ -715,12 +623,8 @@ class TagTest(TestCase):
 
     def setUp(self):
         self.message_count = 1
-        self.from_user = User.objects.create_user(
-            username="from", password="pwd", email="example@example.com"
-        )
-        self.to_user = User.objects.create_user(
-            username="to", password="pwd", email="example@example.com"
-        )
+        self.from_user = User.objects.create_user(username="from", password="pwd", email="example@example.com")
+        self.to_user = User.objects.create_user(username="to", password="pwd", email="example@example.com")
         self.to_user.is_staff = True
         self.to_user.save()
         for _ in range(self.message_count):
@@ -750,12 +654,8 @@ class AdminTest(TestCase):
 
     def setUp(self):
         self.message_count = 10
-        self.from_user = User.objects.create_user(
-            username="from", password="pwd", email="example@example.com"
-        )
-        self.to_user = User.objects.create_user(
-            username="to", password="pwd", email="example@example.com"
-        )
+        self.from_user = User.objects.create_user(username="from", password="pwd", email="example@example.com")
+        self.to_user = User.objects.create_user(username="to", password="pwd", email="example@example.com")
         self.to_user.is_staff = True
         self.to_user.is_superuser = True
         self.to_user.save()
@@ -771,9 +671,7 @@ class AdminTest(TestCase):
         self.client.login(username="to", password="pwd")
 
         with CaptureQueriesContext(connection=connection) as context:
-            response = self.client.get(
-                reverse("admin:{0}_notification_changelist".format(self.app_name))
-            )
+            response = self.client.get(reverse("admin:{0}_notification_changelist".format(self.app_name)))
             self.assertLessEqual(len(context), 7)
 
         self.assertEqual(response.status_code, 200, response.content)
