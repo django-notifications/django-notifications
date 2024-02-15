@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.3
+
+  - Fixes missing static folder/files
+
+## 1.8.2
+
+  - Added the migration for verbose_name changes
+
 ## 1.8.0
 
   - Added support for Django 4.1
