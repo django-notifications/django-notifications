@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import os
 
-
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 SECRET_KEY = 'secret_key'  # noqa
 
@@ -20,7 +19,7 @@ DATABASES = {
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware'
+    'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 # Django >= 2.0
@@ -33,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'notifications.tests',
     'notifications',
 ]
@@ -49,7 +49,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
         'OPTIONS': {
-            'loaders' : [
+            'loaders': [
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
             ],
@@ -71,6 +71,8 @@ DJANGO_NOTIFICATIONS_CONFIG = {
     'USE_JSONFIELD': True,
 }
 USE_TZ = True
+
+SITE_ID = 1
 
 if os.environ.get('SAMPLE_APP', False):
     INSTALLED_APPS.remove('notifications')
