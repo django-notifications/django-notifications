@@ -115,7 +115,7 @@ class AbstractNotification(models.Model):
         verbose_name = _("Notification")
         verbose_name_plural = _("Notifications")
 
-    def __str__(self):
+    def __str__(self) -> str:
         ctx = {
             "actor": self.actor,
             "verb": self.verb,
@@ -153,37 +153,29 @@ class AbstractNotification(models.Model):
             self.unread = True
             self.save()
 
+    def _build_url(self, field_name: str) -> str:
+        app_label = getattr(getattr(self, f"{field_name}_content_type"), "app_label")
+        model = getattr(getattr(self, f"{field_name}_content_type"), "model")
+        obj_id = getattr(self, f"{field_name}_object_id")
+        try:
+            url = reverse(
+                f"admin:{app_label}_{model}_change",
+                args=(obj_id,),
+            )
+            return format_html("<a href='{url}'>{id}</a>", url=url, id=obj_id)
+        except NoReverseMatch:
+            return obj_id
+
     def actor_object_url(self) -> str:
-        try:
-            url = reverse(
-                f"admin:{self.actor_content_type.app_label}_{self.actor_content_type.model}_change",
-                args=(self.actor_object_id,),
-            )
-            return format_html("<a href='{url}'>{id}</a>", url=url, id=self.actor_object_id)
-        except NoReverseMatch:
-            return self.actor_object_id
+        return self._build_url("actor")
 
-    def action_object_url(self) -> str:
-        try:
-            url = reverse(
-                f"admin:{self.action_object_content_type.app_label}_{self.action_object_content_type.model}_change",
-                args=(self.action_object_id,),
-            )
-            return format_html("<a href='{url}'>{id}</a>", url=url, id=self.action_object_object_id)
-        except NoReverseMatch:
-            return self.action_object_object_id
+    def action_object_url(self) -> Union[str, None]:
+        return self._build_url("action_object")
 
-    def target_object_url(self) -> str:
-        try:
-            url = reverse(
-                f"admin:{self.target_content_type.app_label}_{self.target_content_type.model}_change",
-                args=(self.target_object_id,),
-            )
-            return format_html("<a href='{url}'>{id}</a>", url=url, id=self.target_object_id)
-        except NoReverseMatch:
-            return self.target_object_id
+    def target_object_url(self) -> Union[str, None]:
+        return self._build_url("target")
 
-    def naturalday(self):
+    def naturalday(self) -> Union[str, None]:
         """
         Shortcut for the ``humanize``.
         Take a parameter humanize_type. This parameter control the which humanize method use.
@@ -192,5 +184,5 @@ class AbstractNotification(models.Model):
 
         return naturalday(self.timestamp)
 
-    def naturaltime(self):
+    def naturaltime(self) -> str:
         return naturaltime(self.timestamp)

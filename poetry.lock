@@ -391,6 +391,20 @@ testing = ["covdefaults (>=2.3)", "coverage (>=7.3.2)", "diff-cover (>=8.0.1)", 
 typing = ["typing-extensions (>=4.8)"]
 
 [[package]]
+name = "freezegun"
+version = "1.4.0"
+description = "Let your Python tests travel through time"
+optional = true
+python-versions = ">=3.7"
+files = [
+    {file = "freezegun-1.4.0-py3-none-any.whl", hash = "sha256:55e0fc3c84ebf0a96a5aa23ff8b53d70246479e9a68863f1fcac5a3e52f19dd6"},
+    {file = "freezegun-1.4.0.tar.gz", hash = "sha256:10939b0ba0ff5adaecf3b06a5c2f73071d9678e507c5eaedb23c761d56ac774b"},
+]
+
+[package.dependencies]
+python-dateutil = ">=2.7"
+
+[[package]]
 name = "identify"
 version = "2.5.35"
 description = "File identification library for Python"
@@ -1215,9 +1229,9 @@ files = [
 [extras]
 dev = ["django-debug-toolbar", "pre-commit", "psycopg2-binary"]
 lint = ["bandit", "black", "isort", "mypy", "pylint", "pylint-django"]
-test = ["coverage", "django-test-migrations", "factory-boy", "pytest", "pytest-cov", "pytest-django", "pytest-xdist"]
+test = ["coverage", "django-test-migrations", "factory-boy", "freezegun", "pytest", "pytest-cov", "pytest-django", "pytest-xdist"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "c05e64d20b9253c2d60188553b6a88be71d8a40ccd9caff588ae06bfd42931fc"
+content-hash = "7934a50f2a5ec5aa8f522e683839042fa165ec26367ab4767f194c1455f313bd"

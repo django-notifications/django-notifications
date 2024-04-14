@@ -12,9 +12,9 @@ def test_main_migration0002(migrator):
     OldNotification = old_state.apps.get_model("notifications", "Notification")  # pylint: disable=invalid-name
     OldContentType = old_state.apps.get_model("contenttypes", "ContentType")  # pylint: disable=invalid-name
 
-    mark_follower = factory.create(OldUser, FACTORY_CLASS=user_factory.Recipient)
-    guido = factory.create(OldUser, FACTORY_CLASS=user_factory.Target)
-    mark = factory.create(OldUser, FACTORY_CLASS=user_factory.Actor)
+    mark_follower = factory.create(OldUser, FACTORY_CLASS=user_factory.RecipientFactory)
+    guido = factory.create(OldUser, FACTORY_CLASS=user_factory.TargetFactory)
+    mark = factory.create(OldUser, FACTORY_CLASS=user_factory.ActorFactory)
 
     user_type = OldContentType.objects.get_for_model(mark)
     notification_base = {

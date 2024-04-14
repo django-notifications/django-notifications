@@ -2,7 +2,7 @@ import factory
 from django.conf import settings
 
 
-class Recipient(factory.django.DjangoModelFactory):
+class RecipientFactory(factory.django.DjangoModelFactory):
     username = factory.Sequence(lambda n: f"recipient-{n}")
     first_name = factory.SelfAttribute("username")
 
@@ -10,7 +10,7 @@ class Recipient(factory.django.DjangoModelFactory):
         model = settings.AUTH_USER_MODEL
 
 
-class Actor(factory.django.DjangoModelFactory):
+class ActorFactory(factory.django.DjangoModelFactory):
     username = factory.Sequence(lambda n: f"actor-{n}")
     first_name = factory.SelfAttribute("username")
 
@@ -18,7 +18,7 @@ class Actor(factory.django.DjangoModelFactory):
         model = settings.AUTH_USER_MODEL
 
 
-class Target(factory.django.DjangoModelFactory):
+class TargetFactory(factory.django.DjangoModelFactory):
     username = factory.Sequence(lambda n: f"target-{n}")
     first_name = factory.SelfAttribute("username")
 

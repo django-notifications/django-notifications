@@ -101,6 +101,7 @@ pytest = {version = "^7", optional = true }
 pytest-cov = {version = "^4", optional = true }
 pytest-django = {version = "^4", optional = true }
 pytest-xdist = {version = "^3.3.1", optional = true }
+freezegun = {version = "^1.4.0", optional = true}
 
 [tool.poetry.extras]
 dev = [
@@ -121,6 +122,7 @@ test = [
     "django-test",
     "django-test-migrations",
     "factory-boy",
+    "freezegun",
     "pytest",
     "pytest-cov",
     "pytest-django",
@@ -170,6 +172,7 @@ max-line-length = 120
 ignored-modules = [
     "pytest",
     "factory",
+    "freezegun"
 ]
 
 [tool.black]
