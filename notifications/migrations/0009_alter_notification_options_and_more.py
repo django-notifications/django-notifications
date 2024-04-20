@@ -5,6 +5,11 @@ import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
 
+try:
+    from jsonfield.fields import JSONField
+except ImportError:
+    from django.db.models import JSONField
+
 
 class Migration(migrations.Migration):
     dependencies = [
@@ -62,7 +67,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="notification",
             name="data",
-            field=models.JSONField(blank=True, null=True, verbose_name="data"),
+            field=JSONField(blank=True, null=True, verbose_name="data"),
         ),
         migrations.AlterField(
             model_name="notification",
