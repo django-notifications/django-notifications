@@ -111,9 +111,32 @@ def test_build_url():
     ),
 )
 @pytest.mark.django_db
-def test_natural_day(increase, expected_result):
+def test_naturalday(increase, expected_result):
     initial_date = datetime(2023, 1, 1, 0, 0, 0)
     with freeze_time(initial_date):
         notification = NotificationShortFactory()
     with freeze_time(initial_date + timedelta(**increase)):
         assert notification.naturalday() == expected_result
+
+
+@pytest.mark.parametrize(
+    "increase,expected_result",
+    (
+        ({"minutes": 10}, "10\xa0minutes ago"),
+        ({"days": 1}, "1\xa0day ago"),
+    ),
+)
+@pytest.mark.django_db
+def test_naturaltime(increase, expected_result):
+    initial_date = datetime(2023, 1, 1, 0, 0, 0)
+    with freeze_time(initial_date):
+        notification = NotificationShortFactory()
+    with freeze_time(initial_date + timedelta(**increase)):
+        assert notification.naturaltime() == expected_result
+
+
+@pytest.mark.django_db
+def test_extra_data():
+    data = {"url": "/learn/ask-a-pro/q/test-question-9/299/", "other_content": "Hello my 'world'"}
+    notification = NotificationFullFactory(data=data)
+    assert notification.data == data

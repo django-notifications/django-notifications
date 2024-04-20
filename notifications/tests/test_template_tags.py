@@ -1,45 +1,51 @@
 from unittest.mock import Mock, patch
 
 import pytest
+from django.core.cache import cache
+from django.template import Context, Template
 from django.urls import reverse_lazy
 from freezegun import freeze_time
 from swapper import load_model
 
-from notifications.templatetags.notifications_tags import (
-    has_notification,
-    live_notify_badge,
-    live_notify_list,
-    notifications_unread,
-    register_notify_callbacks,
-    user_context,
-)
+from notifications.templatetags.notifications_tags import user_context
 from notifications.tests.factories.notifications import NotificationFullFactory
 from notifications.tests.factories.users import RecipientFactory
 
 Notification = load_model("notifications", "Notification")
 
 
+def render_tag(template, context):
+    template = Template("{% load notifications_tags %}" + template)
+    return template.render(Context(context))
+
+
 @pytest.mark.django_db
 def test_notifications_unread():
-    with patch("notifications.templatetags.notifications_tags.user_context") as user_context_mock:
-        user_context_mock.return_value = None
-        assert notifications_unread({}) == ""
+    assert render_tag("{% notifications_unread %}", {}) == ""
 
-        notification = NotificationFullFactory()
-        user_context_mock.return_value = notification.recipient
-        assert notifications_unread({}) == 1
+    assert (
+        render_tag("{% notifications_unread %}", {"user": Mock(), "request": Mock(user=Mock(is_anonymous=True))}) == ""
+    )
+
+    notification = NotificationFullFactory()
+    assert (
+        render_tag(
+            "{% notifications_unread %}", {"user": notification.recipient, "request": Mock(user=notification.recipient)}
+        )
+        == "1"
+    )
 
 
 @pytest.mark.django_db
 def test_has_notification():
     user = RecipientFactory()
-    assert has_notification(user) is False
+    assert render_tag("{{ user|has_notification }}", {"user": user}) == "False"
 
     notification = NotificationFullFactory(recipient=user)
-    assert has_notification(user) is True
+    assert render_tag("{{ user|has_notification }}", {"user": user}) == "True"
 
     notification.mark_as_read()
-    assert has_notification(user) is False
+    assert render_tag("{{ user|has_notification }}", {"user": user}) == "False"
 
 
 @pytest.mark.parametrize(
@@ -50,56 +56,53 @@ def test_has_notification():
     ),
 )
 def test_register_notify_callbacks(_type, url):
-    callback = register_notify_callbacks(
-        badge_class="badge1",
-        menu_class="menu2",
-        refresh_period=10,
-        callbacks="cb1,cb2",
-        api_name=_type,
-        fetch=50,
-        nonce="123",
-        mark_as_read=True,
-    )
+    tag = f"{{% register_notify_callbacks badge_class='badge1' menu_class='menu2' refresh_period=10 callbacks='cb1,cb2' api_name='{_type}' fetch=50 nonce='123' mark_as_read=True %}}"  # pylint: disable=line-too-long
 
-    assert "notify_badge_class='badge1'" in callback
-    assert "notify_menu_class='menu2'" in callback
-    assert "notify_refresh_period=10" in callback
-    assert "register_notifier(cb1);" in callback
-    assert "register_notifier(cb2);" in callback
-    assert "notify_fetch_count='50'" in callback
-    assert 'nonce="123"' in callback
-    assert "true" in callback
-    assert str(url) in callback
+    render = render_tag(tag, {})
+
+    assert "notify_badge_class='badge1'" in render
+    assert "notify_menu_class='menu2'" in render
+    assert "notify_refresh_period=10" in render
+    assert "register_notifier(cb1);" in render
+    assert "register_notifier(cb2);" in render
+    assert "notify_fetch_count='50'" in render
+    assert 'nonce="123"' in render
+    assert "true" in render
+    assert str(url) in render
 
 
 @patch("notifications.templatetags.notifications_tags.user_context")
-@patch("notifications.templatetags.notifications_tags.get_cached_notification_unread_count")
 @pytest.mark.django_db
-def test_live_notify_badge(cache_mock, user_context_mock):
+def test_live_notify_badge(user_context_mock):
     user = RecipientFactory()
 
+    # No user
     user_context_mock.return_value = None
-    assert live_notify_badge({}) == ""
+    assert render_tag("{% live_notify_badge %}", {}) == ""
 
+    # User without notifications
     user_context_mock.return_value = user
-    badge = live_notify_badge({}, badge_class="blafoo")
+    badge = render_tag("{% live_notify_badge badge_class='blafoo' %}", {})
     assert "blafoo" in badge
     assert "0" in badge
 
+    # Cached with 0 notifications
     with freeze_time("2024-01-01 00:00:00"):
         NotificationFullFactory(recipient=user)
-        badge = live_notify_badge({}, badge_class="blafoo")
+        badge = render_tag("{% live_notify_badge badge_class='blafoo' %}", {})
         assert "blafoo" in badge
-        assert "0" in badge  # Because of cache
+        assert "0" in badge
 
-        cache_mock.side_effect = lambda user: user.notifications.unread().count()
-        badge = live_notify_badge({}, badge_class="blafoo")
+    # No cache with notification
+    with freeze_time("2024-01-02 00:00:00"):
+        cache.clear()
+        badge = render_tag("{% live_notify_badge badge_class='blafoo' %}", {})
         assert "blafoo" in badge
         assert "1" in badge
 
 
 def test_live_notify_list():
-    resp = live_notify_list("blafoo")
+    resp = render_tag("{% live_notify_list list_class='blafoo' %}", {})
     assert "<ul" in resp
     assert "class='blafoo'" in resp
 

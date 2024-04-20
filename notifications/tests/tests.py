@@ -8,19 +8,14 @@ import json
 from datetime import datetime, timezone
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
-from django.core.exceptions import ImproperlyConfigured
-from django.db import connection
 from django.shortcuts import render
-from django.template import Context, Template
 from django.test import override_settings  # noqa
 from django.test import RequestFactory, TestCase
-from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils.timezone import localtime
 from swapper import load_model
 
-from notifications.signals import notify, notify_handler
+from notifications.signals import notify
 
 Notification = load_model("notifications", "Notification")
 User = get_user_model()
@@ -59,127 +54,6 @@ class NotificationTest(TestCase):
         notification = Notification.objects.get(recipient=to_user)
         delta = datetime.now() - notification.timestamp
         self.assertTrue(delta.seconds < 60)
-
-    def test_humanize_naturalday_timestamp(self):
-        from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
-        to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
-        notify.send(from_user, recipient=to_user, verb="commented", action_object=from_user)
-        notification = Notification.objects.get(recipient=to_user)
-        self.assertEqual(notification.naturalday(), "today")
-
-    def test_humanize_naturaltime_timestamp(self):
-        from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
-        to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
-        notify.send(from_user, recipient=to_user, verb="commented", action_object=from_user)
-        notification = Notification.objects.get(recipient=to_user)
-        self.assertEqual(notification.naturaltime(), "now")
-
-
-class NotificationManagersTest(TestCase):
-    """Django notifications Manager automated tests"""
-
-    def setUp(self):
-        self.message_count = 10
-        self.other_user = User.objects.create(username="other1", password="pwd", email="example@example.com")
-
-        self.from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
-        self.to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
-        self.to_group = Group.objects.create(name="to2_g")
-        self.to_user_list = User.objects.all()
-        self.to_group.user_set.add(self.to_user)
-        self.to_group.user_set.add(self.other_user)
-
-        for _ in range(self.message_count):
-            notify.send(self.from_user, recipient=self.to_user, verb="commented", action_object=self.from_user)
-        # Send notification to group
-        notify.send(self.from_user, recipient=self.to_group, verb="commented", action_object=self.from_user)
-        self.message_count += self.to_group.user_set.count()
-        # Send notification to user list
-        notify.send(self.from_user, recipient=self.to_user_list, verb="commented", action_object=self.from_user)
-        self.message_count += len(self.to_user_list)
-
-    def test_notify_send_return_val(self):
-        results = notify.send(self.from_user, recipient=self.to_user, verb="commented", action_object=self.from_user)
-        for result in results:
-            if result[0] is notify_handler:
-                self.assertEqual(len(result[1]), 1)
-                # only check types for now
-                self.assertEqual(type(result[1][0]), Notification)
-
-    def test_notify_send_return_val_group(self):
-        results = notify.send(self.from_user, recipient=self.to_group, verb="commented", action_object=self.from_user)
-        for result in results:
-            if result[0] is notify_handler:
-                self.assertEqual(len(result[1]), self.to_group.user_set.count())
-                for notification in result[1]:
-                    # only check types for now
-                    self.assertEqual(type(notification), Notification)
-
-    def test_unread_manager(self):
-        self.assertEqual(Notification.objects.unread().count(), self.message_count)
-        notification = Notification.objects.filter(recipient=self.to_user).first()
-        notification.mark_as_read()
-        self.assertEqual(Notification.objects.unread().count(), self.message_count - 1)
-        for notification in Notification.objects.unread():
-            self.assertTrue(notification.unread)
-
-    def test_read_manager(self):
-        self.assertEqual(Notification.objects.unread().count(), self.message_count)
-        notification = Notification.objects.filter(recipient=self.to_user).first()
-        notification.mark_as_read()
-        self.assertEqual(Notification.objects.read().count(), 1)
-        for notification in Notification.objects.read():
-            self.assertFalse(notification.unread)
-
-    def test_mark_all_as_read_manager(self):
-        self.assertEqual(Notification.objects.unread().count(), self.message_count)
-        Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
-        self.assertEqual(self.to_user.notifications.unread().count(), 0)
-
-    @override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True})
-    def test_mark_all_as_read_manager_with_soft_delete(self):
-        # even soft-deleted notifications should be marked as read
-        # refer: https://github.com/django-notifications/django-notifications/issues/126
-        to_delete = Notification.objects.filter(recipient=self.to_user).order_by("id")[0]
-        to_delete.deleted = True
-        to_delete.save()
-        self.assertTrue(Notification.objects.filter(recipient=self.to_user).order_by("id")[0].unread)
-        Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
-        self.assertFalse(Notification.objects.filter(recipient=self.to_user).order_by("id")[0].unread)
-
-    def test_mark_all_as_unread_manager(self):
-        self.assertEqual(Notification.objects.unread().count(), self.message_count)
-        Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
-        self.assertEqual(self.to_user.notifications.unread().count(), 0)
-        Notification.objects.filter(recipient=self.to_user).mark_all_as_unread()
-        self.assertEqual(Notification.objects.unread().count(), self.message_count)
-
-    def test_mark_all_deleted_manager_without_soft_delete(self):
-        self.assertRaises(ImproperlyConfigured, Notification.objects.active)
-        self.assertRaises(ImproperlyConfigured, Notification.objects.active)
-        self.assertRaises(ImproperlyConfigured, Notification.objects.mark_all_as_deleted)
-        self.assertRaises(ImproperlyConfigured, Notification.objects.mark_all_as_active)
-
-    @override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True})
-    def test_mark_all_deleted_manager(self):
-        notification = Notification.objects.filter(recipient=self.to_user).first()
-        notification.mark_as_read()
-        self.assertEqual(Notification.objects.read().count(), 1)
-        self.assertEqual(Notification.objects.unread().count(), self.message_count - 1)
-        self.assertEqual(Notification.objects.active().count(), self.message_count)
-        self.assertEqual(Notification.objects.deleted().count(), 0)
-
-        Notification.objects.mark_all_as_deleted()
-        self.assertEqual(Notification.objects.read().count(), 0)
-        self.assertEqual(Notification.objects.unread().count(), 0)
-        self.assertEqual(Notification.objects.active().count(), 0)
-        self.assertEqual(Notification.objects.deleted().count(), self.message_count)
-
-        Notification.objects.mark_all_as_active()
-        self.assertEqual(Notification.objects.read().count(), 1)
-        self.assertEqual(Notification.objects.unread().count(), self.message_count - 1)
-        self.assertEqual(Notification.objects.active().count(), self.message_count)
-        self.assertEqual(Notification.objects.deleted().count(), 0)
 
 
 class NotificationTestPages(TestCase):
@@ -512,62 +386,3 @@ class NotificationTestExtraData(TestCase):
         data = json.loads(response.content.decode("utf-8"))
         self.assertEqual(data["unread_list"][0]["data"]["url"], "/learn/ask-a-pro/q/test-question-9/299/")
         self.assertEqual(data["unread_list"][0]["data"]["other_content"], "Hello my 'world'")
-
-
-class TagTest(TestCase):
-    """Django notifications automated tags tests"""
-
-    def setUp(self):
-        self.message_count = 1
-        self.from_user = User.objects.create_user(username="from", password="pwd", email="example@example.com")
-        self.to_user = User.objects.create_user(username="to", password="pwd", email="example@example.com")
-        self.to_user.is_staff = True
-        self.to_user.save()
-        for _ in range(self.message_count):
-            notify.send(
-                self.from_user,
-                recipient=self.to_user,
-                verb="commented",
-                action_object=self.from_user,
-                url="/learn/ask-a-pro/q/test-question-9/299/",
-                other_content="Hello my 'world'",
-            )
-
-    def tag_test(self, template, context, output):
-        template = Template("{% load notifications_tags %}" + template)
-        context = Context(context)
-        self.assertEqual(template.render(context), output)
-
-    def test_has_notification(self):
-        template = "{{ user|has_notification }}"
-        context = {"user": self.to_user}
-        output = "True"
-        self.tag_test(template, context, output)
-
-
-class AdminTest(TestCase):
-    app_name = "notifications"
-
-    def setUp(self):
-        self.message_count = 10
-        self.from_user = User.objects.create_user(username="from", password="pwd", email="example@example.com")
-        self.to_user = User.objects.create_user(username="to", password="pwd", email="example@example.com")
-        self.to_user.is_staff = True
-        self.to_user.is_superuser = True
-        self.to_user.save()
-        for _ in range(self.message_count):
-            notify.send(
-                self.from_user,
-                recipient=self.to_user,
-                verb="commented",
-                action_object=self.from_user,
-            )
-
-    def test_list(self):
-        self.client.login(username="to", password="pwd")
-
-        with CaptureQueriesContext(connection=connection) as context:
-            response = self.client.get(reverse(f"admin:{self.app_name}_notification_changelist"))
-            self.assertLessEqual(len(context), 6)
-
-        self.assertEqual(response.status_code, 200, response.content)

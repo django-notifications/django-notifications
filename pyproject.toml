@@ -214,7 +214,6 @@ testpaths = [
 ]
 DJANGO_SETTINGS_MODULE = "notifications.tests.settings_for_tests"
 django_debug_mode = "keep"
-show_locals=true
 
 [tool.coverage.run]
 relative_files = true
