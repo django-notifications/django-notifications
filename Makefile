@@ -13,7 +13,7 @@ server:
 run: server
 
 migrations:
-	poetry run python manage.py makemigrations
+	poetry run python notifications/manage.py makemigrations
 
 migrate:
 	poetry run python manage.py migrate

@@ -4,8 +4,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from notifications.notification_types import AbstractUser
 from notifications.settings import notification_settings
-from notifications.types import AbstractUser
 
 
 def assert_soft_delete() -> None:

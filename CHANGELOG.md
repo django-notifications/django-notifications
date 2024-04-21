@@ -3,13 +3,15 @@
 ## 2.0.0
   - Migrated to Github CI
   - Added docker environment and migrated to Poetry and pyproject.toml
-  - Added verbose_name migration
-  - Migrated from `jsonfield` to Django `JSONField`
-  - Converted the `level` field from a `CharField` to an `IntegerField`
+  - Added **verbose_name** migration
+  - Migrated the **data** field from `jsonfield` to Django `JSONField`
+  - Converted the **level** field from a `CharField` to an `IntegerField`
   - Extracted and improved the sample code
   - Fixed variable types on JS code
   - Added `/all/` for the path to all notifications
   - Remove slug2id and id2slug
+  - Changed **related_name** from `notifications` to `%(app_label)s_%(class)s_related` (default: `notifications_notification_related`)
+  - Changed **related_query_name** from `notifications` to `%(app_label)s_%(class)s` (default: `notifications_notification`)
 
 ## 1.8.0
 

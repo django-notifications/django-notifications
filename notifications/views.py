@@ -34,20 +34,20 @@ class AllNotificationsList(NotificationViewList):
 
     def get_queryset(self):
         if notification_settings.SOFT_DELETE:
-            qset = self.request.user.notifications.active()
+            qset = self.request.user.notifications_notification_related.active()
         else:
-            qset = self.request.user.notifications.all()
+            qset = self.request.user.notifications_notification_related.all()
         return qset
 
 
 class UnreadNotificationsList(NotificationViewList):
     def get_queryset(self):
-        return self.request.user.notifications.unread()
+        return self.request.user.notifications_notification_related.unread()
 
 
 @login_required
 def mark_all_as_read(request):
-    request.user.notifications.mark_all_as_read()
+    request.user.notifications_notification_related.mark_all_as_read()
 
     _next = request.GET.get("next")
 
@@ -112,7 +112,7 @@ def live_unread_notification_count(request):
         data = {"unread_count": 0}
     else:
         data = {
-            "unread_count": request.user.notifications.unread().count(),
+            "unread_count": request.user.notifications_notification_related.unread().count(),
         }
     return JsonResponse(data)
 
@@ -126,7 +126,10 @@ def live_unread_notification_list(request):
 
     unread_list = get_notification_list(request, "unread")
 
-    data = {"unread_count": request.user.notifications.unread().count(), "unread_list": unread_list}
+    data = {
+        "unread_count": request.user.notifications_notification_related.unread().count(),
+        "unread_list": unread_list,
+    }
     return JsonResponse(data)
 
 
@@ -139,7 +142,7 @@ def live_all_notification_list(request):
 
     all_list = get_notification_list(request)
 
-    data = {"all_count": request.user.notifications.count(), "all_list": all_list}
+    data = {"all_count": request.user.notifications_notification_related.count(), "all_list": all_list}
     return JsonResponse(data)
 
 
@@ -148,6 +151,6 @@ def live_all_notification_count(request):
         data = {"all_count": 0}
     else:
         data = {
-            "all_count": request.user.notifications.count(),
+            "all_count": request.user.notifications_notification_related.count(),
         }
     return JsonResponse(data)

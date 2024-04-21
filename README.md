@@ -184,7 +184,8 @@ can do:
 
 ```python
     user = User.objects.get(pk=pk)
-    user.notifications.unread()
+    user.notifications_notification_related.unread()
+    # user.<your_app_name>_<your_model_name>_related.unread() # If you are using a custom model
 ```
 
 There are some other QuerySet methods, too.
@@ -476,6 +477,8 @@ You will require to define `NOTIFICATIONS_NOTIFICATION_MODEL` setting in
 
 NOTIFICATIONS_NOTIFICATION_MODEL = 'your_app.Notification'
 ```
+
+> If you are using a custom notification model, your **related_name** will change to `<your_app_name>_<your_model_name>_related`.
 
 ## Notes
 

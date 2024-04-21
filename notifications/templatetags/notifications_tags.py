@@ -12,7 +12,9 @@ register = Library()
 
 def get_cached_notification_unread_count(user):
     return cache.get_or_set(
-        "cache_notification_unread_count", user.notifications.unread().count, notification_settings.CACHE_TIMEOUT
+        "cache_notification_unread_count",
+        user.notifications_notification_related.unread().count,
+        notification_settings.CACHE_TIMEOUT,
     )
 
 
@@ -27,7 +29,7 @@ def notifications_unread(context):
 @register.filter
 def has_notification(user):
     if user:
-        return user.notifications.unread().exists()
+        return user.notifications_notification_related.unread().exists()
     return False
 
 

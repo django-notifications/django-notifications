@@ -57,14 +57,18 @@ class AbstractNotification(models.Model):
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="notifications",
+        related_name="%(app_label)s_%(class)s_related",
+        related_query_name="%(app_label)s_%(class)s",
         verbose_name=_("recipient"),
         blank=False,
     )
     unread = models.BooleanField(_("unread"), default=True, blank=False, db_index=True)
 
     actor_content_type = models.ForeignKey(
-        ContentType, on_delete=models.CASCADE, related_name="notify_actor", verbose_name=_("actor content type")
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name="%(app_label)s_%(class)s_actor_related",
+        verbose_name=_("actor content type"),
     )
     actor_object_id = models.CharField(_("actor object id"), max_length=255)
     actor = GenericForeignKey("actor_content_type", "actor_object_id")
@@ -76,7 +80,7 @@ class AbstractNotification(models.Model):
     target_content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        related_name="notify_target",
+        related_name="%(app_label)s_%(class)s_target_related",
         verbose_name=_("target content type"),
         blank=True,
         null=True,
@@ -88,7 +92,7 @@ class AbstractNotification(models.Model):
     action_object_content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        related_name="notify_action_object",
+        related_name="%(app_label)s_%(class)s_action_object_related",
         verbose_name=_("action object content type"),
         blank=True,
         null=True,

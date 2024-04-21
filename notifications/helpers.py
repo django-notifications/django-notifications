@@ -19,7 +19,7 @@ def get_num_to_fetch(request):
 def get_notification_list(request, method_name="all"):
     num_to_fetch = get_num_to_fetch(request)
     notification_list = []
-    for notification in getattr(request.user.notifications, method_name)()[0:num_to_fetch]:
+    for notification in getattr(request.user.notifications_notification_related, method_name)()[0:num_to_fetch]:
         struct = model_to_dict(notification)
         struct["slug"] = notification.id
         if notification.actor:

@@ -82,29 +82,37 @@ class NotificationTestPages(TestCase):
         response = self.client.get(reverse("notifications:all"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["notifications"]), len(self.to_user.notifications.all()))
+        self.assertEqual(
+            len(response.context["notifications"]), len(self.to_user.notifications_notification_related.all())
+        )
 
     def test_unread_messages_pages(self):
         self.login("to", "pwd")
         response = self.client.get(reverse("notifications:unread"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["notifications"]), len(self.to_user.notifications.unread()))
+        self.assertEqual(
+            len(response.context["notifications"]), len(self.to_user.notifications_notification_related.unread())
+        )
         self.assertEqual(len(response.context["notifications"]), self.message_count)
 
-        for index, notification in enumerate(self.to_user.notifications.all()):
+        for index, notification in enumerate(self.to_user.notifications_notification_related.all()):
             if index % 3 == 0:
                 response = self.client.get(reverse("notifications:mark_as_read", args=[notification.id]))
                 self.assertEqual(response.status_code, 302)
 
         response = self.client.get(reverse("notifications:unread"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["notifications"]), len(self.to_user.notifications.unread()))
+        self.assertEqual(
+            len(response.context["notifications"]), len(self.to_user.notifications_notification_related.unread())
+        )
         self.assertTrue(len(response.context["notifications"]) < self.message_count)
 
         response = self.client.get(reverse("notifications:mark_all_as_read"))
         self.assertRedirects(response, reverse("notifications:unread"))
         response = self.client.get(reverse("notifications:unread"))
-        self.assertEqual(len(response.context["notifications"]), len(self.to_user.notifications.unread()))
+        self.assertEqual(
+            len(response.context["notifications"]), len(self.to_user.notifications_notification_related.unread())
+        )
         self.assertEqual(len(response.context["notifications"]), 0)
 
     def test_next_pages(self):
@@ -119,7 +127,7 @@ class NotificationTestPages(TestCase):
         )
         self.assertRedirects(response, reverse("notifications:unread") + query_parameters)
 
-        slug = self.to_user.notifications.first().id
+        slug = self.to_user.notifications_notification_related.first().id
         response = self.client.get(
             reverse("notifications:mark_as_read", args=[slug]),
             data={
@@ -128,7 +136,7 @@ class NotificationTestPages(TestCase):
         )
         self.assertRedirects(response, reverse("notifications:unread") + query_parameters)
 
-        slug = self.to_user.notifications.first().id
+        slug = self.to_user.notifications_notification_related.first().id
         response = self.client.get(
             reverse("notifications:mark_as_unread", args=[slug]),
             {
@@ -137,7 +145,7 @@ class NotificationTestPages(TestCase):
         )
         self.assertRedirects(response, reverse("notifications:unread") + query_parameters)
 
-    @override_settings(ALLOWED_HOSTS=["www.notifications.com"])
+    @override_settings(ALLOWED_HOSTS=["www.notifications_notification_related.com"])
     def test_malicious_next_pages(self):
         self.client.force_login(self.to_user)
         query_parameters = "?var1=hello&var2=world"
@@ -154,36 +162,44 @@ class NotificationTestPages(TestCase):
     def test_delete_messages_pages(self):
         self.login("to", "pwd")
 
-        slug = self.to_user.notifications.first().id
+        slug = self.to_user.notifications_notification_related.first().id
         response = self.client.get(reverse("notifications:delete", args=[slug]))
         self.assertRedirects(response, reverse("notifications:all"))
 
         response = self.client.get(reverse("notifications:all"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["notifications"]), len(self.to_user.notifications.all()))
+        self.assertEqual(
+            len(response.context["notifications"]), len(self.to_user.notifications_notification_related.all())
+        )
         self.assertEqual(len(response.context["notifications"]), self.message_count - 1)
 
         response = self.client.get(reverse("notifications:unread"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["notifications"]), len(self.to_user.notifications.unread()))
+        self.assertEqual(
+            len(response.context["notifications"]), len(self.to_user.notifications_notification_related.unread())
+        )
         self.assertEqual(len(response.context["notifications"]), self.message_count - 1)
 
     @override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True})
     def test_soft_delete_messages_manager(self):
         self.login("to", "pwd")
 
-        slug = self.to_user.notifications.first().id
+        slug = self.to_user.notifications_notification_related.first().id
         response = self.client.get(reverse("notifications:delete", args=[slug]))
         self.assertRedirects(response, reverse("notifications:all"))
 
         response = self.client.get(reverse("notifications:all"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["notifications"]), len(self.to_user.notifications.active()))
+        self.assertEqual(
+            len(response.context["notifications"]), len(self.to_user.notifications_notification_related.active())
+        )
         self.assertEqual(len(response.context["notifications"]), self.message_count - 1)
 
         response = self.client.get(reverse("notifications:unread"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["notifications"]), len(self.to_user.notifications.unread()))
+        self.assertEqual(
+            len(response.context["notifications"]), len(self.to_user.notifications_notification_related.unread())
+        )
         self.assertEqual(len(response.context["notifications"]), self.message_count - 1)
 
     def test_unread_count_api(self):
