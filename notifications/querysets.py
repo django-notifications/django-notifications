@@ -20,14 +20,6 @@ def assert_soft_delete() -> None:
 class NotificationQuerySet(models.QuerySet):
     """Notification QuerySet"""
 
-    def unsent(self) -> "NotificationQuerySet":
-        """Return only unsent items in the current queryset"""
-        return self.filter(emailed=False)
-
-    def sent(self) -> "NotificationQuerySet":
-        """Return only sent items in the current queryset"""
-        return self.filter(emailed=True)
-
     def unread(self, include_deleted: bool = False) -> "NotificationQuerySet":
         """Return only unread items in the current queryset"""
         if notification_settings.SOFT_DELETE and not include_deleted:
@@ -102,6 +94,20 @@ class NotificationQuerySet(models.QuerySet):
             qset = qset.filter(recipient=recipient)
 
         return qset.update(deleted=False)
+
+    def unsent(self, include_deleted: bool = False) -> "NotificationQuerySet":
+        """Return only unsent items in the current queryset"""
+        if notification_settings.SOFT_DELETE and not include_deleted:
+            return self.filter(emailed=False, deleted=False)
+
+        return self.filter(emailed=False)
+
+    def sent(self, include_deleted: bool = False) -> "NotificationQuerySet":
+        """Return only sent items in the current queryset"""
+        if notification_settings.SOFT_DELETE and not include_deleted:
+            return self.filter(emailed=True, deleted=False)
+
+        return self.filter(emailed=True)
 
     def mark_as_unsent(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
         qset = self.sent()

@@ -17,32 +17,34 @@ from notifications.settings import notification_settings
 Notification = load_model("notifications", "Notification")
 
 
-class NotificationViewList(ListView):
-    template_name = "notifications/list.html"
-    context_object_name = "notifications"
-    paginate_by = notification_settings.PAGINATE_BY
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
-
-class AllNotificationsList(NotificationViewList):
+@method_decorator(login_required, name="dispatch")
+class NotificationsList(ListView):
     """
     Index page for authenticated user
     """
 
+    template_name = "notifications/list.html"
+    context_object_name = "notifications"
+    paginate_by = notification_settings.PAGINATE_BY
+
     def get_queryset(self):
-        if notification_settings.SOFT_DELETE:
+        filter_by = self.kwargs["filter_by"]
+        if filter_by == "read":
+            qset = self.request.user.notifications_notification_related.read()
+        elif filter_by == "unread":
+            qset = self.request.user.notifications_notification_related.unread()
+        elif filter_by == "active":
             qset = self.request.user.notifications_notification_related.active()
+        elif filter_by == "deleted":
+            qset = self.request.user.notifications_notification_related.deleted()
+        elif filter_by == "sent":
+            qset = self.request.user.notifications_notification_related.sent()
+        elif filter_by == "unsent":
+            qset = self.request.user.notifications_notification_related.unsent()
         else:
             qset = self.request.user.notifications_notification_related.all()
+
         return qset
-
-
-class UnreadNotificationsList(NotificationViewList):
-    def get_queryset(self):
-        return self.request.user.notifications_notification_related.unread()
 
 
 @login_required
@@ -53,7 +55,7 @@ def mark_all_as_read(request):
 
     if _next and url_has_allowed_host_and_scheme(_next, settings.ALLOWED_HOSTS):
         return redirect(iri_to_uri(_next))
-    return redirect("notifications:unread")
+    return redirect("notifications:list", filter_by="unread")
 
 
 @login_required
@@ -68,7 +70,7 @@ def mark_as_read(request, slug=None):
     if _next and url_has_allowed_host_and_scheme(_next, settings.ALLOWED_HOSTS):
         return redirect(iri_to_uri(_next))
 
-    return redirect("notifications:unread")
+    return redirect("notifications:list", filter_by="unread")
 
 
 @login_required
@@ -83,7 +85,7 @@ def mark_as_unread(request, slug=None):
     if _next and url_has_allowed_host_and_scheme(_next, settings.ALLOWED_HOSTS):
         return redirect(iri_to_uri(_next))
 
-    return redirect("notifications:unread")
+    return redirect("notifications:list", filter_by="unread")
 
 
 @login_required
@@ -103,7 +105,7 @@ def delete(request, slug=None):
     if _next and url_has_allowed_host_and_scheme(_next, settings.ALLOWED_HOSTS):
         return redirect(iri_to_uri(_next))
 
-    return redirect("notifications:all")
+    return redirect("notifications:list", filter_by="unread")
 
 
 @never_cache
