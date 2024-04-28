@@ -1,3 +1,4 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.forms import model_to_dict
 
 from notifications.settings import notification_settings
@@ -34,3 +35,9 @@ def get_notification_list(request, method_name="all"):
         if request.GET.get("mark_as_read"):
             notification.mark_as_read()
     return notification_list
+
+
+def assert_soft_delete() -> None:
+    if not notification_settings.SOFT_DELETE:
+        msg = "To use this feature you need activate SOFT_DELETE in settings.py"
+        raise ImproperlyConfigured(msg)

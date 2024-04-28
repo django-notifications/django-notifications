@@ -12,7 +12,9 @@ from django.utils import timesince, timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
+from notifications.helpers import assert_soft_delete
 from notifications.querysets import NotificationQuerySet
+from notifications.settings import notification_settings
 
 
 class NotificationLevel(models.IntegerChoices):
@@ -52,8 +54,6 @@ class AbstractNotification(models.Model):
 
     """
 
-    level = models.IntegerField(_("level"), choices=NotificationLevel.choices, default=NotificationLevel.INFO)
-
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -62,7 +62,6 @@ class AbstractNotification(models.Model):
         verbose_name=_("recipient"),
         blank=False,
     )
-    unread = models.BooleanField(_("unread"), default=True, blank=False, db_index=True)
 
     actor_content_type = models.ForeignKey(
         ContentType,
@@ -102,10 +101,12 @@ class AbstractNotification(models.Model):
     action_object.short_description = _("action object")
 
     timestamp = models.DateTimeField(_("timestamp"), default=timezone.now, db_index=True)
+    level = models.IntegerField(_("level"), choices=NotificationLevel.choices, default=NotificationLevel.INFO)
 
-    public = models.BooleanField(_("public"), default=True, db_index=True)
     deleted = models.BooleanField(_("deleted"), default=False, db_index=True)
     emailed = models.BooleanField(_("emailed"), default=False, db_index=True)
+    public = models.BooleanField(_("public"), default=True, db_index=True)
+    unread = models.BooleanField(_("unread"), default=True, blank=False, db_index=True)
 
     data = models.JSONField(_("data"), blank=True, null=True)
 
@@ -135,27 +136,42 @@ class AbstractNotification(models.Model):
             return _("%(actor)s %(verb)s %(action_object)s %(timesince)s ago") % ctx
         return _("%(actor)s %(verb)s %(timesince)s ago") % ctx
 
-    def timesince(self, now: Union[None, datetime.datetime] = None) -> str:
-        """
-        Shortcut for the ``django.utils.timesince.timesince`` function of the
-        current timestamp.
-        """
-
-        return timesince.timesince(self.timestamp, now)
-
     @property
     def slug(self):
         return self.id
 
-    def mark_as_read(self) -> None:
-        if self.unread:
-            self.unread = False
+    def _mark_as(self, field: str, status: bool) -> None:
+        if getattr(self, field, None) != status:
+            setattr(self, field, status)
             self.save()
 
+    def mark_as_active(self) -> None:
+        assert_soft_delete()
+        self._mark_as("deleted", False)
+
+    def mark_as_deleted(self) -> None:
+        if notification_settings.SOFT_DELETE:
+            self._mark_as("deleted", True)
+        else:
+            self.delete()
+
+    def mark_as_sent(self) -> None:
+        self._mark_as("emailed", True)
+
+    def mark_as_unsent(self) -> None:
+        self._mark_as("emailed", False)
+
+    def mark_as_public(self) -> None:
+        self._mark_as("public", True)
+
+    def mark_as_private(self) -> None:
+        self._mark_as("public", False)
+
+    def mark_as_read(self) -> None:
+        self._mark_as("unread", False)
+
     def mark_as_unread(self) -> None:
-        if not self.unread:
-            self.unread = True
-            self.save()
+        self._mark_as("unread", True)
 
     def _build_url(self, field_name: str) -> str:
         app_label = getattr(getattr(self, f"{field_name}_content_type"), "app_label")
@@ -178,6 +194,14 @@ class AbstractNotification(models.Model):
 
     def target_object_url(self) -> Union[str, None]:
         return self._build_url("target")
+
+    def timesince(self, now: Union[None, datetime.datetime] = None) -> str:
+        """
+        Shortcut for the ``django.utils.timesince.timesince`` function of the
+        current timestamp.
+        """
+
+        return timesince.timesince(self.timestamp, now)
 
     def naturalday(self) -> Union[str, None]:
         """

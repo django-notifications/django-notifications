@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 from unittest.mock import patch
 
 import pytest
+from django.core.exceptions import ImproperlyConfigured
+from django.test import override_settings
 from django.urls import NoReverseMatch
 from freezegun import freeze_time
 from swapper import load_model
@@ -48,6 +50,83 @@ def test__str__():
     assert str(notification.action_object) in notification_str
 
 
+@pytest.mark.django_db
+def test_slug():
+    notification = NotificationShortFactory()
+    assert notification.id == notification.slug
+
+
+@pytest.mark.parametrize(
+    "field,initial_status,method_name,expected",
+    (
+        ("emailed", True, "mark_as_sent", True),
+        ("emailed", False, "mark_as_sent", True),
+        ("emailed", True, "mark_as_unsent", False),
+        ("emailed", False, "mark_as_unsent", False),
+        ("public", True, "mark_as_public", True),
+        ("public", False, "mark_as_public", True),
+        ("public", True, "mark_as_private", False),
+        ("public", False, "mark_as_private", False),
+        ("unread", True, "mark_as_read", False),
+        ("unread", False, "mark_as_read", False),
+        ("unread", True, "mark_as_unread", True),
+        ("unread", False, "mark_as_unread", True),
+    ),
+)
+@pytest.mark.django_db
+def test_mark_as_methods(field, initial_status, method_name, expected):
+    notification = NotificationShortFactory(**{field: initial_status})
+    func = getattr(notification, method_name)
+    func()
+    assert getattr(notification, field, None) is expected
+
+
+@pytest.mark.django_db
+def test_mark_as_active():
+    notification = NotificationShortFactory(deleted=True)
+    with pytest.raises(ImproperlyConfigured):
+        notification.mark_as_active()
+
+    with override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True}):
+        notification.mark_as_active()
+        assert notification.deleted is False
+
+
+@pytest.mark.django_db
+def test_mark_as_deleted():
+    notification = NotificationShortFactory(deleted=False)
+
+    with override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True}):
+        notification.mark_as_deleted()
+        assert notification.deleted is True
+
+    notification.mark_as_deleted()
+    assert Notification.objects.count() == 0
+
+
+@pytest.mark.parametrize(
+    "method,field",
+    (
+        ("actor_object_url", "actor"),
+        ("action_object_url", "action_object"),
+        ("target_object_url", "target"),
+    ),
+)
+@pytest.mark.django_db
+def test_build_url(method, field):
+    notification = NotificationFullFactory()
+
+    url = getattr(notification, method)()
+
+    assert "<a href=" in url
+    assert str(getattr(notification, field).id) in url
+
+    with patch("notifications.models.base.reverse") as mock:
+        mock.side_effect = NoReverseMatch
+        url = getattr(notification, method)()
+        assert getattr(notification, field).id == url
+
+
 @pytest.mark.parametrize(
     "increase,expected_result",
     (
@@ -62,45 +141,6 @@ def test_timesince(increase, expected_result):
         notification = NotificationShortFactory()
     with freeze_time(initial_date + timedelta(**increase)):
         assert notification.timesince() == expected_result
-
-
-@pytest.mark.django_db
-def test_slug():
-    notification = NotificationShortFactory()
-    assert notification.id == notification.slug
-
-
-@pytest.mark.parametrize(
-    "before,method",
-    (
-        (True, "mark_as_read"),
-        (False, "mark_as_unread"),
-    ),
-)
-@pytest.mark.django_db
-def test_mark_as_read_unread(before, method):
-    notification = NotificationShortFactory(unread=before)
-
-    assert Notification.objects.filter(unread=before).count() == 1
-    func = getattr(notification, method)
-    func()
-    assert Notification.objects.filter(unread=before).count() == 0
-    assert Notification.objects.filter(unread=not before).count() == 1
-
-
-@pytest.mark.django_db
-def test_build_url():
-    notification = NotificationShortFactory()
-
-    url = notification.actor_object_url()
-
-    assert "<a href=" in url
-    assert str(notification.actor.id) in url
-
-    with patch("notifications.models.base.reverse") as mock:
-        mock.side_effect = NoReverseMatch
-        url = notification.actor_object_url()
-        assert notification.actor.id == url
 
 
 @pytest.mark.parametrize(
