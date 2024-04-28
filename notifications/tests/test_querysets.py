@@ -12,232 +12,101 @@ User = get_user_model()
 
 
 @pytest.mark.parametrize(
-    "emailed,method",
+    "method,field,initial_status,expected,expect_deleted",
     (
-        (True, Notification.objects.sent),
-        (False, Notification.objects.unsent),
+        ("sent", "emailed", True, 4, 2),
+        ("sent", "emailed", False, 0, 0),
+        ("unsent", "emailed", True, 0, 0),
+        ("unsent", "emailed", False, 4, 2),
+        ("public", "public", True, 4, 2),
+        ("private", "public", True, 0, 0),
+        ("read", "unread", False, 4, 2),
+        ("read", "unread", True, 0, 0),
+        ("unread", "unread", False, 0, 0),
+        ("unread", "unread", True, 4, 2),
     ),
 )
 @pytest.mark.django_db
-def test_sent_unsent_methods(emailed, method):
-    NotificationFullFactory.create_batch(3, emailed=emailed)
-    assert method().count() == 3
+def test_filters(method, field, initial_status, expected, expect_deleted):
+    NotificationFullFactory.create_batch(2, **{field: initial_status})
+    NotificationFullFactory.create_batch(2, deleted=True, **{field: initial_status})
+    func = getattr(Notification.objects, method)
+    assert func().count() == expected
 
-    first_notification = Notification.objects.first()
-    first_notification.emailed = not emailed
-    first_notification.save()
-    assert method().count() == 2
-
-    Notification.objects.all().update(emailed=not emailed)
-    assert method().count() == 0
-
-    first_notification.emailed = emailed
-    first_notification.save()
-    assert method().count() == 1
-
-
-@pytest.mark.parametrize(
-    "read,method",
-    (
-        (False, Notification.objects.read),
-        (True, Notification.objects.unread),
-    ),
-)
-@pytest.mark.django_db
-def test_read_unread_methods(read, method):
-    NotificationFullFactory.create_batch(3, unread=read)
-    assert method().count() == 3
-
-    first_notification = Notification.objects.first()
-    first_notification.unread = not read
-    first_notification.save()
-    assert method().count() == 2
-
-    Notification.objects.all().update(unread=not read)
-    assert method().count() == 0
-
-    first_notification.unread = read
-    first_notification.save()
-    assert method().count() == 1
-
-
-@pytest.mark.parametrize(
-    "read,method",
-    (
-        (False, Notification.objects.read),
-        (True, Notification.objects.unread),
-    ),
-)
-@override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True})
-@pytest.mark.django_db
-def test_read_unread_with_deleted_notifications(read, method):
-    NotificationFullFactory.create_batch(3, unread=read)
-    assert method().count() == 3
-
-    first_notification = Notification.objects.first()
-    first_notification.deleted = True
-    first_notification.save()
-
-    assert method().count() == 2
-    assert method(include_deleted=True).count() == 3
-
-
-@pytest.mark.parametrize(
-    "status,method,check_method",
-    (
-        (True, Notification.objects.mark_all_as_read, Notification.objects.read),
-        (False, Notification.objects.mark_all_as_unread, Notification.objects.unread),
-    ),
-)
-@pytest.mark.django_db
-def test_mark_all_as_read_unread(status, method, check_method):
-    NotificationFullFactory.create_batch(3, unread=status)
-    assert check_method().count() == 0
-
-    method()
-    assert check_method().count() == 3
-
-
-@pytest.mark.parametrize(
-    "status,method,check_method",
-    (
-        (True, Notification.objects.mark_all_as_read, Notification.objects.read),
-        (False, Notification.objects.mark_all_as_unread, Notification.objects.unread),
-    ),
-)
-@pytest.mark.django_db
-def test_mark_all_as_read_unread_with_recipient(status, method, check_method):
-    recipient = RecipientFactory()
-    NotificationFullFactory.create_batch(2, unread=status, recipient=recipient)
-    NotificationFullFactory.create_batch(1, unread=status)
-    assert Notification.objects.count() == 3
-    assert check_method().count() == 0
-
-    method(recipient=recipient)
-    assert check_method().count() == 2
-
-
-@override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True})
-@pytest.mark.parametrize(
-    "deleted,method",
-    (
-        (True, Notification.objects.deleted),
-        (False, Notification.objects.active),
-    ),
-)
-@pytest.mark.django_db
-def test_deleted_active_methods(deleted, method):
-    NotificationFullFactory.create_batch(3, deleted=deleted)
-    assert method().count() == 3
-
-    first_notification = Notification.objects.first()
-    first_notification.deleted = not deleted
-    first_notification.save()
-    assert method().count() == 2
-
-    Notification.objects.all().update(deleted=not deleted)
-    assert method().count() == 0
-
-    first_notification.deleted = deleted
-    first_notification.save()
-    assert method().count() == 1
+    with override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True}):
+        assert func().count() == expect_deleted
+        assert func(include_deleted=True).count() == expected
 
 
 @pytest.mark.parametrize(
     "method",
     (
-        Notification.objects.deleted,
-        Notification.objects.active,
+        "active",
+        "deleted",
     ),
 )
 @pytest.mark.django_db
-def test_deleted_active_methods_without_soft_delete(method):
+def test_filter_active_deleted(method):
+    NotificationFullFactory.create_batch(2, deleted=False)
+    NotificationFullFactory.create_batch(2, deleted=True)
+
+    func = getattr(Notification.objects, method)
     with pytest.raises(ImproperlyConfigured):
-        assert method()
+        func()
+
+    with override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True}):
+        assert func().count() == 2
 
 
-@override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True})
 @pytest.mark.parametrize(
-    "status,method,check_method",
+    "method,field,initial_status,expected,final_status",
     (
-        (False, Notification.objects.mark_all_as_deleted, Notification.objects.deleted),
-        (True, Notification.objects.mark_all_as_active, Notification.objects.active),
+        ("mark_all_as_sent", "emailed", False, 2, True),
+        ("mark_all_as_sent", "emailed", True, 0, True),
+        ("mark_all_as_unsent", "emailed", True, 2, False),
+        ("mark_all_as_unsent", "emailed", False, 0, False),
+        ("mark_all_as_public", "public", True, 0, True),
+        ("mark_all_as_public", "public", False, 2, True),
+        ("mark_all_as_private", "public", False, 0, False),
+        ("mark_all_as_private", "public", True, 2, False),
+        ("mark_all_as_read", "unread", False, 0, False),
+        ("mark_all_as_read", "unread", True, 2, False),
+        ("mark_all_as_unread", "unread", False, 2, True),
+        ("mark_all_as_unread", "unread", True, 0, True),
     ),
 )
 @pytest.mark.django_db
-def test_mark_all_as_deleted_active(status, method, check_method):
-    NotificationFullFactory.create_batch(3, deleted=status)
-    assert Notification.objects.count() == 3
-    assert check_method().count() == 0
-
-    method()
-    assert check_method().count() == 3
-
-
-@override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True})
-@pytest.mark.parametrize(
-    "status,method,check_method",
-    (
-        (False, Notification.objects.mark_all_as_deleted, Notification.objects.deleted),
-        (True, Notification.objects.mark_all_as_active, Notification.objects.active),
-    ),
-)
-@pytest.mark.django_db
-def test_mark_all_as_deleted_active_with_recipient(status, method, check_method):
+def test_mark_all(method, field, initial_status, expected, final_status):
     recipient = RecipientFactory()
-    NotificationFullFactory.create_batch(2, deleted=status, recipient=recipient)
-    NotificationFullFactory.create_batch(1, deleted=status)
-    assert Notification.objects.count() == 3
-    assert check_method().count() == 0
+    NotificationFullFactory.create_batch(2, **{field: initial_status})
+    NotificationFullFactory.create_batch(2, recipient=recipient, **{field: initial_status})
+    func = getattr(Notification.objects, method)
 
-    method(recipient=recipient)
-    assert check_method().count() == 2
+    assert func(recipient=recipient) == expected
+    assert func() == expected
+
+    assert Notification.objects.filter(**{field: final_status}).count() == 4
 
 
 @pytest.mark.parametrize(
-    "method",
+    "method,initial_status",
     (
-        Notification.objects.mark_all_as_deleted,
-        Notification.objects.mark_all_as_active,
+        ("mark_all_as_active", True),
+        ("mark_all_as_deleted", False),
     ),
 )
 @pytest.mark.django_db
-def test_mark_all_as_deleted_active_without_soft_delete(method):
+def test_mark_all_active_deleted(method, initial_status):
+    recipient = RecipientFactory()
+    NotificationFullFactory.create_batch(2, recipient=recipient, deleted=initial_status)
+    NotificationFullFactory.create_batch(2, deleted=initial_status)
+
+    func = getattr(Notification.objects, method)
     with pytest.raises(ImproperlyConfigured):
-        method()
+        func()
 
+    with override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True}):
+        assert func(recipient=recipient) == 2
+        assert func() == 2
 
-@pytest.mark.parametrize(
-    "status,method,check_method",
-    (
-        (False, Notification.objects.mark_as_sent, Notification.objects.sent),
-        (True, Notification.objects.mark_as_unsent, Notification.objects.unsent),
-    ),
-)
-@pytest.mark.django_db
-def test_mark_as_sent_unsent_method(status, method, check_method):
-    NotificationFullFactory.create_batch(3, emailed=status)
-    assert Notification.objects.count() == 3
-    assert check_method().count() == 0
-
-    method()
-    assert check_method().count() == 3
-
-
-@pytest.mark.parametrize(
-    "status,method,check_method",
-    (
-        (False, Notification.objects.mark_as_sent, Notification.objects.sent),
-        (True, Notification.objects.mark_as_unsent, Notification.objects.unsent),
-    ),
-)
-@pytest.mark.django_db
-def test_mark_as_sent_unsent_with_recipient(status, method, check_method):
-    recipient = RecipientFactory()
-    NotificationFullFactory.create_batch(2, emailed=status, recipient=recipient)
-    NotificationFullFactory.create_batch(1, emailed=status)
-    assert Notification.objects.count() == 3
-    assert check_method().count() == 0
-
-    method(recipient=recipient)
-    assert check_method().count() == 2
+    assert Notification.objects.filter(deleted=not initial_status).count() == 4

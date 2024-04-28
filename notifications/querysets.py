@@ -1,122 +1,91 @@
-from typing import Type, Union
-
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from notifications.notification_types import AbstractUser
+from notifications.helpers import assert_soft_delete
+from notifications.notification_types import OptionalAbstractUser
 from notifications.settings import notification_settings
-
-
-def assert_soft_delete() -> None:
-    if not notification_settings.SOFT_DELETE:
-        # msg = """To use 'deleted' field, please set 'SOFT_DELETE'=True in settings.
-        # Otherwise NotificationQuerySet.unread and NotificationQuerySet.read do NOT filter by 'deleted' field.
-        # """
-        msg = "REVERTME"
-        raise ImproperlyConfigured(msg)
 
 
 class NotificationQuerySet(models.QuerySet):
     """Notification QuerySet"""
 
-    def unread(self, include_deleted: bool = False) -> "NotificationQuerySet":
-        """Return only unread items in the current queryset"""
+    def _filter_by(self, include_deleted: bool = False, **kwargs) -> "NotificationQuerySet":
         if notification_settings.SOFT_DELETE and not include_deleted:
-            return self.filter(unread=True, deleted=False)
+            return self.filter(deleted=False, **kwargs)
 
         # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field
         # in this case, to improve query performance, don't filter by 'deleted' field
-        return self.filter(unread=True)
-
-    def read(self, include_deleted: bool = False) -> "NotificationQuerySet":
-        """Return only read items in the current queryset"""
-        if notification_settings.SOFT_DELETE and not include_deleted:
-            return self.filter(unread=False, deleted=False)
-
-        # When SOFT_DELETE=False, developers are supposed NOT to touch 'deleted' field
-        # in this case, to improve query performance, don't filter by 'deleted' field
-        return self.filter(unread=False)
-
-    def mark_all_as_read(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
-        """Mark as read any unread messages in the current queryset.
-
-        Optionally, filter these by recipient first.
-        """
-        # We want to filter out read ones, as later we will store
-        # the time they were marked as read.
-        qset = self.unread(True)
-        if recipient:
-            qset = qset.filter(recipient=recipient)
-
-        return qset.update(unread=False)
-
-    def mark_all_as_unread(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
-        """Mark as unread any read messages in the current queryset.
-
-        Optionally, filter these by recipient first.
-        """
-        qset = self.read(True)
-
-        if recipient:
-            qset = qset.filter(recipient=recipient)
-
-        return qset.update(unread=True)
-
-    def deleted(self) -> "NotificationQuerySet":
-        """Return only deleted items in the current queryset"""
-        assert_soft_delete()
-        return self.filter(deleted=True)
+        return self.filter(**kwargs)
 
     def active(self) -> "NotificationQuerySet":
-        """Return only active(un-deleted) items in the current queryset"""
+        """If SOFT_DELETE is active, return only active items in the current queryset"""
         assert_soft_delete()
         return self.filter(deleted=False)
 
-    def mark_all_as_deleted(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
-        """Mark current queryset as deleted.
-        Optionally, filter by recipient first.
-        """
+    def deleted(self) -> "NotificationQuerySet":
+        """If SOFT_DELETE is active, return only deleted items in the current queryset"""
         assert_soft_delete()
-        qset = self.active()
-        if recipient:
-            qset = qset.filter(recipient=recipient)
-
-        return qset.update(deleted=True)
-
-    def mark_all_as_active(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
-        """Mark current queryset as active(un-deleted).
-        Optionally, filter by recipient first.
-        """
-        assert_soft_delete()
-        qset = self.deleted()
-        if recipient:
-            qset = qset.filter(recipient=recipient)
-
-        return qset.update(deleted=False)
-
-    def unsent(self, include_deleted: bool = False) -> "NotificationQuerySet":
-        """Return only unsent items in the current queryset"""
-        if notification_settings.SOFT_DELETE and not include_deleted:
-            return self.filter(emailed=False, deleted=False)
-
-        return self.filter(emailed=False)
+        return self.filter(deleted=True)
 
     def sent(self, include_deleted: bool = False) -> "NotificationQuerySet":
         """Return only sent items in the current queryset"""
-        if notification_settings.SOFT_DELETE and not include_deleted:
-            return self.filter(emailed=True, deleted=False)
+        return self._filter_by(include_deleted=include_deleted, emailed=True)
 
-        return self.filter(emailed=True)
+    def unsent(self, include_deleted: bool = False) -> "NotificationQuerySet":
+        """Return only unsent items in the current queryset"""
+        return self._filter_by(include_deleted=include_deleted, emailed=False)
 
-    def mark_as_unsent(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
-        qset = self.sent()
+    def public(self, include_deleted: bool = False) -> "NotificationQuerySet":
+        """Return only public items in the current queryset"""
+        return self._filter_by(include_deleted=include_deleted, public=True)
+
+    def private(self, include_deleted: bool = False) -> "NotificationQuerySet":
+        """Return only private items in the current queryset"""
+        return self._filter_by(include_deleted=include_deleted, public=False)
+
+    def read(self, include_deleted: bool = False) -> "NotificationQuerySet":
+        """Return only read items in the current queryset"""
+        return self._filter_by(include_deleted=include_deleted, unread=False)
+
+    def unread(self, include_deleted: bool = False) -> "NotificationQuerySet":
+        """Return only unread items in the current queryset"""
+        return self._filter_by(include_deleted=include_deleted, unread=True)
+
+    def _mark_all_as(self, recipient: OptionalAbstractUser = None, **kwargs) -> int:
         if recipient:
-            qset = qset.filter(recipient=recipient)
-        return qset.update(emailed=False)
+            return self.filter(recipient=recipient).update(**kwargs)
+        return self.update(**kwargs)
 
-    def mark_as_sent(self, recipient: Union[None, Type[AbstractUser]] = None) -> int:
-        qset = self.unsent()
-        if recipient:
-            qset = qset.filter(recipient=recipient)
-        return qset.update(emailed=True)
+    def mark_all_as_active(self, recipient: OptionalAbstractUser = None) -> int:
+        """If SOFT_DELETE is activated, mark all deleted notifications as active."""
+        assert_soft_delete()
+        return self.deleted()._mark_all_as(recipient=recipient, deleted=False)  # pylint: disable=protected-access
+
+    def mark_all_as_deleted(self, recipient: OptionalAbstractUser = None) -> int:
+        """If SOFT_DELETE is activated, mark all active notifications as deleted."""
+        assert_soft_delete()
+        return self.active()._mark_all_as(recipient=recipient, deleted=True)  # pylint: disable=protected-access
+
+    def mark_all_as_sent(self, recipient: OptionalAbstractUser = None) -> int:
+        """Mark all unsent notifications as sent."""
+        return self.unsent()._mark_all_as(recipient=recipient, emailed=True)  # pylint: disable=protected-access
+
+    def mark_all_as_unsent(self, recipient: OptionalAbstractUser = None) -> int:
+        """Mark all sent notifications as unsent."""
+        return self.sent()._mark_all_as(recipient=recipient, emailed=False)  # pylint: disable=protected-access
+
+    def mark_all_as_public(self, recipient: OptionalAbstractUser = None) -> int:
+        """Mark all private notifications as public."""
+        return self.private()._mark_all_as(recipient=recipient, public=True)  # pylint: disable=protected-access
+
+    def mark_all_as_private(self, recipient: OptionalAbstractUser = None) -> int:
+        """Mark all public notifications as private."""
+        return self.public()._mark_all_as(recipient=recipient, public=False)  # pylint: disable=protected-access
+
+    def mark_all_as_read(self, recipient: OptionalAbstractUser = None) -> int:
+        """Mark all unread notifications as read."""
+        return self.unread()._mark_all_as(recipient=recipient, unread=False)  # pylint: disable=protected-access
+
+    def mark_all_as_unread(self, recipient: OptionalAbstractUser = None) -> int:
+        """Mark all read notifications as unread."""
+        return self.read()._mark_all_as(recipient=recipient, unread=True)  # pylint: disable=protected-access
