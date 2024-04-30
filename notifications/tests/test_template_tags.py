@@ -1,10 +1,8 @@
 from unittest.mock import Mock, patch
 
 import pytest
-from django.core.cache import cache
 from django.template import Context, Template
 from django.urls import reverse_lazy
-from freezegun import freeze_time
 from swapper import load_model
 
 from notifications.templatetags.notifications_tags import user_context
@@ -19,21 +17,24 @@ def render_tag(template, context):
     return template.render(Context(context))
 
 
+@patch("notifications.templatetags.notifications_tags.get_cached_notification_unread_count")
+@patch("notifications.templatetags.notifications_tags.user_context")
 @pytest.mark.django_db
-def test_notifications_unread():
-    assert render_tag("{% notifications_unread %}", {}) == ""
+def test_notifications_unread(user_context_mock, get_cached_mock):
+    get_cached_mock.side_effect = lambda user: user.notifications_notification_related.unread().count()
 
-    assert (
-        render_tag("{% notifications_unread %}", {"user": Mock(), "request": Mock(user=Mock(is_anonymous=True))}) == ""
-    )
+    user_context_mock.return_value = None
+    assert render_tag("{% notifications_unread %}", {}) == ""
+    user_context_mock.assert_called_once()
+    user_context_mock.reset_mock()
 
     notification = NotificationFullFactory()
-    assert (
-        render_tag(
-            "{% notifications_unread %}", {"user": notification.recipient, "request": Mock(user=notification.recipient)}
-        )
-        == "1"
-    )
+    user_context_mock.return_value = notification.recipient
+    assert render_tag("{% notifications_unread %}", {}) == "1"
+    user_context_mock.assert_called_once()
+    get_cached_mock.assert_called_once()
+    user_context_mock.reset_mock()
+    get_cached_mock.reset_mock()
 
 
 @pytest.mark.django_db
@@ -51,8 +52,8 @@ def test_has_notification():
 @pytest.mark.parametrize(
     "_type,url",
     (
-        ("list", reverse_lazy("notifications:live_unread_notification_list")),
-        ("count", reverse_lazy("notifications:live_unread_notification_count")),
+        ("list", reverse_lazy("notifications:api", args=("unread",))),
+        ("count", reverse_lazy("notifications:api", args=("unread",)) + "?count=true"),
     ),
 )
 def test_register_notify_callbacks(_type, url):
@@ -71,34 +72,38 @@ def test_register_notify_callbacks(_type, url):
     assert str(url) in render
 
 
+@patch("notifications.templatetags.notifications_tags.get_cached_notification_unread_count")
 @patch("notifications.templatetags.notifications_tags.user_context")
 @pytest.mark.django_db
-def test_live_notify_badge(user_context_mock):
+def test_live_notify_badge(user_context_mock, get_cached_mock):
     user = RecipientFactory()
+    get_cached_mock.side_effect = lambda user: user.notifications_notification_related.unread().count()
 
     # No user
     user_context_mock.return_value = None
     assert render_tag("{% live_notify_badge %}", {}) == ""
+    user_context_mock.assert_called_once()
+    user_context_mock.reset_mock()
 
     # User without notifications
     user_context_mock.return_value = user
     badge = render_tag("{% live_notify_badge badge_class='blafoo' %}", {})
     assert "blafoo" in badge
     assert "0" in badge
+    user_context_mock.assert_called_once()
+    get_cached_mock.assert_called_once()
+    user_context_mock.reset_mock()
+    get_cached_mock.reset_mock()
 
-    # Cached with 0 notifications
-    with freeze_time("2024-01-01 00:00:00"):
-        NotificationFullFactory(recipient=user)
-        badge = render_tag("{% live_notify_badge badge_class='blafoo' %}", {})
-        assert "blafoo" in badge
-        assert "0" in badge
-
-    # No cache with notification
-    with freeze_time("2024-01-02 00:00:00"):
-        cache.clear()
-        badge = render_tag("{% live_notify_badge badge_class='blafoo' %}", {})
-        assert "blafoo" in badge
-        assert "1" in badge
+    # User with notification
+    NotificationFullFactory(recipient=user)
+    badge = render_tag("{% live_notify_badge badge_class='blafoo' %}", {})
+    assert "blafoo" in badge
+    assert "1" in badge
+    user_context_mock.assert_called_once()
+    get_cached_mock.assert_called_once()
+    user_context_mock.reset_mock()
+    get_cached_mock.reset_mock()
 
 
 def test_live_notify_list():
@@ -116,5 +121,5 @@ def test_user_context():
     user = Mock(is_anonymous=True)
     assert user_context({"user": user, "request": Mock(user=user)}) is None
 
-    user = Mock(is_anonymous=False)
+    user.is_anonymous = False
     assert user_context({"user": user, "request": Mock(user=user)}) == user

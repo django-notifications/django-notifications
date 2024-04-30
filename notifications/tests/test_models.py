@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
 import pytest
 from django.core.exceptions import ImproperlyConfigured
-from django.test import override_settings
+from django.test import override_settings  # noqa
 from django.urls import NoReverseMatch
+from django.utils.timezone import localtime
 from freezegun import freeze_time
 from swapper import load_model
 
@@ -180,3 +181,24 @@ def test_extra_data():
     data = {"url": "/learn/ask-a-pro/q/test-question-9/299/", "other_content": "Hello my 'world'"}
     notification = NotificationFullFactory(data=data)
     assert notification.data == data
+
+
+@override_settings(USE_TZ=True)
+@override_settings(TIME_ZONE="Asia/Shanghai")
+@pytest.mark.django_db
+def test_use_timezone():
+    # The delta between the two events will still be less than a second despite the different timezones
+    # The call to now and the immediate call afterwards will be within a short period of time, not 8 hours as the
+    # test above was originally.
+    notification = NotificationFullFactory()
+    delta = datetime.now(tz=timezone.utc) - localtime(notification.timestamp)
+    assert delta.seconds < 60
+
+
+@override_settings(USE_TZ=False)
+@override_settings(TIME_ZONE="Asia/Shanghai")
+@pytest.mark.django_db
+def test_disable_timezone():
+    notification = NotificationFullFactory()
+    delta = datetime.now() - notification.timestamp
+    assert delta.seconds < 60

@@ -48,9 +48,9 @@ def register_notify_callbacks(
     refresh_period = int(refresh_period) * 1000
 
     if api_name == "list":
-        api_url = reverse("notifications:live_unread_notification_list")
+        api_url = reverse("notifications:api", args=("unread",))
     elif api_name == "count":
-        api_url = reverse("notifications:live_unread_notification_count")
+        api_url = reverse("notifications:api", args=("unread",)) + "?count=true"
     else:
         return ""
     definitions = f"""
@@ -59,7 +59,7 @@ def register_notify_callbacks(
         notify_api_url='{api_url}';
         notify_fetch_count='{fetch}';
         notify_unread_url='{reverse("notifications:list", args=("unread",))}';
-        notify_mark_all_unread_url='{reverse("notifications:mark_all_as_read")}';
+        notify_mark_all_unread_url='{reverse("notifications:mark_all_as", args=("read",))}';
         notify_refresh_period={refresh_period};
         notify_mark_as_read={str(mark_as_read).lower()};
     """

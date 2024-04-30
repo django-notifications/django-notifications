@@ -6,7 +6,7 @@ from notifications.notification_types import OptionalAbstractUser
 from notifications.settings import notification_settings
 
 
-class NotificationQuerySet(models.QuerySet):
+class NotificationQuerySet(models.QuerySet):  # pylint: disable=too-many-public-methods
     """Notification QuerySet"""
 
     def _filter_by(self, include_deleted: bool = False, **kwargs) -> "NotificationQuerySet":
@@ -55,6 +55,40 @@ class NotificationQuerySet(models.QuerySet):
         if recipient:
             return self.filter(recipient=recipient).update(**kwargs)
         return self.update(**kwargs)
+
+    def mark_as_active(self, recipient: OptionalAbstractUser = None) -> int:
+        """If SOFT_DELETE is activated, mark all deleted notifications as active."""
+        assert_soft_delete()
+        return self._mark_all_as(recipient=recipient, deleted=False)
+
+    def mark_as_deleted(self, recipient: OptionalAbstractUser = None) -> int:
+        """If SOFT_DELETE is activated, mark all active notifications as deleted."""
+        assert_soft_delete()
+        return self._mark_all_as(recipient=recipient, deleted=True)
+
+    def mark_as_sent(self, recipient: OptionalAbstractUser = None) -> int:
+        """Mark all unsent notifications as sent."""
+        return self._mark_all_as(recipient=recipient, emailed=True)
+
+    def mark_as_unsent(self, recipient: OptionalAbstractUser = None) -> int:
+        """Mark all sent notifications as unsent."""
+        return self._mark_all_as(recipient=recipient, emailed=False)
+
+    def mark_as_public(self, recipient: OptionalAbstractUser = None) -> int:
+        """Mark all private notifications as public."""
+        return self._mark_all_as(recipient=recipient, public=True)
+
+    def mark_as_private(self, recipient: OptionalAbstractUser = None) -> int:
+        """Mark all public notifications as private."""
+        return self._mark_all_as(recipient=recipient, public=False)
+
+    def mark_as_read(self, recipient: OptionalAbstractUser = None) -> int:
+        """Mark all unread notifications as read."""
+        return self._mark_all_as(recipient=recipient, unread=False)
+
+    def mark_as_unread(self, recipient: OptionalAbstractUser = None) -> int:
+        """Mark all read notifications as unread."""
+        return self._mark_all_as(recipient=recipient, unread=True)
 
     def mark_all_as_active(self, recipient: OptionalAbstractUser = None) -> int:
         """If SOFT_DELETE is activated, mark all deleted notifications as active."""
