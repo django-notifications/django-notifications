@@ -5,8 +5,9 @@ from django.db import migrations
 from django.db.models import Index
 from django.utils import version
 
-_version = version.get_version_tuple(version.get_version())
-if _version[0] >= 4 and _version[1] >= 2:
+major, minor, *_ = version.get_version_tuple(version.get_version())
+version = major * 10 + minor
+if version >= 42:
     _operations = [
         migrations.AddIndex(
             model_name="notification",
