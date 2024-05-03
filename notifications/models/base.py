@@ -189,10 +189,10 @@ class AbstractNotification(models.Model):
     def actor_object_url(self) -> str:
         return self._build_url("actor")
 
-    def action_object_url(self) -> Union[str, None]:
+    def action_object_url(self) -> Union[str, int]:
         return self._build_url("action_object")
 
-    def target_object_url(self) -> Union[str, None]:
+    def target_object_url(self) -> Union[str, int]:
         return self._build_url("target")
 
     def timesince(self, now: Union[None, datetime.datetime] = None) -> str:

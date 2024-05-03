@@ -219,6 +219,12 @@ django_debug_mode = "keep"
 relative_files = true
 parallel = true
 branch = true
+omit = [
+    "__init__.py",
+    "manage.py",
+    "settings.py",
+    "notifications/tests/**/*",
+]
 
 [tool.mypy]
 files = "**/*.py"

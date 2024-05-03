@@ -29,8 +29,8 @@ class NotificationAdmin(admin.ModelAdmin):
 
     @admin.action(description=gettext_lazy("Mark selected notifications as unread"))
     def mark_unread(self, request: HttpRequest, queryset: NotificationQuerySet):  # pylint: disable=unused-argument
-        queryset.update(unread=True)
+        queryset.mark_as_unread()
 
     @admin.action(description=gettext_lazy("Mark selected notifications as read"))
     def mark_read(self, request: HttpRequest, queryset: NotificationQuerySet):  # pylint: disable=unused-argument
-        queryset.update(unread=False)
+        queryset.mark_as_read()

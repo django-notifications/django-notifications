@@ -112,3 +112,57 @@ def test_mark_all_active_deleted(method, initial_status):
         assert func() == 2
 
     assert Notification.objects.filter(deleted=not initial_status).count() == 4
+
+
+@pytest.mark.parametrize(
+    "method,field,initial_status,final_status",
+    (
+        ("mark_as_sent", "emailed", False, True),
+        ("mark_as_sent", "emailed", True, True),
+        ("mark_as_unsent", "emailed", True, False),
+        ("mark_as_unsent", "emailed", False, False),
+        ("mark_as_public", "public", True, True),
+        ("mark_as_public", "public", False, True),
+        ("mark_as_private", "public", False, False),
+        ("mark_as_private", "public", True, False),
+        ("mark_as_read", "unread", False, False),
+        ("mark_as_read", "unread", True, False),
+        ("mark_as_unread", "unread", False, True),
+        ("mark_as_unread", "unread", True, True),
+    ),
+)
+@pytest.mark.django_db
+def test_mark_as(method, field, initial_status, final_status):
+    recipient = RecipientFactory()
+    NotificationFullFactory.create_batch(2, **{field: initial_status})
+    NotificationFullFactory.create_batch(2, recipient=recipient, **{field: initial_status})
+    func = getattr(Notification.objects, method)
+
+    assert func(recipient=recipient) == 2
+    assert func() == 4
+
+    assert Notification.objects.filter(**{field: final_status}).count() == 4
+
+
+@pytest.mark.parametrize(
+    "method,initial_status",
+    (
+        ("mark_as_active", True),
+        ("mark_as_deleted", False),
+    ),
+)
+@pytest.mark.django_db
+def test_mark_as_active_deleted(method, initial_status):
+    recipient = RecipientFactory()
+    NotificationFullFactory.create_batch(2, recipient=recipient, deleted=initial_status)
+    NotificationFullFactory.create_batch(2, deleted=initial_status)
+
+    func = getattr(Notification.objects, method)
+    with pytest.raises(ImproperlyConfigured):
+        func()
+
+    with override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True}):
+        assert func(recipient=recipient) == 2
+        assert func() == 4
+
+    assert Notification.objects.filter(deleted=not initial_status).count() == 4
