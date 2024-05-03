@@ -11,22 +11,22 @@ from swapper import load_model
 from notifications.models.base import NotificationLevel
 from notifications.settings import notification_settings
 
-EXTRA_DATA = notification_settings.USE_JSONFIELD
+Notification = load_model("notifications", "Notification")
 
 
-def notify_handler(verb, **kwargs):
+def notify_handler(sender, **kwargs):
     """
     Handler function to create Notification instance upon action signal call.
     """
     # Pull the options out of kwargs
     kwargs.pop("signal", None)
+    actor = sender
     recipient = kwargs.pop("recipient")
-    actor = kwargs.pop("sender")
+    verb = kwargs.pop("verb")
     optional_objs = [(kwargs.pop(opt, None), opt) for opt in ("target", "action_object")]
     public = bool(kwargs.pop("public", True))
     description = kwargs.pop("description", None)
     timestamp = kwargs.pop("timestamp", timezone.now())
-    Notification = load_model("notifications", "Notification")  # pylint: disable=invalid-name
     level = kwargs.pop("level", NotificationLevel.INFO)
     actor_for_concrete_model = kwargs.pop("actor_for_concrete_model", True)
 
@@ -63,7 +63,7 @@ def notify_handler(verb, **kwargs):
                     ContentType.objects.get_for_model(obj, for_concrete_model=for_concrete_model),
                 )
 
-        if kwargs and EXTRA_DATA:
+        if kwargs and notification_settings.USE_JSONFIELD:
             # set kwargs as model column if available
             for key in list(kwargs.keys()):
                 if hasattr(newnotify, key):

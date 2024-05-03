@@ -4,10 +4,6 @@ from typing import Any, TypedDict, Union
 
 from django.conf import settings
 
-# Import from `django.core.signals` instead of the official location
-# `django.test.signals` to avoid importing the test module unnecessarily.
-from django.core.signals import setting_changed
-
 NOTIFICATION_DEFAULTS = {
     "PAGINATE_BY": 20,
     "USE_JSONFIELD": False,
@@ -85,7 +81,5 @@ def reload_notification_settings(*args: Any, **kwargs: Any):  # pylint: disable=
     if setting == "DJANGO_NOTIFICATIONS_CONFIG":
         notification_settings.reload()
 
-
-setting_changed.connect(reload_notification_settings)
 
 __all__ = ("notification_settings",)
