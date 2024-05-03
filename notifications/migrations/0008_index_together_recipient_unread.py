@@ -2,6 +2,24 @@
 
 from django.conf import settings
 from django.db import migrations
+from django.db.models import Index
+from django.utils import version
+
+_version = version.get_version_tuple(version.get_version())
+if _version[0] >= 4 and _version[1] >= 2:
+    _operations = [
+        migrations.AddIndex(
+            model_name="notification",
+            index=Index(fields=("recipient", "unread"), name="recipient_unread_idx"),
+        ),
+    ]
+else:
+    _operations = [
+        migrations.AlterIndexTogether(
+            name="notification",
+            index_together={("recipient", "unread")},
+        ),
+    ]
 
 
 class Migration(migrations.Migration):
@@ -10,9 +28,4 @@ class Migration(migrations.Migration):
         ("notifications", "0007_add_timestamp_index"),
     ]
 
-    operations = [
-        migrations.AlterIndexTogether(
-            name="notification",
-            index_together={("recipient", "unread")},
-        ),
-    ]
+    operations = _operations
