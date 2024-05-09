@@ -70,10 +70,8 @@ def notify_handler(sender, **kwargs):
                     setattr(newnotify, key, kwargs.pop(key))
             newnotify.data = kwargs
 
-        newnotify.save()
         new_notifications.append(newnotify)
-
-    return new_notifications
+    return Notification.objects.bulk_create(new_notifications)
 
 
 notify = Signal()
