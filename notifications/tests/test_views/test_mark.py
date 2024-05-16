@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 from django.test import override_settings
@@ -20,7 +22,8 @@ VIEW_NAME = "notifications:mark_as"
 @pytest.mark.parametrize("status", status_list + wrong_status_list + soft_delete_status_list)
 @pytest.mark.django_db
 def test_login_required(status, client):
-    view_url = reverse(VIEW_NAME, args=(1, status))
+    _id = uuid4()
+    view_url = reverse(VIEW_NAME, args=(_id, status))
     response = client.get(view_url, follow=True)
     assert response.status_code == 200
     assert len(response.redirect_chain) == 1
@@ -31,8 +34,9 @@ def test_login_required(status, client):
 @pytest.mark.parametrize("status", status_list + soft_delete_status_list)
 @pytest.mark.django_db
 def test_notification_not_found(status, client, staff_user):
+    _id = uuid4()
     client.force_login(staff_user)
-    response = client.get(reverse(VIEW_NAME, args=(9999, status)))
+    response = client.get(reverse(VIEW_NAME, args=(_id, status)))
     assert response.status_code == 404
 
 
@@ -40,7 +44,8 @@ def test_notification_not_found(status, client, staff_user):
 @pytest.mark.django_db
 def test_wrong_methods(status, client, staff_user, notifications):  # pylint: disable=unused-argument
     client.force_login(staff_user)
-    response = client.get(reverse(VIEW_NAME, args=(1, status)))
+    notification = staff_user.notifications_notification_related.first()
+    response = client.get(reverse(VIEW_NAME, args=(notification.uuid, status)))
     assert response.status_code == 404
     assert response.content.decode() == f'Status "{status}" not exists.'
 
@@ -69,7 +74,7 @@ def test_mark_as(
     client.force_login(staff_user)
     notification = NotificationFullFactory(recipient=staff_user, **{field: initial_status})
 
-    response = client.get(reverse(VIEW_NAME, args=(notification.slug, status)))
+    response = client.get(reverse(VIEW_NAME, args=(notification.uuid, status)))
     assert response.status_code == 302
     notification.refresh_from_db()
     assert getattr(notification, field) == expected
@@ -81,10 +86,10 @@ def test_mark_as_active(client, staff_user, notifications):  # pylint: disable=u
     notification = NotificationFullFactory(recipient=staff_user, deleted=True)
 
     with pytest.raises(ImproperlyConfigured):
-        response = client.get(reverse(VIEW_NAME, args=(notification.slug, "active")))
+        response = client.get(reverse(VIEW_NAME, args=(notification.uuid, "active")))
 
     with override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True}):
-        response = client.get(reverse(VIEW_NAME, args=(notification.slug, "active")))
+        response = client.get(reverse(VIEW_NAME, args=(notification.uuid, "active")))
         assert response.status_code == 302
         notification.refresh_from_db()
         assert notification.deleted is False
@@ -96,11 +101,11 @@ def test_mark_as_deleted(client, staff_user, notifications):  # pylint: disable=
     notification = NotificationFullFactory(recipient=staff_user, deleted=False)
 
     with override_settings(DJANGO_NOTIFICATIONS_CONFIG={"SOFT_DELETE": True}):
-        response = client.get(reverse(VIEW_NAME, args=(notification.slug, "deleted")))
+        response = client.get(reverse(VIEW_NAME, args=(notification.uuid, "deleted")))
         assert response.status_code == 302
         notification.refresh_from_db()
         assert notification.deleted is True
 
-    response = client.get(reverse(VIEW_NAME, args=(notification.slug, "deleted")))
+    response = client.get(reverse(VIEW_NAME, args=(notification.uuid, "deleted")))
     with pytest.raises(Notification.DoesNotExist):
         notification.refresh_from_db()

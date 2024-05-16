@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 from typing import Union
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -54,6 +55,7 @@ class AbstractNotification(models.Model):
 
     """
 
+    uuid = models.UUIDField(unique=True, default=uuid4, editable=False)
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -135,10 +137,6 @@ class AbstractNotification(models.Model):
         if self.action_object:
             return _("%(actor)s %(verb)s %(action_object)s %(timesince)s ago") % ctx
         return _("%(actor)s %(verb)s %(timesince)s ago") % ctx
-
-    @property
-    def slug(self):
-        return self.id
 
     def _mark_as(self, field: str, status: bool) -> None:
         if getattr(self, field, None) != status:

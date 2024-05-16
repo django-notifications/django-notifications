@@ -51,12 +51,6 @@ def test__str__():
     assert str(notification.action_object) in notification_str
 
 
-@pytest.mark.django_db
-def test_slug():
-    notification = NotificationShortFactory()
-    assert notification.id == notification.slug
-
-
 @pytest.mark.parametrize(
     "field,initial_status,method_name,expected",
     (

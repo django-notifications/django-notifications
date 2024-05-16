@@ -68,9 +68,9 @@ class NotificationsMarkAs(NotificationRedirectMixin, RedirectView):
 
     def get(self, request, *args, **kwargs):
         status = self.kwargs["status"]
-        notification_id = self.kwargs["slug"]
+        notification_uuid = self.kwargs["uuid"]
 
-        notification = get_object_or_404(Notification, recipient=request.user, id=notification_id)
+        notification = get_object_or_404(Notification, recipient=request.user, uuid=notification_uuid)
 
         method = getattr(notification, f"mark_as_{status}", None)
         if not method:
