@@ -80,7 +80,7 @@ Add the notifications urls to your urlconf:
 ```python
 urlpatterns = [
     ...
-    path('inbox/notifications/', include("notifications.urls", namespace='notifications')),
+    path('inbox/notifications/', include('notifications.urls', namespace='notifications')),
     ...
 ]
 ```
