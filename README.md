@@ -78,18 +78,12 @@ INSTALLED_APPS = (
 Add the notifications urls to your urlconf:
 
 ```python
-import notifications.urls
-
 urlpatterns = [
     ...
-    url('^inbox/notifications/', include(notifications.urls, namespace='notifications')),
+    path('inbox/notifications/', include('notifications.urls', namespace='notifications')),
     ...
 ]
 ```
-
-The method of installing these urls, importing rather than using
-`'notifications.urls'`, is required to ensure that the urls are
-installed in the `notifications` namespace.
 
 To run schema migration, execute
 `python manage.py migrate notifications`.
@@ -261,7 +255,7 @@ Mark the current object as read.
 
 ### Template tags
 
-Put `{% load notifications\_tags %}` in the template before
+Put `{% load notifications_tags %}` in the template before
 you actually use notification tags.
 
 ### `notifications_unread`
