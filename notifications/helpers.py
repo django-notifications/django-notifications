@@ -1,6 +1,9 @@
 from django.forms import model_to_dict
+from django.contrib.sites.shortcuts import get_current_site
+
 from notifications.utils import id2slug
 from notifications.settings import get_config
+
 
 def get_num_to_fetch(request):
     default_num_to_fetch = get_config()['NUM_TO_FETCH']
@@ -14,10 +17,15 @@ def get_num_to_fetch(request):
         num_to_fetch = default_num_to_fetch
     return num_to_fetch
 
+
 def get_notification_list(request, method_name='all'):
     num_to_fetch = get_num_to_fetch(request)
+    current_site = get_current_site(request)
+
     notification_list = []
-    for notification in getattr(request.user.notifications, method_name)()[0:num_to_fetch]:
+    for notification in getattr(request.user.notifications, method_name)().filter(site=current_site)[
+        0:num_to_fetch
+    ]:
         struct = model_to_dict(notification)
         struct['slug'] = id2slug(notification.id)
         if notification.actor:
