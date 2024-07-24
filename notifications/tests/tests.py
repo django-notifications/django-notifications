@@ -22,6 +22,7 @@ from notifications.base.models import notify_handler
 from notifications.signals import notify
 from notifications.utils import id2slug
 from swapper import load_model
+from notifications.tests.test_models.models import Customer, TargetObject
 
 Notification = load_model('notifications', 'Notification')
 
@@ -456,6 +457,28 @@ class NotificationTestPages(TestCase):
         self.assertEqual(data['unread_count'],
                          self.message_count - 2*num_requested)
         self.assertEqual(len(data['unread_list']), num_requested)
+
+    def test_unread_all_objects(self):
+        """
+        Test notification with all objects (actor, target, action_object)
+        Test that object URLs are in the output.
+        """
+        self.login('to', 'pwd')
+        Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
+        to_customer = Customer.objects.create(name='to_customer')
+        action_customer = Customer.objects.create(name='action_customer')
+        from_customer = Customer.objects.create(name='from_customer')
+        target_object = TargetObject.objects.create(name='target_object')
+        notify.send(from_customer, recipient=self.to_user, verb='commented', action_object=action_customer,
+                    target=target_object)
+        response = self.client.get(reverse('notifications:live_unread_notification_list'))
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(data['unread_count'], 1)
+        notification = data['unread_list'][0]
+        self.assertEqual(notification['actor'], 'from_customer')
+        self.assertEqual(notification['action_object_url'], f'foo/{action_customer.id}/')
+        self.assertEqual(notification['target_url'], f'bar/{target_object.id}/')
+        self.assertEqual(notification['actor_url'], f'foo/{from_customer.id}/')
 
     def test_live_update_tags(self):
         from django.shortcuts import render
