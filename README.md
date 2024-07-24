@@ -311,6 +311,11 @@ There are two possible API calls that can be made:
     3 notifications and mark them read (remove from list on next
     request).
 
+    The list outputs `target_url`, `actor_url`, `action_object_url`.
+    This URL is generated from standard Django `Model.get_absolute_url()` or
+    you can override the URL just for notifications by implementing
+    `Model.get_url_for_notifications(notification, request)`.
+
 ### How to use:
 
 1.  Put `{% load notifications_tags %}` in the template before you
