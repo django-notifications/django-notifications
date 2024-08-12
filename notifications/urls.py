@@ -1,12 +1,13 @@
 ''' Django notification urls file '''
 # -*- coding: utf-8 -*-
-from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
+# from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
+from packaging.version import Version
 
 from django import get_version
 
 from . import views
 
-if StrictVersion(get_version()) >= StrictVersion('2.0'):
+if Version(get_version()) >= Version('2.0'):
     from django.urls import re_path as pattern
 else:
     from django.conf.urls import url as pattern
