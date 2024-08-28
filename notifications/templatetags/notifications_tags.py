@@ -1,18 +1,12 @@
 ''' Django notifications template tags file '''
 # -*- coding: utf-8 -*-
-from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
 
-from django import get_version
 from django.template import Library
 from django.utils.html import format_html
 from django.core.cache import cache
 from notifications import settings
-from notifications.settings import get_config
+from django.urls import reverse
 
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse  # pylint: disable=no-name-in-module,import-error
 
 register = Library()
 
@@ -25,6 +19,7 @@ def get_cached_notification_unread_count(user):
         settings.get_config()['CACHE_TIMEOUT']
     )
 
+
 def notifications_unread(context):
     user = user_context(context)
     if not user:
@@ -32,10 +27,7 @@ def notifications_unread(context):
     return get_cached_notification_unread_count(user)
 
 
-if StrictVersion(get_version()) >= StrictVersion('2.0'):
-    notifications_unread = register.simple_tag(takes_context=True)(notifications_unread)  # pylint: disable=invalid-name
-else:
-    notifications_unread = register.assignment_tag(takes_context=True)(notifications_unread)  # noqa
+notifications_unread = register.simple_tag(takes_context=True)(notifications_unread)  # pylint: disable=invalid-name
 
 
 @register.filter
