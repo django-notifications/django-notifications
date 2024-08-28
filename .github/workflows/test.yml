@@ -18,6 +18,8 @@ jobs:
 
         exclude:
           - python-version: '3.7'
+            django-version: 40
+          - python-version: '3.7'
             django-version: 41
 
     steps:
