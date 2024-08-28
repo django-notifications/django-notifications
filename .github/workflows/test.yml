@@ -31,6 +31,4 @@ jobs:
       - name: Test with tox
         env:
           TOXENV: django${{ matrix.django-version }}
-        run: |
-          python -m django –version
-          tox -v
+        run: tox -v
