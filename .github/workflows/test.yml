@@ -14,13 +14,22 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        django-version: ["32", "40", "41", "42"]
+
+        exclude:
+          - python-version: '3.7'
+            django-version: 40
+          - python-version: '3.7'
+            django-version: 41
+          - python-version: '3.7'
+            django-version: 42
 
     steps:
       - name: apt update
         run: sudo apt update
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }} & Django ${{ matrix.django-version }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -28,4 +37,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install tox tox-gh-actions
       - name: Test with tox
-        run: tox -v
+        env:
+          TOXENV: django${{ matrix.django-version }}
+        run: tox
