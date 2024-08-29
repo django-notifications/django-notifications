@@ -21,6 +21,8 @@ jobs:
             django-version: 40
           - python-version: '3.7'
             django-version: 41
+          - python-version: '3.7'
+            django-version: 42
 
     steps:
       - name: apt update
