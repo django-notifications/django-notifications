@@ -20,6 +20,7 @@ from notifications import settings as notifications_settings
 from notifications.signals import notify
 from notifications.utils import id2slug
 from swapper import load_model
+from django.db.models import Index
 
 if StrictVersion(get_version()) >= StrictVersion('1.8.0'):
     from django.contrib.contenttypes.fields import GenericForeignKey  # noqa
