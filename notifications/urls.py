@@ -3,6 +3,8 @@
 from distutils.version import StrictVersion  # pylint: disable=no-name-in-module,import-error
 
 from django import get_version
+from django.urls import include
+from rest_framework import routers
 
 from . import views
 
@@ -11,8 +13,11 @@ if StrictVersion(get_version()) >= StrictVersion('2.0'):
 else:
     from django.conf.urls import url as pattern
 
+router = routers.DefaultRouter()
+router.register(r'notifications', views.NotificationsViewSet, basename='notifications')
 
 urlpatterns = [
+    pattern(r'^api/', include(router.urls), name='api'),
     pattern(r'^$', views.AllNotificationsList.as_view(), name='all'),
     pattern(r'^unread/$', views.UnreadNotificationsList.as_view(), name='unread'),
     pattern(r'^mark-all-as-read/$', views.mark_all_as_read, name='mark_all_as_read'),

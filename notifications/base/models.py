@@ -325,6 +325,7 @@ def notify_handler(verb, **kwargs):
     Notification = load_model('notifications', 'Notification')
     level = kwargs.pop('level', Notification.LEVELS.info)
     actor_for_concrete_model = kwargs.pop('actor_for_concrete_model', True)
+    data = kwargs.pop('data', None)
 
     # Check if User or Group
     if isinstance(recipient, Group):
@@ -346,6 +347,7 @@ def notify_handler(verb, **kwargs):
             description=description,
             timestamp=timestamp,
             level=level,
+            data=data,
         )
 
         # Set optional objects

@@ -14,6 +14,13 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import ListView
 from swapper import load_model
 
+
+from rest_framework import permissions, status, pagination
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from notifications.serializers import NotificationSerializer
+from notifications.viewsets import NotificationsBaseViewSet
+
 from notifications import settings as notification_settings
 from notifications.helpers import get_notification_list
 from notifications.utils import slug2id
@@ -212,3 +219,95 @@ def live_all_notification_count(request):
             'all_count': request.user.notifications.count(),
         }
     return JsonResponse(data)
+
+
+class NotificationsViewSet(NotificationsBaseViewSet):
+
+    """
+    This viewset that provides the following actions `retrieve()`, `update()`, `destroy()` and `list()`.
+    `retrieve()`: is used to retrieve the object related to the user and mark it as read
+    `update()`: is used to update the object related to the user by mark it as unread
+    `destroy()`: is used to deleting object related to the user depending on the settings if settings.get_config()['SOFT_DELETE']
+    `list()`: is used to retrieve all the objects related to the user
+    `access_all()`: is used to retrieve all the objects related to the user and mark them as read with a post request
+    `access_all()`: is used to retrieve all the objects related to the user and mark them as unread with a put request
+    `access_all()`: is used to retrieve all the objects related to the user and delete them,\n
+    depending on the settings if settings.get_config()['SOFT_DELETE'] with a delete request
+    `unread_notification_list()`: is used to retrieve all the objects related to the user that are not read
+    `unread_count()`: is used to retrieve the number objects that are not read and related to the user
+    `notifications_count()`: is used to retrieve the number objects that are  related to the user
+    """
+
+    serializer_class = NotificationSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    pagination_class = (pagination.PageNumberPagination)
+    lookup_field = 'id'
+
+    
+    def perform_destroy(self,instance):
+        if settings.get_config()['SOFT_DELETE']:
+            instance.deleted = True
+            instance.save()
+        else:
+            instance.delete()
+
+    @action(["get"], detail=False)
+    def unread_count(self, request, *args, **kwargs):
+        data = {
+            'unread_count': request.user.notifications.unread().count(),
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    @action(["get"], detail=False)
+    def notifications_count(self, request, *args, **kwargs):
+        data = {
+            'count': request.user.notifications.active().count(),
+        }
+        return Response(data, status=status.HTTP_200_OK)
+    
+    @action(["get"], detail=False)
+    def unread_notification_list(self, request, *args, **kwargs):
+        queryset = request.user.notifications.unread().filter(deleted=False).order_by("-timestamp")
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(["post", "put", "delete"], detail=False)
+    def access_all(self, request, *args, **kwargs):
+        if request.method == "POST":
+            request.user.notifications.active().mark_all_as_read()
+            return Response(status=status.HTTP_200_OK)
+        elif request.method == "PUT":
+            request.user.notifications.active().mark_all_as_unread()
+            return Response(status=status.HTTP_200_OK)
+        elif request.method == "DELETE":
+            request.user.notifications.active().mark_all_as_deleted()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
+
+        
+    def retrieve(self, request, *args, **kwargs):
+        notification = self.get_object()
+        notification.mark_as_read()
+        serilaizer = self.serializer_class(notification)
+        return Response(serilaizer.data, status=status.HTTP_200_OK)
+
+    def update(self, request, *args, **kwargs):
+        notification = self.get_object()
+        notification.mark_as_unread()
+        serilaizer = self.serializer_class(notification)
+        return Response(serilaizer.data, status=status.HTTP_200_OK)
+    
+    def destroy(self, request, *args, **kwargs):
+        notification = self.get_object()
+        self.perform_destroy(notification)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+    def get_queryset(self):
+        return self.request.user.notifications.active().order_by("-timestamp")
