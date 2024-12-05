@@ -12,8 +12,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterIndexTogether(
-            name='notification',
-            index_together={('recipient', 'unread')},
-        ),
+        
     ]
