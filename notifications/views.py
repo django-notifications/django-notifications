@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 ''' Django Notifications example views '''
-from distutils.version import \
-    StrictVersion  # pylint: disable=no-name-in-module,import-error
-
+from packaging.version import Version
 from django import get_version
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -20,7 +18,7 @@ from notifications.utils import slug2id
 
 Notification = load_model('notifications', 'Notification')
 
-if StrictVersion(get_version()) >= StrictVersion('1.7.0'):
+if Version(get_version()) >= Version('1.7.0'):
     from django.http import JsonResponse  # noqa
 else:
     # Django 1.6 doesn't have a proper JsonResponse

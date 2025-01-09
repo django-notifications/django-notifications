@@ -4,10 +4,7 @@
 import ast
 import re
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup  # pylint: disable=no-name-in-module,import-error
+from setuptools import setup
 
 
 _version_re = re.compile(r'__version__\s+=\s+(.*)')  # pylint: disable=invalid-name
