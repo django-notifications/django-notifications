@@ -1,0 +1,128 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-06 05:12-0600\n"
+"PO-Revision-Date: 2025-02-06 14:27+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: notifications/admin.py:16
+msgid "Mark selected notifications as unread"
+msgstr "Seçili bildirimleri okunmadı olarak işaretle"
+
+#: notifications/apps.py:9 notifications/base/models.py:259
+msgid "Notifications"
+msgstr "Bildirimler"
+
+#: notifications/base/models.py:185
+msgid "level"
+msgstr "seviye"
+
+#: notifications/base/models.py:192
+msgid "recipient"
+msgstr "alıcı"
+
+#: notifications/base/models.py:196
+msgid "unread"
+msgstr "okunmamış"
+
+#: notifications/base/models.py:203
+msgid "actor content type"
+msgstr "aktör içerik tipi"
+
+#: notifications/base/models.py:205
+msgid "actor object id"
+msgstr "aktör nesne kimliği"
+
+#: notifications/base/models.py:207
+msgid "actor"
+msgstr "aktör"
+
+#: notifications/base/models.py:209
+msgid "verb"
+msgstr "fiil"
+
+#: notifications/base/models.py:210
+msgid "description"
+msgstr "açıklama"
+
+#: notifications/base/models.py:216
+msgid "target content type"
+msgstr "hedef içerik tipi"
+
+#: notifications/base/models.py:221
+msgid "target object id"
+msgstr "hedef nesne kimliği"
+
+#: notifications/base/models.py:224
+msgid "target"
+msgstr "hedef"
+
+#: notifications/base/models.py:230
+msgid "action object content type"
+msgstr "eylem nesnesi içerik tipi"
+
+#: notifications/base/models.py:235
+msgid "action object object id"
+msgstr "eylem nesnesi obje kimliği"
+
+#: notifications/base/models.py:240
+msgid "action object"
+msgstr "eylem nesnesi"
+
+#: notifications/base/models.py:243
+msgid "timestamp"
+msgstr "zaman damgası"
+
+#: notifications/base/models.py:246
+msgid "public"
+msgstr "açık"
+
+#: notifications/base/models.py:247
+msgid "deleted"
+msgstr "silindi"
+
+#: notifications/base/models.py:248
+msgid "emailed"
+msgstr "epostalandı"
+
+#: notifications/base/models.py:250
+msgid "data"
+msgstr "veri"
+
+#: notifications/base/models.py:258
+msgid "Notification"
+msgstr "Bildirim"
+
+#: notifications/base/models.py:273
+#, python-format
+msgid "%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago"
+msgstr "%(actor)s %(verb)s %(action_object)s %(target)s üzerinde %(timesince)s önce"
+
+#: notifications/base/models.py:277
+#, python-format
+msgid "%(actor)s %(verb)s %(target)s %(timesince)s ago"
+msgstr "%(actor)s %(verb)s %(target)s %(timesince)s önce"
+
+#: notifications/base/models.py:280
+#, python-format
+msgid "%(actor)s %(verb)s %(action_object)s %(timesince)s ago"
+msgstr "%(actor)s %(verb)s %(action_object)s %(timesince)s önce"
+
+#: notifications/base/models.py:283
+#, python-format
+msgid "%(actor)s %(verb)s %(timesince)s ago"
+msgstr "%(actor)s %(verb)s %(timesince)s önce"
