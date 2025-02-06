@@ -6,28 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notifications', '0005_auto_20160504_1520'),
+        ("notifications", "0005_auto_20160504_1520"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='notification',
-            name='deleted',
+            model_name="notification",
+            name="deleted",
             field=models.BooleanField(db_index=True, default=False),
         ),
         migrations.AlterField(
-            model_name='notification',
-            name='emailed',
+            model_name="notification",
+            name="emailed",
             field=models.BooleanField(db_index=True, default=False),
         ),
         migrations.AlterField(
-            model_name='notification',
-            name='public',
+            model_name="notification",
+            name="public",
             field=models.BooleanField(db_index=True, default=True),
         ),
         migrations.AlterField(
-            model_name='notification',
-            name='unread',
+            model_name="notification",
+            name="unread",
             field=models.BooleanField(db_index=True, default=True),
         ),
     ]

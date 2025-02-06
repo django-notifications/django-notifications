@@ -7,13 +7,15 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notifications', '0006_indexes'),
+        ("notifications", "0006_indexes"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='notification',
-            name='timestamp',
-            field=models.DateTimeField(db_index=True, default=django.utils.timezone.now),
+            model_name="notification",
+            name="timestamp",
+            field=models.DateTimeField(
+                db_index=True, default=django.utils.timezone.now
+            ),
         ),
     ]
