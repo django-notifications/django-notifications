@@ -17,7 +17,7 @@ from django.template import Context, Template
 from django.test import Client, RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
-from django.utils.timezone import localtime, utc
+from django.utils.timezone import localtime
 from notifications.base.models import notify_handler
 from notifications.signals import notify
 from notifications.utils import id2slug
