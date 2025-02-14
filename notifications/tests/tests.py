@@ -569,3 +569,22 @@ class TagTest(TestCase):
         context = {"user":self.to_user}
         output = u"True"
         self.tag_test(template, context, output)
+
+
+class AdminTest(TestCase):
+    app_name = "notifications"
+
+    def setUp(self):
+        self.message_count = 10
+        self.from_user = User.objects.create_user(username="from", password="pwd", email="example@example.com")
+        self.to_user = User.objects.create_user(username="to", password="pwd", email="example@example.com")
+        self.to_user.is_staff = True
+        self.to_user.is_superuser = True
+        self.to_user.save()
+        for _ in range(self.message_count):
+            notify.send(
+                self.from_user,
+                recipient=self.to_user,
+                verb='commented',
+                action_object=self.from_user,
+            )
