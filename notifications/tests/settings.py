@@ -80,3 +80,5 @@ if os.environ.get('SAMPLE_APP', False):
     TEMPLATES[0]['DIRS'] += [os.path.join(BASE_DIR, '../templates')]
 
 ALLOWED_HOSTS = []
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

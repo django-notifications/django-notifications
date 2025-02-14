@@ -1,8 +1,4 @@
-# Based on
-# https://pypi.org/project/tox-gh-actions/
-
----
-name: Test the application using Tox.
+name: Test
 
 on:
   - push
@@ -16,10 +12,8 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - name: apt update
-        run: sudo apt update
-
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
