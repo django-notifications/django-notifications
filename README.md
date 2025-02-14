@@ -57,9 +57,6 @@ $ python setup.py sdist
 $ pip install dist/django-notifications-hq*
 ```
 
-Note that [django-model-utils](http://pypi.python.org/pypi/django-model-utils)
-will be installed: this is required for the pass-through QuerySet manager.
-
 Then to add the Django Notifications to your project add the app
 `notifications` to your `INSTALLED_APPS` and urlconf.
 
