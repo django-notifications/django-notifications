@@ -13,7 +13,6 @@ env:
 install:
 # command to install dependencies
   - "pip install coveralls"
-  - "pip install pytz" # Needed for tests
   - pip install -q Django==$DJANGO
   - "pip install ."
 # command to run tests
