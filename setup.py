@@ -27,7 +27,7 @@ setup(
     author_email='yang@yangyubo.com',
     url='http://github.com/django-notifications/django-notifications',
     install_requires=[
-        'django>=3.2',
+        'django>=4.0',
         'jsonfield>=2.1.0',
         'swapper'
     ],
@@ -50,7 +50,6 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Framework :: Django',
-        'Framework :: Django :: 3.2',
         'Framework :: Django :: 4.0',
         'Framework :: Django :: 4.1',
         'Framework :: Django :: 5.0',

@@ -39,7 +39,7 @@ Spec: <http://activitystrea.ms/specs/atom/1.0/>
 ## Requirements
 
 -   Python 3.9, 3.10, 3.11, 3.12
--   Django 3.2, 4.0, 4.1, 5.0, 5.1
+-   Django 4.0, 4.1, 5.0, 5.1
 
 ## Installation
 
