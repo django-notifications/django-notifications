@@ -80,3 +80,6 @@ if os.environ.get('SAMPLE_APP', False):
     TEMPLATES[0]['DIRS'] += [os.path.join(BASE_DIR, '../templates')]
 
 ALLOWED_HOSTS = []
+# Since "notifications.tests.test_models" does not have an app config,
+# we need to set the default_auto_field here
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
