@@ -23,7 +23,6 @@ class NotificationAdmin(AbstractNotificationAdmin):
 
     def get_queryset(self, request):
         qs = super(NotificationAdmin, self).get_queryset(request)
-        return qs.prefetch_related('actor')
-
+        return qs.prefetch_related('actor', 'action_object', 'target')
 
 admin.site.register(Notification, NotificationAdmin)

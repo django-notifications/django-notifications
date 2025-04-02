@@ -6,8 +6,8 @@ Replace this with more appropriate tests for your application.
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines,missing-docstring
 import json
-
-import pytz
+from datetime import timezone as dt_timezone
+from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.contrib.auth.models import Group, User
@@ -17,7 +17,7 @@ from django.template import Context, Template
 from django.test import Client, RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
-from django.utils.timezone import localtime, utc
+from django.utils.timezone import localtime
 from notifications.base.models import notify_handler
 from notifications.signals import notify
 from notifications.utils import id2slug
@@ -58,7 +58,7 @@ class NotificationTest(TestCase):
         notify.send(from_user, recipient=to_user, verb='commented', action_object=from_user)
         notification = Notification.objects.get(recipient=to_user)
         delta = (
-            timezone.now().replace(tzinfo=utc) - localtime(notification.timestamp, pytz.timezone(settings.TIME_ZONE))
+            timezone.now().replace(tzinfo=dt_timezone.utc) - localtime(notification.timestamp, ZoneInfo(settings.TIME_ZONE))
         )
         self.assertTrue(delta.seconds < 60)
         # The delta between the two events will still be less than a second despite the different timezones
@@ -591,8 +591,8 @@ class AdminTest(TestCase):
     def test_list(self):
         self.client.login(username='to', password='pwd')
 
-        with CaptureQueriesContext(connection=connection) as context:
-            response = self.client.get(reverse('admin:{0}_notification_changelist'.format(self.app_name)))
-            self.assertLessEqual(len(context), 6)
-
-        self.assertEqual(response.status_code, 200, response.content)
+        with self.assertNumQueries(7):
+            response = self.client.get(
+                reverse('admin:{0}_notification_changelist'.format(self.app_name))
+            )
+            self.assertEqual(response.status_code, 200, response.content)
