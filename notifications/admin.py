@@ -10,15 +10,21 @@ Notification = load_model('notifications', 'Notification')
 
 def mark_unread(modeladmin, request, queryset):
     queryset.update(unread=True)
+
+
 mark_unread.short_description = gettext_lazy('Mark selected notifications as unread')
 
 
 class NotificationAdmin(AbstractNotificationAdmin):
     raw_id_fields = ('recipient',)
-    readonly_fields = ('action_object_url', 'actor_object_url', 'target_object_url')
-    list_display = ('recipient', 'actor',
-                    'level', 'target', 'unread', 'public')
-    list_filter = ('level', 'unread', 'public', 'timestamp',)
+    readonly_fields = (
+        'action_object_url',
+        'actor_object_url',
+        'target_object_url',
+        'site',
+    )
+    list_display = ('recipient', 'actor', 'level', 'target', 'unread', 'public', 'site')
+    list_filter = ('level', 'unread', 'public', 'timestamp', 'site')
     actions = [mark_unread]
 
     def get_queryset(self, request):
