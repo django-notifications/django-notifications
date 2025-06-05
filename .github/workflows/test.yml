@@ -10,10 +10,14 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Using ubuntu-22.04 instead of ubuntu-latest because ubuntu-latest (24.04)
+    # does not support Python 3.7. We'll upgrade to ubuntu-latest when we
+    # drop support for Python 3.7 in the future.
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+      fail-fast: false
 
     steps:
       - name: apt update

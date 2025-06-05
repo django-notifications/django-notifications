@@ -1,2 +1,3 @@
 include MANIFEST.in README.md AUTHORS.txt LICENSE.txt CHANGELOG.md
 recursive-include notifications *.py *.html *.txt *.po
+recursive-include notifications/static *
