@@ -2,7 +2,6 @@
 
 import django.db.models.deletion
 import django.utils.timezone
-import jsonfield.fields
 from django.conf import settings
 from django.db import migrations, models
 
@@ -64,7 +63,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="notification",
             name="data",
-            field=jsonfield.fields.JSONField(
+            field=models.JSONField(
                 blank=True, null=True, verbose_name="data"
             ),
         ),
