@@ -1,16 +1,9 @@
 ''' Django notification urls file '''
 # -*- coding: utf-8 -*-
-from django import get_version
-from packaging.version import (
-    parse as parse_version,  # pylint: disable=no-name-in-module,import-error
-)
+
+from django.urls import re_path as pattern
 
 from . import views
-
-if parse_version(get_version()) >= parse_version('2.0'):
-    from django.urls import re_path as pattern
-else:
-    from django.conf.urls import url as pattern
 
 
 urlpatterns = [

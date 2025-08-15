@@ -12,10 +12,9 @@ from zoneinfo import ZoneInfo
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ImproperlyConfigured
-from django.db import connection
 from django.template import Context, Template
-from django.test import Client, RequestFactory, TestCase
-from django.test.utils import CaptureQueriesContext
+from django.test import override_settings, RequestFactory, TestCase
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.timezone import localtime
 from notifications.base.models import notify_handler
@@ -26,19 +25,6 @@ from notifications.tests.test_models.models import Customer, TargetObject
 
 Notification = load_model('notifications', 'Notification')
 
-try:
-    # Django >= 1.7
-    from django.test import override_settings  # noqa
-except ImportError:
-    # Django <= 1.6
-    from django.test.utils import override_settings  # noqa
-
-try:
-    # Django >= 1.7
-    from django.urls import reverse
-except ImportError:
-    # Django <= 1.6
-    from django.core.urlresolvers import reverse  # pylint: disable=no-name-in-module,import-error
 
 MALICIOUS_NEXT_URLS = [
     "http://bla.com",
