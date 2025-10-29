@@ -29,14 +29,15 @@ setup(
     install_requires=[
         'django>=4.2,<5.3',
         'django-model-utils>=3.1.0',
-        'jsonfield>=2.1.0',
+        'pytz',
+        'swapper'
         'swapper',
         "packaging"
     ],
     test_requires=[
         'django>=3.2',
         'django-model-utils>=3.1.0',
-        'jsonfield>=2.1.0',
+        'pytz'
     ],
     packages=[
         'notifications',
