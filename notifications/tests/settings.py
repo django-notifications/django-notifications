@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sessions',
+    'notifications.tests.test_models',
     'notifications.tests',
     'notifications',
 ]
@@ -77,3 +78,8 @@ if os.environ.get('SAMPLE_APP', False):
     INSTALLED_APPS.append('notifications.tests.sample_notifications')
     NOTIFICATIONS_NOTIFICATION_MODEL = 'sample_notifications.Notification'
     TEMPLATES[0]['DIRS'] += [os.path.join(BASE_DIR, '../templates')]
+
+ALLOWED_HOSTS = []
+# Since "notifications.tests.test_models" does not have an app config,
+# we need to set the default_auto_field here
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

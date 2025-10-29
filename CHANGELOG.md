@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.9.0
+
+  - Added support for Django 5.0, 5.1, and 5.2
+  - Added support for Python 3.12 and 3.13
+  - Dropped support for Django < 4.2
+  - Dropped support for Python < 3.9
+  - Fixed distutils deprecation
+
+## 1.8.3
+
+  - Fixes missing static folder/files
+
+## 1.8.2
+
+  - Added the migration for verbose_name changes
+
+## 1.8.0
+
+  - Added support for Django 4.1
+  - Dropped support for Django < 3.2 and Python < 3.7
+  - Added indexes for GenericForeignKey fields in AbstractNotificationModel (see https://docs.djangoproject.com/en/4.1/ref/contrib/contenttypes/#generic-relations)
+  - new setting 'CACHE_TIMEOUT' to cache certain result such as "notifications.unread().count".
+  (a timeout value of 0 won’t cache anything).
+  - #263 Fix vunerability in views
+  - #233 Adds methods to convert to human readable type
+  - Translate project all strings
+
 ## 1.7.0
 
   - Added support for Django 3.2 and Django 4.0
@@ -17,7 +44,7 @@
 Now all configs for the app are made inside the dictionary
 *DJANGO\_NOTIFICATION\_CONFIG* in *settings.py*.
 
-Default configs: `` `Python DJANGO_NOTIFICATION_CONFIG = {
+Default configs: `` `Python DJANGO_NOTIFICATIONS_CONFIG = {
 'PAGINATE_BY': 20, 'USE_JSONFIELD': False, 'SOFT_DELETE': False,
 'NUM_TO_FETCH': 10, } ``\`
 

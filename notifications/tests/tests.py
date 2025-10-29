@@ -6,22 +6,23 @@ Replace this with more appropriate tests for your application.
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines,missing-docstring
 import json
-
-import pytz
+from datetime import timezone as dt_timezone
+from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ImproperlyConfigured
 from django.db import connection
 from django.template import Context, Template
-from django.test import RequestFactory, TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
-from django.utils.timezone import localtime, utc
+from django.utils.timezone import localtime
 from notifications.base.models import notify_handler
 from notifications.signals import notify
 from notifications.utils import id2slug
 from swapper import load_model
+from notifications.tests.test_models.models import Customer, TargetObject
 
 Notification = load_model('notifications', 'Notification')
 
@@ -39,7 +40,13 @@ except ImportError:
     # Django <= 1.6
     from django.core.urlresolvers import reverse  # pylint: disable=no-name-in-module,import-error
 
-
+MALICIOUS_NEXT_URLS = [
+    "http://bla.com",
+    "http://www.bla.com",
+    "https://bla.com",
+    "https://www.bla.com",
+    "ftp://www.bla.com/file.exe",
+]
 
 class NotificationTest(TestCase):
     ''' Django notifications automated tests '''
@@ -51,7 +58,7 @@ class NotificationTest(TestCase):
         notify.send(from_user, recipient=to_user, verb='commented', action_object=from_user)
         notification = Notification.objects.get(recipient=to_user)
         delta = (
-            timezone.now().replace(tzinfo=utc) - localtime(notification.timestamp, pytz.timezone(settings.TIME_ZONE))
+            timezone.now().replace(tzinfo=dt_timezone.utc) - localtime(notification.timestamp, ZoneInfo(settings.TIME_ZONE))
         )
         self.assertTrue(delta.seconds < 60)
         # The delta between the two events will still be less than a second despite the different timezones
@@ -68,6 +75,19 @@ class NotificationTest(TestCase):
         delta = timezone.now() - notification.timestamp
         self.assertTrue(delta.seconds < 60)
 
+    def test_humanize_naturalday_timestamp(self):
+        from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
+        to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
+        notify.send(from_user, recipient=to_user, verb='commented', action_object=from_user)
+        notification = Notification.objects.get(recipient=to_user)
+        self.assertEqual(notification.naturalday(), 'today')
+
+    def test_humanize_naturaltime_timestamp(self):
+        from_user = User.objects.create(username="from2", password="pwd", email="example@example.com")
+        to_user = User.objects.create(username="to2", password="pwd", email="example@example.com")
+        notify.send(from_user, recipient=to_user, verb='commented', action_object=from_user)
+        notification = Notification.objects.get(recipient=to_user)
+        self.assertEqual(notification.naturaltime(), 'now')
 
 class NotificationManagersTest(TestCase):
     ''' Django notifications Manager automated tests '''
@@ -250,6 +270,17 @@ class NotificationTestPages(TestCase):
         })
         self.assertRedirects(response, reverse('notifications:unread') + query_parameters)
 
+    @override_settings(ALLOWED_HOSTS=["www.notifications.com"])
+    def test_malicious_next_pages(self):
+        self.client.force_login(self.to_user)
+        query_parameters = '?var1=hello&var2=world'
+
+        for next_url in MALICIOUS_NEXT_URLS:
+            response = self.client.get(reverse('notifications:mark_all_as_read'),data={
+                "next": next_url  + query_parameters,
+            })
+            self.assertRedirects(response, reverse('notifications:unread'))
+
     def test_delete_messages_pages(self):
         self.login('to', 'pwd')
 
@@ -427,6 +458,28 @@ class NotificationTestPages(TestCase):
                          self.message_count - 2*num_requested)
         self.assertEqual(len(data['unread_list']), num_requested)
 
+    def test_unread_all_objects(self):
+        """
+        Test notification with all objects (actor, target, action_object)
+        Test that object URLs are in the output.
+        """
+        self.login('to', 'pwd')
+        Notification.objects.filter(recipient=self.to_user).mark_all_as_read()
+        to_customer = Customer.objects.create(name='to_customer')
+        action_customer = Customer.objects.create(name='action_customer')
+        from_customer = Customer.objects.create(name='from_customer')
+        target_object = TargetObject.objects.create(name='target_object')
+        notify.send(from_customer, recipient=self.to_user, verb='commented', action_object=action_customer,
+                    target=target_object)
+        response = self.client.get(reverse('notifications:live_unread_notification_list'))
+        data = json.loads(response.content.decode('utf-8'))
+        self.assertEqual(data['unread_count'], 1)
+        notification = data['unread_list'][0]
+        self.assertEqual(notification['actor'], 'from_customer')
+        self.assertEqual(notification['action_object_url'], f'foo/{action_customer.id}/')
+        self.assertEqual(notification['target_url'], f'bar/{target_object.id}/')
+        self.assertEqual(notification['actor_url'], f'foo/{from_customer.id}/')
+
     def test_live_update_tags(self):
         from django.shortcuts import render
 
@@ -436,7 +489,7 @@ class NotificationTestPages(TestCase):
         request = factory.get('/notification/live_updater')
         request.user = self.to_user
 
-        render(request, 'notifications/test_tags.html', {'request': request})
+        render(request, 'notifications/test_tags.html', {'request': request, 'nonce': 'nonce-T5esDNXMnDe5lKMQ6ZzTUw=='})
 
         # TODO: Add more tests to check what is being output.
 
@@ -538,8 +591,8 @@ class AdminTest(TestCase):
     def test_list(self):
         self.client.login(username='to', password='pwd')
 
-        with CaptureQueriesContext(connection=connection) as context:
-            response = self.client.get(reverse('admin:{0}_notification_changelist'.format(self.app_name)))
-            self.assertLessEqual(len(context), 6)
-
-        self.assertEqual(response.status_code, 200, response.content)
+        with self.assertNumQueries(7):
+            response = self.client.get(
+                reverse('admin:{0}_notification_changelist'.format(self.app_name))
+            )
+            self.assertEqual(response.status_code, 200, response.content)

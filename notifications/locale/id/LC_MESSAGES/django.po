@@ -1,0 +1,127 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Kira <kiraware@github.com>, 2023.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-07-19 20:09+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kira <kiraware@github.com>\n"
+"Language-Team: \n"
+"Language: id\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: .\notifications\admin.py:13
+msgid "Mark selected notifications as unread"
+msgstr "Tandai notifikasi yang dipilih sebagai belum dibaca"
+
+#: .\notifications\apps.py:9 .\notifications\base\models.py:242
+msgid "Notifications"
+msgstr "Pemberitahuan"
+
+#: .\notifications\base\models.py:178
+msgid "level"
+msgstr "tingkat"
+
+#: .\notifications\base\models.py:184
+msgid "recipient"
+msgstr "penerima"
+
+#: .\notifications\base\models.py:187
+msgid "unread"
+msgstr "belum dibaca"
+
+#: .\notifications\base\models.py:193
+msgid "actor content type"
+msgstr "jenis konten aktor"
+
+#: .\notifications\base\models.py:195
+msgid "actor object id"
+msgstr "id objek aktor"
+
+#: .\notifications\base\models.py:197
+msgid "actor"
+msgstr "aktor"
+
+#: .\notifications\base\models.py:199
+msgid "verb"
+msgstr "kata kerja"
+
+#: .\notifications\base\models.py:200
+msgid "description"
+msgstr "deskripsi"
+
+#: .\notifications\base\models.py:206
+msgid "target content type"
+msgstr "jenis konten target"
+
+#: .\notifications\base\models.py:210
+msgid "target object id"
+msgstr "id objek target"
+
+#: .\notifications\base\models.py:212
+msgid "target"
+msgstr "target"
+
+#: .\notifications\base\models.py:218
+msgid "action object content type"
+msgstr "jenis konten objek tindakan"
+
+#: .\notifications\base\models.py:222
+msgid "action object object id"
+msgstr "id objek objek tindakan"
+
+#: .\notifications\base\models.py:224
+msgid "action object"
+msgstr "objek tindakan"
+
+#: .\notifications\base\models.py:226
+msgid "timestamp"
+msgstr "cap waktu"
+
+#: .\notifications\base\models.py:228
+msgid "public"
+msgstr "publik"
+
+#: .\notifications\base\models.py:229
+msgid "deleted"
+msgstr "dihapus"
+
+#: .\notifications\base\models.py:230
+msgid "emailed"
+msgstr "dikirim melalui email"
+
+#: .\notifications\base\models.py:232
+msgid "data"
+msgstr "data"
+
+#: .\notifications\base\models.py:241
+msgid "Notification"
+msgstr "Pemberitahuan"
+
+#: .\notifications\base\models.py:254
+#, python-format
+msgid "%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago"
+msgstr "%(actor)s %(verb)s %(action_object)s pada %(target)s %(timesince)s yang lalu"
+
+#: .\notifications\base\models.py:255
+#, python-format
+msgid "%(actor)s %(verb)s %(target)s %(timesince)s ago"
+msgstr "%(actor)s %(verb)s %(target)s %(timesince)s lalu"
+
+#: .\notifications\base\models.py:257
+#, python-format
+msgid "%(actor)s %(verb)s %(action_object)s %(timesince)s ago"
+msgstr "%(actor)s %(verb)s %(action_object)s %(timesince)s lalu"
+
+#: .\notifications\base\models.py:258
+#, python-format
+msgid "%(actor)s %(verb)s %(timesince)s ago"
+msgstr "%(actor)s %(verb)s %(timesince)s lalu"
