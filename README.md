@@ -3,6 +3,21 @@
 [![build-status](https://travis-ci.org/django-notifications/django-notifications.svg)](https://travis-ci.org/django-notifications/django-notifications)
 [![Coverage Status](https://coveralls.io/repos/github/django-notifications/django-notifications/badge.svg?branch=master)](https://coveralls.io/github/django-notifications/django-notifications?branch=master)
 
+> [!NOTE]
+> This project is not actively maintained at the moment. A community maintained,
+> drop in replacement is available on PyPI as
+> [`django-notifications-community`](https://pypi.org/project/django-notifications-community/)
+> ([source](https://github.com/django-notifications-community/django-notifications-community)).
+> The import path (`import notifications`) is unchanged:
+>
+> ```bash
+> pip uninstall django-notifications-hq
+> pip install django-notifications-community
+> ```
+>
+> See the fork's README for supported versions and upgrade notes, and
+> [issue #416](https://github.com/django-notifications/django-notifications/issues/416)
+> for background.
 
 [django-notifications](https://github.com/django-notifications/django-notifications) is a GitHub notification alike app for Django, it was derived from [django-activity-stream](https://github.com/justquick/django-activity-stream)
 
